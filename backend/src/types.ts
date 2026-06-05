@@ -27,6 +27,12 @@ export type GraphNode = {
   name: string;
   type: 'person' | 'company' | 'political_party' | 'government_body';
   group: string;
+  imageUrl?: string;
+  meta?: {
+    party?: string;
+    fylke?: string;
+    stortingetId?: string;
+  };
 };
 
 export type GraphLink = {

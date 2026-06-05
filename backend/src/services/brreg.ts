@@ -172,13 +172,15 @@ export async function getCompanyRoles(orgNumber: string): Promise<GraphData> {
     for (const gruppe of roller.rollegrupper) {
       for (const rolle of gruppe.roller) {
         if (!rolle.person || rolle.fratraadt) continue;
+        const personName = rolle.person.navn;
+        if (!personName || typeof personName !== 'string') continue;
 
-        const personId = `person-${rolle.person.navn.toLowerCase().replace(/\s+/g, '-')}`;
+        const personId = `person-${personName.toLowerCase().replace(/\s+/g, '-')}`;
 
         if (!seenNodes.has(personId)) {
           nodes.push({
             id: personId,
-            name: rolle.person.navn,
+            name: personName,
             type: 'person',
             group: 'person',
           });

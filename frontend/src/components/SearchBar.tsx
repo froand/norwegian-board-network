@@ -48,23 +48,23 @@ export default function SearchBar({ onSelect }: Props) {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Søk etter person eller selskap..."
-        className="w-full px-4 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        className="w-full px-3 py-1.5 bg-white border border-[var(--stortinget-border)] rounded text-sm text-[var(--stortinget-text)] placeholder-[var(--stortinget-muted)] focus:outline-none focus:border-[var(--stortinget-red)] focus:ring-1 focus:ring-[var(--stortinget-red)]"
       />
 
       {isOpen && results && (
-        <div className="absolute top-full mt-1 w-full bg-slate-800 border border-slate-600 rounded-lg shadow-xl max-h-80 overflow-y-auto z-50">
+        <div className="absolute top-full mt-1 w-full bg-white border border-[var(--stortinget-border)] rounded-lg shadow-xl max-h-80 overflow-y-auto z-50">
           {results.persons.length > 0 && (
             <div>
-              <div className="px-3 py-1 text-xs font-semibold text-slate-400 uppercase border-b border-slate-700">
+              <div className="px-3 py-1.5 text-xs font-semibold text-[var(--stortinget-muted)] uppercase border-b border-[var(--stortinget-border)]">
                 Personer
               </div>
               {results.persons.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => handleSelect(p.id, 'person')}
-                  className="w-full text-left px-3 py-2 hover:bg-slate-700 text-sm flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 hover:bg-gray-50 text-sm text-[var(--stortinget-text)] flex items-center gap-2"
                 >
-                  <span className="w-2 h-2 rounded-full bg-blue-400" />
+                  <span className="w-2 h-2 rounded-full bg-blue-500" />
                   {p.name}
                 </button>
               ))}
@@ -73,25 +73,25 @@ export default function SearchBar({ onSelect }: Props) {
 
           {results.companies.length > 0 && (
             <div>
-              <div className="px-3 py-1 text-xs font-semibold text-slate-400 uppercase border-b border-slate-700">
+              <div className="px-3 py-1.5 text-xs font-semibold text-[var(--stortinget-muted)] uppercase border-b border-[var(--stortinget-border)]">
                 Selskaper
               </div>
               {results.companies.map((c) => (
                 <button
                   key={c.id}
                   onClick={() => handleSelect(c.id, 'company', c.orgNumber)}
-                  className="w-full text-left px-3 py-2 hover:bg-slate-700 text-sm flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 hover:bg-gray-50 text-sm text-[var(--stortinget-text)] flex items-center gap-2"
                 >
-                  <span className="w-2 h-2 rounded-full bg-green-400" />
+                  <span className="w-2 h-2 rounded-full bg-green-500" />
                   {c.name}
-                  <span className="text-xs text-slate-500 ml-auto">{c.orgNumber}</span>
+                  <span className="text-xs text-[var(--stortinget-muted)] ml-auto">{c.orgNumber}</span>
                 </button>
               ))}
             </div>
           )}
 
           {results.persons.length === 0 && results.companies.length === 0 && (
-            <div className="px-3 py-4 text-center text-slate-400 text-sm">
+            <div className="px-3 py-4 text-center text-[var(--stortinget-muted)] text-sm">
               Ingen resultater funnet
             </div>
           )}

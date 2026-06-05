@@ -97,9 +97,10 @@ export default function App() {
       try {
         const data = await getCompanyGraph(orgNumber);
         if (data.nodes.length > 0) {
-          setGraphData((prev) => mergeGraphData(prev, data));
+          setGraphData(data); // Replace graph with company view
           const companyNode = data.nodes.find((n) => n.id === `org-${orgNumber}`);
           if (companyNode) setSelectedNode(companyNode);
+          loadedNodes.current.clear();
         }
       } catch (e) {
         console.error('Failed to load company:', e);
@@ -108,21 +109,26 @@ export default function App() {
       try {
         const data = await getPersonGraph(id);
         if (data.nodes.length > 0) {
-          setGraphData((prev) => mergeGraphData(prev, data));
+          setGraphData(data); // Replace graph with person's network
+          loadedNodes.current.clear();
         }
-        const personNode = data.nodes.find((n) => n.id === id) ||
-          graphData.nodes.find((n) => n.id === id);
+        const personNode = data.nodes.find((n) => n.id === id);
         if (personNode) {
           setSelectedNode(personNode);
           setShowTimeline(true);
         }
       } catch (e) {
         console.error('Failed to load person network:', e);
-        const node = graphData.nodes.find((n) => n.id === id);
-        if (node) setSelectedNode(node);
       }
     }
-  }, [graphData]);
+  }, []);
+
+  const handleResetToOverview = useCallback(() => {
+    setSelectedNode(null);
+    setShowTimeline(false);
+    loadedNodes.current.clear();
+    loadOverview();
+  }, []);
 
   const handleConflictPersonClick = useCallback((personId: string) => {
     const node = graphData.nodes.find((n) => n.id === personId);
@@ -133,77 +139,93 @@ export default function App() {
   }, [graphData]);
 
   return (
-    <div className="relative w-full h-full">
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-10 p-4 bg-gradient-to-b from-slate-900 to-transparent pointer-events-none">
-        <div className="pointer-events-auto max-w-2xl">
-          <h1 className="text-2xl font-bold text-white mb-1">
-            🇳🇴 Norsk Nettverk — Styre & Makt
-          </h1>
-          <p className="text-sm text-slate-400 mb-3">
-            Utforsk interessekonflikter mellom politikere, styreverv og statlige posisjoner
-          </p>
-          <div className="flex gap-2 items-start">
-            <div className="flex-1">
-              <SearchBar onSelect={handleSearchSelect} />
+    <div className="relative w-full h-full flex flex-col">
+      {/* Header bar — Stortinget-inspired */}
+      <div className="flex-shrink-0 bg-white border-b border-[var(--stortinget-border)] shadow-sm z-20">
+        {/* Top red accent line */}
+        <div className="h-1 bg-[var(--stortinget-red)]" />
+        <div className="px-6 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div>
+                <h1 className="text-xl text-[var(--stortinget-dark)] mb-0 leading-tight">
+                  Norsk Nettverk
+                </h1>
+                <p className="text-xs text-[var(--stortinget-muted)] mt-0.5">
+                  Styre, makt & interessekonflikter
+                </p>
+              </div>
+              <div className="w-px h-8 bg-[var(--stortinget-border)]" />
+              <div className="w-80">
+                <SearchBar onSelect={handleSearchSelect} />
+              </div>
+              <button
+                onClick={handleResetToOverview}
+                className="px-3 py-1.5 rounded text-xs font-semibold transition-colors border bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-red)] hover:text-[var(--stortinget-red)]"
+                title="Tilbake til Stortinget-oversikt"
+              >
+                🏛️ Oversikt
+              </button>
             </div>
-          </div>
-          {/* Toolbar */}
-          <div className="flex gap-2 mt-2">
-            <button
-              onClick={() => setShowConflicts(!showConflicts)}
-              className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
-                showConflicts
-                  ? 'bg-red-600 text-white'
-                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-              }`}
-            >
-              ⚠️ Konflikter
-            </button>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
-                showFilters
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-              }`}
-            >
-              🔍 Filtre
-            </button>
-            <button
-              onClick={() => {
-                if (selectedNode?.type === 'person') {
-                  setShowTimeline(!showTimeline);
-                }
-              }}
-              className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
-                showTimeline
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-              }`}
-              title={!selectedNode?.type || selectedNode.type !== 'person' ? 'Velg en person først' : ''}
-            >
-              📅 Tidslinje
-            </button>
+            {/* Toolbar */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowConflicts(!showConflicts)}
+                className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors border ${
+                  showConflicts
+                    ? 'bg-[var(--stortinget-red)] text-white border-[var(--stortinget-red)]'
+                    : 'bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-red)] hover:text-[var(--stortinget-red)]'
+                }`}
+              >
+                ⚠️ Konflikter
+              </button>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors border ${
+                  showFilters
+                    ? 'bg-[var(--stortinget-navy)] text-white border-[var(--stortinget-navy)]'
+                    : 'bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-navy)] hover:text-[var(--stortinget-navy)]'
+                }`}
+              >
+                🔍 Filtre
+              </button>
+              <button
+                onClick={() => {
+                  if (selectedNode?.type === 'person') {
+                    setShowTimeline(!showTimeline);
+                  }
+                }}
+                className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors border ${
+                  showTimeline
+                    ? 'bg-[var(--stortinget-navy)] text-white border-[var(--stortinget-navy)]'
+                    : 'bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-navy)] hover:text-[var(--stortinget-navy)]'
+                }`}
+                title={!selectedNode?.type || selectedNode.type !== 'person' ? 'Velg en person først' : ''}
+              >
+                📅 Tidslinje
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Legend */}
-      <Legend />
+      {/* Main content area */}
+      <div className="flex-1 relative overflow-hidden">
+        {/* Legend */}
+        <Legend />
 
-      {/* Graph */}
-      {loading ? (
-        <div className="flex items-center justify-center w-full h-full">
-          <div className="text-xl text-slate-400">Laster nettverk...</div>
-        </div>
-      ) : error ? (
-        <div className="flex items-center justify-center w-full h-full">
-          <div className="text-xl text-red-400 text-center p-8">{error}</div>
-        </div>
-      ) : (
-        <NetworkGraph data={filteredGraphData} onNodeClick={handleNodeClick} selectedNode={selectedNode} />
-      )}
+        {/* Graph */}
+        {loading ? (
+          <div className="flex items-center justify-center w-full h-full">
+            <div className="text-lg text-[var(--stortinget-muted)]">Laster nettverk...</div>
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center w-full h-full">
+            <div className="text-lg text-[var(--stortinget-red)] text-center p-8">{error}</div>
+          </div>
+        ) : (
+          <NetworkGraph data={filteredGraphData} onNodeClick={handleNodeClick} selectedNode={selectedNode} />
+        )}
 
       {/* Panels */}
       {showTimeline && selectedNode?.type === 'person' && (
@@ -229,8 +251,8 @@ export default function App() {
         />
       )}
 
-      {/* Node details panel */}
-      {selectedNode && !showTimeline && selectedNode.type !== 'company' && (
+      {/* Node details panel — show for persons and non-company orgs */}
+      {selectedNode && selectedNode.type !== 'company' && (
         <NodeDetails
           node={selectedNode}
           links={graphData.links.filter(
@@ -251,6 +273,7 @@ export default function App() {
           onClose={() => setSelectedNode(null)}
         />
       )}
+      </div>
     </div>
   );
 }

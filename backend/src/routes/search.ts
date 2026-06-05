@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { searchCompanies, searchPersonRoles } from '../services/brreg.js';
 import { searchPoliticalPersons } from '../services/political-data.js';
+import { searchStortingetPersons } from '../services/stortinget.js';
 
 export const searchRoutes = Router();
 

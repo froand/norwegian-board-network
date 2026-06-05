@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { getCompanyRoles, getPersonRolesNetwork } from '../services/brreg.js';
 import { getPoliticalData, getPersonPoliticalNetwork, getPersonTimeline, getAllTimelines, getConflictsForPerson, getAllConflicts } from '../services/political-data.js';
+import { getPartyRepresentatives } from '../services/stortinget.js';
 import type { GraphData } from '../types.js';
 
 export const graphRoutes = Router();
@@ -95,6 +96,17 @@ graphRoutes.get('/expand/:nodeId', async (req, res) => {
     const companyData = await getCompanyRoles(orgNumber);
     result.nodes.push(...companyData.nodes);
     result.links.push(...companyData.links);
+  }
+
+  // If it's a political party, fetch representatives from Stortinget
+  if (nodeId.startsWith('org-') && !(/^\d+$/.test(nodeId.replace('org-', '')))) {
+    try {
+      const partyData = await getPartyRepresentatives(nodeId);
+      result.nodes.push(...partyData.nodes);
+      result.links.push(...partyData.links);
+    } catch (e) {
+      // continue without stortinget data
+    }
   }
 
   res.json(result);

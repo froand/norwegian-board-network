@@ -7,13 +7,6 @@ const TYPE_LABELS: Record<string, string> = {
   government_body: '⚖️ Statlig organ',
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
-  board: 'Styreverv',
-  political: 'Politisk',
-  government: 'Statlig',
-  executive: 'Ledelse',
-};
-
 interface Props {
   node: GraphNode;
   links: GraphLink[];
@@ -36,50 +29,65 @@ export default function NodeDetails({ node, links, nodes, onClose }: Props) {
   }
 
   return (
-    <div className="absolute bottom-4 right-4 w-80 bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-20 overflow-hidden">
-      <div className="flex items-center justify-between p-3 border-b border-slate-700">
-        <h3 className="font-semibold text-white truncate">{node.name}</h3>
+    <div className="absolute bottom-4 right-4 w-80 bg-white border border-[var(--stortinget-border)] rounded-lg shadow-lg z-20 overflow-hidden">
+      {/* Header with photo */}
+      <div className="flex items-start gap-3 p-4 border-b border-[var(--stortinget-border)]">
+        {node.type === 'person' && node.imageUrl && (
+          <img
+            src={node.imageUrl}
+            alt={node.name}
+            className="w-14 h-14 rounded-full object-cover border-2 border-[var(--stortinget-border)] flex-shrink-0"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+          />
+        )}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-[var(--stortinget-dark)] truncate">{node.name}</h3>
+          <div className="text-xs text-[var(--stortinget-muted)] mt-0.5">
+            {TYPE_LABELS[node.type] || node.type}
+          </div>
+          {node.meta?.party && (
+            <div className="text-xs text-[var(--stortinget-muted)] mt-0.5">
+              {node.meta.party}{node.meta.fylke ? ` • ${node.meta.fylke}` : ''}
+            </div>
+          )}
+        </div>
         <button
           onClick={onClose}
-          className="text-slate-400 hover:text-white text-lg leading-none"
+          className="text-[var(--stortinget-muted)] hover:text-[var(--stortinget-dark)] text-lg leading-none"
         >
           ✕
         </button>
       </div>
 
       <div className="p-3">
-        <div className="text-sm text-slate-400 mb-3">
-          {TYPE_LABELS[node.type] || node.type}
-        </div>
-
         {links.length > 0 && (
           <div>
-            <h4 className="text-xs font-semibold text-slate-400 uppercase mb-2">
+            <h4 className="text-[10px] font-semibold text-[var(--stortinget-muted)] uppercase mb-2">
               Forbindelser ({links.length})
             </h4>
             <div className="space-y-1 max-h-60 overflow-y-auto">
               {links.map((link, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-2 text-sm py-1 px-2 rounded bg-slate-700/50"
+                  className="flex items-center gap-2 text-sm py-1.5 px-2 rounded bg-gray-50 border border-gray-100"
                 >
                   <span
                     className="w-2 h-2 rounded-full flex-shrink-0"
                     style={{
                       backgroundColor:
                         link.category === 'board'
-                          ? '#34d399'
+                          ? '#22c55e'
                           : link.category === 'political'
-                          ? '#f472b6'
+                          ? '#cf0a2c'
                           : link.category === 'government'
-                          ? '#fbbf24'
-                          : '#a78bfa',
+                          ? '#f59e0b'
+                          : '#8b5cf6',
                     }}
                   />
-                  <span className="text-slate-300 truncate">
+                  <span className="text-[var(--stortinget-text)] truncate">
                     {getNodeName(getConnectedId(link))}
                   </span>
-                  <span className="text-xs text-slate-500 ml-auto flex-shrink-0">
+                  <span className="text-[10px] text-[var(--stortinget-muted)] ml-auto flex-shrink-0">
                     {link.label}
                   </span>
                 </div>
@@ -89,7 +97,7 @@ export default function NodeDetails({ node, links, nodes, onClose }: Props) {
         )}
 
         {node.type === 'person' && (
-          <p className="text-xs text-slate-500 mt-3">
+          <p className="text-xs text-[var(--stortinget-muted)] mt-3">
             Klikk på andre noder for å utforske nettverket
           </p>
         )}

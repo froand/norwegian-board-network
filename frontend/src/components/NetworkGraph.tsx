@@ -112,9 +112,9 @@ export default function NetworkGraph({ data, onNodeClick, selectedNode }: Props)
       linkDirectionalParticleSpeed={0.005}
       linkLabel={(link: any) => link.label || ''}
       onNodeClick={(node: any) => onNodeClick(node as GraphNode)}
-      backgroundColor="#0f172a"
+      backgroundColor="#1a1a2e"
       width={window.innerWidth}
-      height={window.innerHeight}
+      height={window.innerHeight - 70}
       showNavInfo={false}
     />
   );
