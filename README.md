@@ -9,11 +9,13 @@ Interactive graph visualization exploring conflicts of interest between Norwegia
 - Queries both local political dataset and Brønnøysundregistrene (brreg.no) live API
 - Click a result to load their full network into the graph
 
-### 🕸️ Interactive Network Graph
-- Force-directed graph with zoom, pan, and click-to-expand
+### 🕸️ Interactive 3D Network Graph
+- **3D force-directed graph** powered by Three.js — rotate, zoom, and explore in 3D space
 - Color-coded nodes: persons (blue), companies (green), parties (pink), government bodies (amber)
+- Animated directional particles on links showing relationship flow
 - Color-coded links by relationship type (board, political, government, executive)
 - Click any node to expand and reveal more connections
+- Camera auto-focuses on selected nodes
 
 ### 📅 Timeline / Revolving Door View
 - Visual horizontal timeline showing a person's positions over time
@@ -37,7 +39,7 @@ Interactive graph visualization exploring conflicts of interest between Norwegia
 - **Regjeringen.no** — Government positions (sample data)
 
 ## Tech Stack
-- **Frontend**: React + TypeScript + Vite + Tailwind CSS + react-force-graph-2d
+- **Frontend**: React + TypeScript + Vite + Tailwind CSS + react-force-graph-3d (Three.js)
 - **Backend**: Express + TypeScript
 - **Data**: brreg.no REST API + in-memory political dataset
 
