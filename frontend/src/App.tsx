@@ -6,6 +6,7 @@ import Legend from './components/Legend';
 import TimelineView from './components/TimelineView';
 import ConflictsPanel from './components/ConflictsPanel';
 import FilterPanel, { DEFAULT_FILTERS } from './components/FilterPanel';
+import CompanyDetails from './components/CompanyDetails';
 import type { FilterState } from './components/FilterPanel';
 import { getOverviewGraph, expandNode, getCompanyGraph, getPersonGraph } from './services/api';
 import type { GraphData, GraphNode } from './services/api';
@@ -63,7 +64,7 @@ export default function App() {
   const handleNodeClick = useCallback(async (node: GraphNode) => {
     setSelectedNode(node);
 
-    // Show timeline for person nodes
+    // Show timeline for person nodes, company details for company nodes
     if (node.type === 'person') {
       setShowTimeline(true);
     }
@@ -229,7 +230,7 @@ export default function App() {
       )}
 
       {/* Node details panel */}
-      {selectedNode && !showTimeline && (
+      {selectedNode && !showTimeline && selectedNode.type !== 'company' && (
         <NodeDetails
           node={selectedNode}
           links={graphData.links.filter(
@@ -238,6 +239,15 @@ export default function App() {
               (typeof l.target === 'string' ? l.target : (l.target as any).id) === selectedNode.id
           )}
           nodes={graphData.nodes}
+          onClose={() => setSelectedNode(null)}
+        />
+      )}
+
+      {/* Company details panel */}
+      {selectedNode && selectedNode.type === 'company' && selectedNode.id.startsWith('org-') && (
+        <CompanyDetails
+          orgNumber={selectedNode.id.replace('org-', '')}
+          companyName={selectedNode.name}
           onClose={() => setSelectedNode(null)}
         />
       )}

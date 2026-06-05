@@ -108,3 +108,30 @@ export async function getPersonConflicts(personId: string): Promise<ConflictOfIn
   if (!res.ok) throw new Error('Failed to fetch conflicts');
   return res.json();
 }
+
+// Company details
+export interface CompanyDetails {
+  orgNumber: string;
+  name: string;
+  organizationForm: string;
+  industry: string[];
+  employees: number | null;
+  founded: string | null;
+  registered: string | null;
+  location: string | null;
+  website: string | null;
+  ownershipSector: string | null;
+  purpose: string | null;
+  isStateOwned: boolean;
+  isPubliclyListed: boolean;
+  isBankrupt: boolean;
+  lastAnnualReport: string | null;
+  phone: string | null;
+}
+
+export async function getCompanyDetails(orgNumber: string): Promise<CompanyDetails | null> {
+  const res = await fetch(`${API_BASE}/company/${encodeURIComponent(orgNumber)}`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error('Failed to fetch company details');
+  return res.json();
+}

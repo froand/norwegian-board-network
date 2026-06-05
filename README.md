@@ -4,6 +4,16 @@ Interactive graph visualization exploring conflicts of interest between Norwegia
 
 ## Features
 
+### 🏢 Company Details Panel
+- Click any company node to see rich details from Brønnøysundregistrene
+- **Key metrics**: employees, founding date, last annual report, ownership sector
+- **Industry codes** (næringskoder) showing exact business activities
+- **State ownership flag** — highlights when a company is state-owned (relevant for conflict analysis)
+- **Publicly listed badge** (ASA companies)
+- **Purpose statement** (vedtektsfestet formål)
+- **Contact info**: address, website, phone, org number
+- **Conflict relevance warning** for state-owned companies
+
 ### 🔍 Search
 - Search for **any person or company** by name
 - Queries both local political dataset and Brønnøysundregistrene (brreg.no) live API
