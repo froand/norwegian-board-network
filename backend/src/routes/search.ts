@@ -13,15 +13,25 @@ searchRoutes.get('/', async (req, res) => {
   }
 
   try {
-    const [companies, politicalPersons, brregPersons] = await Promise.all([
+    const [companies, politicalPersons, brregPersons, stortingetPersons] = await Promise.all([
       searchCompanies(query),
       Promise.resolve(searchPoliticalPersons(query)),
-      searchPersonRoles(query),
+      searchPersonRoles(query).catch(() => []),
+      searchStortingetPersons(query).catch(() => []),
     ]);
 
-    // Merge political persons and brreg persons, dedup by name
+    // Merge all person sources, dedup by name
     const seenNames = new Set<string>();
     const allPersons: { id: string; name: string; type: string; source: string }[] = [];
+
+    // Stortinget results first (most relevant for this app)
+    for (const p of stortingetPersons) {
+      const key = p.name.toLowerCase();
+      if (!seenNames.has(key)) {
+        seenNames.add(key);
+        allPersons.push({ id: p.id, name: p.name, type: 'person', source: 'stortinget' });
+      }
+    }
 
     for (const p of politicalPersons) {
       const key = p.name.toLowerCase();

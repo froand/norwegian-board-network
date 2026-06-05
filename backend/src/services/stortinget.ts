@@ -14,8 +14,40 @@ interface StortingetRepresentant {
   vara_representant: boolean;
 }
 
+interface DagensRepresentant extends StortingetRepresentant {
+  epost?: string;
+  komiteer_liste?: { id: string; navn: string }[];
+}
+
 interface StortingetResponse {
   representanter_liste: StortingetRepresentant[];
+}
+
+interface DagensResponse {
+  dagensrepresentanter_liste: DagensRepresentant[];
+}
+
+export interface PersonPosition {
+  title: string;
+  organization: string;
+  type: 'political' | 'government' | 'private' | 'board' | 'committee';
+  startYear?: number;
+  endYear?: number | null; // null = current
+  isCurrent: boolean;
+  description?: string;
+}
+
+export interface PersonDetails {
+  id: string;
+  name: string;
+  party?: string;
+  fylke?: string;
+  email?: string;
+  birthYear?: number;
+  imageUrl?: string;
+  committees?: string[];
+  currentPositions: PersonPosition[];
+  pastPositions: PersonPosition[];
 }
 
 // Map Stortinget party IDs to our org IDs
@@ -33,6 +65,84 @@ const PARTY_ID_MAP: Record<string, { id: string; name: string }> = {
 };
 
 let cachedRepresentatives: StortingetRepresentant[] | null = null;
+let cachedDagensRepresentanter: DagensRepresentant[] | null = null;
+
+// Curated dataset of notable politicians' past positions (public information)
+const KNOWN_POSITIONS: Record<string, PersonPosition[]> = {
+  'erna-solberg': [
+    { title: 'Statsminister', organization: 'Regjeringen', type: 'government', startYear: 2013, endYear: 2021, isCurrent: false },
+    { title: 'Kommunal- og regionalminister', organization: 'Regjeringen', type: 'government', startYear: 2001, endYear: 2005, isCurrent: false },
+    { title: 'Stortingsrepresentant', organization: 'Stortinget', type: 'political', startYear: 1989, endYear: null, isCurrent: true },
+    { title: 'Leder', organization: 'Høyre', type: 'political', startYear: 2004, endYear: null, isCurrent: true },
+  ],
+  'jonas-gahr-støre': [
+    { title: 'Statsminister', organization: 'Regjeringen', type: 'government', startYear: 2021, endYear: null, isCurrent: true },
+    { title: 'Utenriksminister', organization: 'Regjeringen', type: 'government', startYear: 2005, endYear: 2012, isCurrent: false },
+    { title: 'Stabssjef', organization: 'Statsministerens kontor', type: 'government', startYear: 2000, endYear: 2005, isCurrent: false },
+    { title: 'Generalsekretær', organization: 'Norges Røde Kors', type: 'private', startYear: 2003, endYear: 2005, isCurrent: false },
+    { title: 'Leder', organization: 'Arbeiderpartiet', type: 'political', startYear: 2014, endYear: null, isCurrent: true },
+  ],
+  'siv-jensen': [
+    { title: 'Finansminister', organization: 'Regjeringen', type: 'government', startYear: 2013, endYear: 2020, isCurrent: false },
+    { title: 'Leder', organization: 'Fremskrittspartiet', type: 'political', startYear: 2006, endYear: 2021, isCurrent: false },
+    { title: 'Stortingsrepresentant', organization: 'Stortinget', type: 'political', startYear: 1997, endYear: 2021, isCurrent: false },
+    { title: 'Styremedlem', organization: 'Norges Bank Investment Management', type: 'board', startYear: 2022, endYear: null, isCurrent: true, description: 'Oppnevnt til styret i oljefondet' },
+  ],
+  'nikolai-astrup': [
+    { title: 'Kommunal- og distriktsminister', organization: 'Regjeringen', type: 'government', startYear: 2020, endYear: 2021, isCurrent: false },
+    { title: 'Digitaliseringsminister', organization: 'Regjeringen', type: 'government', startYear: 2019, endYear: 2020, isCurrent: false },
+    { title: 'Klimaminister', organization: 'Regjeringen', type: 'government', startYear: 2018, endYear: 2019, isCurrent: false },
+    { title: 'Partner', organization: 'McKinsey & Company', type: 'private', startYear: 2022, endYear: null, isCurrent: true, description: 'Konsulentselskap' },
+    { title: 'Stortingsrepresentant', organization: 'Stortinget', type: 'political', startYear: 2009, endYear: 2021, isCurrent: false },
+  ],
+  'torbjørn-røe-isaksen': [
+    { title: 'Arbeids- og sosialminister', organization: 'Regjeringen', type: 'government', startYear: 2020, endYear: 2021, isCurrent: false },
+    { title: 'Næringsminister', organization: 'Regjeringen', type: 'government', startYear: 2018, endYear: 2020, isCurrent: false },
+    { title: 'Kunnskapsminister', organization: 'Regjeringen', type: 'government', startYear: 2013, endYear: 2018, isCurrent: false },
+    { title: 'Kommunikasjonsdirektør', organization: 'Norsk Hydro', type: 'private', startYear: 2022, endYear: null, isCurrent: true, description: 'Aluminium og energi' },
+  ],
+  'monica-mæland': [
+    { title: 'Justis- og beredskapsminister', organization: 'Regjeringen', type: 'government', startYear: 2020, endYear: 2021, isCurrent: false },
+    { title: 'Kommunal- og moderniseringsminister', organization: 'Regjeringen', type: 'government', startYear: 2018, endYear: 2020, isCurrent: false },
+    { title: 'Næringsminister', organization: 'Regjeringen', type: 'government', startYear: 2013, endYear: 2018, isCurrent: false },
+    { title: 'Partner', organization: 'Advokatfirmaet Thommessen', type: 'private', startYear: 2022, endYear: null, isCurrent: true },
+  ],
+  'ketil-solvik-olsen': [
+    { title: 'Samferdselsminister', organization: 'Regjeringen', type: 'government', startYear: 2013, endYear: 2018, isCurrent: false },
+    { title: 'Stortingsrepresentant', organization: 'Stortinget', type: 'political', startYear: 2005, endYear: 2018, isCurrent: false },
+    { title: 'Rådgiver/konsulent', organization: 'First House', type: 'private', startYear: 2019, endYear: null, isCurrent: true, description: 'PR og kommunikasjon' },
+  ],
+  'bent-høie': [
+    { title: 'Helse- og omsorgsminister', organization: 'Regjeringen', type: 'government', startYear: 2013, endYear: 2021, isCurrent: false },
+    { title: 'Statsforvalter i Rogaland', organization: 'Statsforvalteren', type: 'government', startYear: 2022, endYear: null, isCurrent: true },
+    { title: 'Stortingsrepresentant', organization: 'Stortinget', type: 'political', startYear: 2000, endYear: 2013, isCurrent: false },
+  ],
+  'sylvi-listhaug': [
+    { title: 'Energiminister', organization: 'Regjeringen', type: 'government', startYear: 2019, endYear: 2020, isCurrent: false },
+    { title: 'Eldre- og folkehelseminister', organization: 'Regjeringen', type: 'government', startYear: 2019, endYear: 2019, isCurrent: false },
+    { title: 'Justisminister', organization: 'Regjeringen', type: 'government', startYear: 2018, endYear: 2018, isCurrent: false },
+    { title: 'Innvandrings- og integreringsminister', organization: 'Regjeringen', type: 'government', startYear: 2015, endYear: 2018, isCurrent: false },
+    { title: 'Landbruksminister', organization: 'Regjeringen', type: 'government', startYear: 2013, endYear: 2015, isCurrent: false },
+    { title: 'Seniorrådgiver', organization: 'First House', type: 'private', startYear: 2012, endYear: 2013, isCurrent: false, description: 'PR-byrå' },
+    { title: 'Leder', organization: 'Fremskrittspartiet', type: 'political', startYear: 2021, endYear: null, isCurrent: true },
+  ],
+  'trygve-slagsvold-vedum': [
+    { title: 'Finansminister', organization: 'Regjeringen', type: 'government', startYear: 2021, endYear: null, isCurrent: true },
+    { title: 'Leder', organization: 'Senterpartiet', type: 'political', startYear: 2014, endYear: null, isCurrent: true },
+    { title: 'Stortingsrepresentant', organization: 'Stortinget', type: 'political', startYear: 2005, endYear: null, isCurrent: true },
+  ],
+  'abid-raja': [
+    { title: 'Kultur- og likestillingsminister', organization: 'Regjeringen', type: 'government', startYear: 2020, endYear: 2021, isCurrent: false },
+    { title: 'Stortingsrepresentant', organization: 'Stortinget', type: 'political', startYear: 2013, endYear: null, isCurrent: true },
+    { title: 'Advokat/Partner', organization: 'Advokatfirmaet Elden', type: 'private', startYear: 2005, endYear: 2013, isCurrent: false },
+  ],
+  'anniken-huitfeldt': [
+    { title: 'Utenriksminister', organization: 'Regjeringen', type: 'government', startYear: 2021, endYear: 2023, isCurrent: false },
+    { title: 'Stortingsrepresentant', organization: 'Stortinget', type: 'political', startYear: 2005, endYear: null, isCurrent: true },
+    { title: 'Barne- og likestillingsminister', organization: 'Regjeringen', type: 'government', startYear: 2008, endYear: 2009, isCurrent: false },
+    { title: 'Arbeidsminister', organization: 'Regjeringen', type: 'government', startYear: 2012, endYear: 2013, isCurrent: false },
+  ],
+};
 
 async function fetchRepresentatives(): Promise<StortingetRepresentant[]> {
   if (cachedRepresentatives) return cachedRepresentatives;
@@ -47,6 +157,157 @@ async function fetchRepresentatives(): Promise<StortingetRepresentant[]> {
     console.error('Failed to fetch from Stortinget API:', e);
     return [];
   }
+}
+
+async function fetchDagensRepresentanter(): Promise<DagensRepresentant[]> {
+  if (cachedDagensRepresentanter) return cachedDagensRepresentanter;
+
+  try {
+    const res = await fetch(`${STORTINGET_BASE}/dagensrepresentanter?format=json`);
+    if (!res.ok) throw new Error(`Stortinget API error: ${res.status}`);
+    const data: DagensResponse = await res.json();
+    cachedDagensRepresentanter = data.dagensrepresentanter_liste || [];
+    return cachedDagensRepresentanter;
+  } catch (e) {
+    console.error('Failed to fetch dagensrepresentanter:', e);
+    return [];
+  }
+}
+
+// Check which historical periods a person served in
+async function getPersonPeriods(stortingetId: string): Promise<{ periodId: string; found: boolean }[]> {
+  const periods = ['2017-2021', '2013-2017', '2009-2013', '2005-2009'];
+  const results: { periodId: string; found: boolean }[] = [];
+
+  for (const period of periods) {
+    try {
+      const res = await fetch(`${STORTINGET_BASE}/representanter?format=json&periodeid=${period}`);
+      if (!res.ok) continue;
+      const data: StortingetResponse = await res.json();
+      const found = data.representanter_liste?.some((r) => r.id === stortingetId) || false;
+      results.push({ periodId: period, found });
+    } catch {
+      // skip failed period
+    }
+  }
+  return results;
+}
+
+export async function getPersonDetails(personId: string): Promise<PersonDetails | null> {
+  // Extract name from personId (person-fornavn-etternavn)
+  const nameParts = personId.replace('person-', '').split('-');
+  const searchName = nameParts.join(' ').toLowerCase();
+
+  // Find in current representatives
+  const reps = await fetchRepresentatives();
+  const dagens = await fetchDagensRepresentanter();
+
+  const rep = reps.find(
+    (r) => `${r.fornavn} ${r.etternavn}`.toLowerCase().replace(/\s+/g, ' ') === searchName
+      || `${r.fornavn}-${r.etternavn}`.toLowerCase().replace(/\s+/g, '-') === nameParts.join('-')
+  );
+
+  const dagensRep = dagens.find(
+    (r) => `${r.fornavn} ${r.etternavn}`.toLowerCase().replace(/\s+/g, ' ') === searchName
+      || `${r.fornavn}-${r.etternavn}`.toLowerCase().replace(/\s+/g, '-') === nameParts.join('-')
+  );
+
+  if (!rep && !dagensRep) return null;
+
+  const person = dagensRep || rep!;
+  const partyInfo = PARTY_ID_MAP[person.parti.id];
+  const name = `${person.fornavn} ${person.etternavn}`;
+  const birthYear = person.foedselsdato ? new Date(person.foedselsdato).getFullYear() : undefined;
+
+  // Build current positions from live data
+  const currentPositions: PersonPosition[] = [];
+  const pastPositions: PersonPosition[] = [];
+
+  // Current Stortinget position
+  currentPositions.push({
+    title: 'Stortingsrepresentant',
+    organization: 'Stortinget',
+    type: 'political',
+    startYear: 2021,
+    endYear: null,
+    isCurrent: true,
+    description: `Representerer ${person.fylke.navn} for ${partyInfo?.name || person.parti.navn}`,
+  });
+
+  // Committee memberships (from dagensrepresentanter)
+  if (dagensRep?.komiteer_liste) {
+    for (const komite of dagensRep.komiteer_liste) {
+      currentPositions.push({
+        title: 'Komitémedlem',
+        organization: komite.navn,
+        type: 'committee',
+        startYear: 2021,
+        endYear: null,
+        isCurrent: true,
+      });
+    }
+  }
+
+  // Check curated past positions
+  const nameKey = `${person.fornavn}-${person.etternavn}`.toLowerCase()
+    .replace(/\s+/g, '-')
+    .normalize('NFC');
+  const knownKey = Object.keys(KNOWN_POSITIONS).find((k) =>
+    nameKey.includes(k) || k.includes(nameKey.replace(/[^a-zæøå-]/g, ''))
+  );
+
+  if (knownKey) {
+    for (const pos of KNOWN_POSITIONS[knownKey]) {
+      if (pos.isCurrent) {
+        // Don't duplicate the Stortinget position
+        if (pos.title !== 'Stortingsrepresentant') {
+          currentPositions.push(pos);
+        }
+      } else {
+        pastPositions.push(pos);
+      }
+    }
+  }
+
+  // Check historical periods served
+  if (person.id) {
+    const periods = await getPersonPeriods(person.id);
+    for (const p of periods) {
+      if (p.found) {
+        const [startStr, endStr] = p.periodId.split('-');
+        const alreadyHas = pastPositions.some(
+          (pp) => pp.title === 'Stortingsrepresentant' && pp.startYear === parseInt(startStr)
+        );
+        if (!alreadyHas) {
+          pastPositions.push({
+            title: 'Stortingsrepresentant',
+            organization: 'Stortinget',
+            type: 'political',
+            startYear: parseInt(startStr),
+            endYear: parseInt(endStr),
+            isCurrent: false,
+            description: person.fylke.navn,
+          });
+        }
+      }
+    }
+  }
+
+  // Sort past positions by year descending
+  pastPositions.sort((a, b) => (b.startYear || 0) - (a.startYear || 0));
+
+  return {
+    id: personId,
+    name,
+    party: partyInfo?.name || person.parti.navn,
+    fylke: person.fylke.navn,
+    email: dagensRep?.epost,
+    birthYear,
+    imageUrl: `https://data.stortinget.no/eksport/personbilde?personid=${person.id}&storrelse=middels`,
+    committees: dagensRep?.komiteer_liste?.map((k) => k.navn),
+    currentPositions,
+    pastPositions,
+  };
 }
 
 export async function getPartyRepresentatives(partyId: string): Promise<GraphData> {

@@ -14,10 +14,18 @@ Interactive graph visualization exploring conflicts of interest between Norwegia
 - **Contact info**: address, website, phone, org number
 - **Conflict relevance warning** for state-owned companies
 
+### 👤 Person Details with Position History
+- Click any politician to see their **current and past positions**
+- Live data from Stortinget.no: committee membership, email, party, fylke
+- **Curated past positions** for notable politicians (minister roles, private sector jobs)
+- Historical Stortinget periods served (auto-detected from API)
+- Photo from Stortinget.no
+
 ### 🔍 Search
 - Search for **any person or company** by name
-- Queries both local political dataset and Brønnøysundregistrene (brreg.no) live API
-- Click a result to load their full network into the graph
+- Queries **Stortinget.no** (all representatives), local political dataset, and **brreg.no** live API
+- Search replaces the graph view with the person/company's network
+- "🏛️ Oversikt" button resets to default Stortinget view
 
 ### 🕸️ Interactive 3D Network Graph
 - **3D force-directed graph** powered by Three.js — rotate, zoom, and explore in 3D space
@@ -25,6 +33,7 @@ Interactive graph visualization exploring conflicts of interest between Norwegia
 - Animated directional particles on links showing relationship flow
 - Color-coded links by relationship type (board, political, government, executive)
 - Click any node to expand and reveal more connections
+- Click a party node to load all its Stortinget representatives
 - Camera auto-focuses on selected nodes
 
 ### 📅 Timeline / Revolving Door View
@@ -32,26 +41,35 @@ Interactive graph visualization exploring conflicts of interest between Norwegia
 - Automatically detects **"svingdør" (revolving door) patterns** — short gaps between leaving government and joining corporate boards
 - Highlights potential karantene violations
 
-### ⚠️ Conflict of Interest Alerts
+### ⚠️ Conflict of Interest Alerts (draggable panel)
 - Auto-detects potential conflicts: sector overlap, concurrent positions, revolving door
 - Severity ratings (high/medium/low)
 - Filterable by conflict type
 - Click any conflict to focus on the person in the graph
+- **Draggable** — move the panel anywhere on screen
 
-### 🔍 Filter Panel
+### 🔍 Filter Panel (draggable)
 - Toggle node types (persons, companies, parties, government bodies)
 - Toggle relationship categories (board, political, government, executive)
 - Real-time graph filtering
+- **Draggable** — won't block other panels
+
+### 🎨 Stortinget-inspired Design
+- Red accent bar, serif headings (Merriweather), clean light panels
+- Dark navy 3D graph background for contrast
+- Responsive layout matching stortinget.no aesthetics
 
 ## Data Sources
+- **Stortinget.no** — Live API for all current representatives, committees, parties, photos
 - **Brønnøysundregistrene (brreg.no)** — Company roles and board members (live API)
-- **Stortinget.no** — Politicians and committees (sample data, live API planned)
-- **Regjeringen.no** — Government positions (sample data)
+- **Curated dataset** — Notable politicians' past positions (minister roles, private sector moves)
+- **Regjeringen.no** — Government position data (curated)
 
 ## Tech Stack
 - **Frontend**: React + TypeScript + Vite + Tailwind CSS + react-force-graph-3d (Three.js)
 - **Backend**: Express + TypeScript
-- **Data**: brreg.no REST API + in-memory political dataset
+- **Data**: Stortinget.no API + brreg.no REST API + curated political dataset
+- **Deployment**: Azure Container Apps + Azure Container Registry
 
 ## Getting Started
 
@@ -67,9 +85,26 @@ Frontend: http://localhost:5173
 Backend: http://localhost:3001
 
 ## Azure Deployment
-- `azure.yaml` — Azure Developer CLI configuration
-- `backend/Dockerfile` — Backend container
-- `frontend/Dockerfile` + `nginx.conf` — Frontend container with API proxy
+
+### Infrastructure
+- **Azure Container Apps** — serverless containers with auto-scaling
+- **Azure Container Registry** — private Docker image storage
+- **Log Analytics** — centralized logging
+
+### Deploy
+```powershell
+# Login to Azure
+az login --tenant YOUR_TENANT.onmicrosoft.com
+
+# Run deployment script
+./deploy.ps1
+```
+
+### Configuration
+- `infra/main.bicep` — Infrastructure as Code (Bicep)
+- `infra/main.parameters.json` — Deployment parameters
+- `deploy.ps1` — Full build + deploy script
+- `azure.yaml` — Azure Developer CLI config
 
 ## Project Structure
 ```
@@ -78,36 +113,47 @@ Backend: http://localhost:3001
 │   │   ├── index.ts              # Express server
 │   │   ├── types.ts              # Shared types
 │   │   ├── routes/
-│   │   │   ├── search.ts         # Search API (persons + companies)
-│   │   │   └── graph.ts          # Graph, timeline, conflicts API
+│   │   │   ├── search.ts         # Search API (Stortinget + brreg + political)
+│   │   │   ├── graph.ts          # Graph, timeline, conflicts, person-details API
+│   │   │   └── company.ts        # Company details from brreg.no
 │   │   └── services/
 │   │       ├── brreg.ts          # Brønnøysundregistrene API client
-│   │       └── political-data.ts # Political/government dataset + conflicts
+│   │       ├── stortinget.ts     # Stortinget.no API (reps, photos, positions)
+│   │       └── political-data.ts # Political dataset + conflicts detection
 │   └── Dockerfile
 ├── frontend/
 │   ├── src/
-│   │   ├── App.tsx               # Main app with panels
+│   │   ├── App.tsx               # Main app with all panels
 │   │   ├── components/
-│   │   │   ├── NetworkGraph.tsx   # Force-directed graph
+│   │   │   ├── NetworkGraph.tsx   # 3D Force-directed graph
 │   │   │   ├── SearchBar.tsx      # Person/company search
-│   │   │   ├── TimelineView.tsx   # Position timeline + revolving door detection
-│   │   │   ├── ConflictsPanel.tsx # Conflict of interest alerts
-│   │   │   ├── FilterPanel.tsx    # Node/link type filters
-│   │   │   ├── NodeDetails.tsx    # Selected node info
+│   │   │   ├── NodeDetails.tsx    # Person details + position history
+│   │   │   ├── CompanyDetails.tsx # Company info from brreg
+│   │   │   ├── TimelineView.tsx   # Position timeline + revolving door
+│   │   │   ├── ConflictsPanel.tsx # Conflict alerts (draggable)
+│   │   │   ├── FilterPanel.tsx    # Node/link filters (draggable)
 │   │   │   └── Legend.tsx         # Graph legend
 │   │   └── services/
-│   │       └── api.ts            # API client
-│   └── Dockerfile
-├── azure.yaml
+│   │       └── api.ts            # API client + types
+│   ├── Dockerfile
+│   └── nginx.conf
+├── infra/
+│   ├── main.bicep                # Azure infrastructure
+│   └── main.parameters.json      # Deployment params
+├── deploy.ps1                    # Deployment script
+├── azure.yaml                    # Azure Developer CLI config
 └── package.json
 ```
 
 ## Roadmap
-- [ ] Live Stortinget.no API integration
+- [x] Live Stortinget.no API integration
+- [x] Person position history (current + past)
+- [x] Draggable panels
 - [ ] Degrees of separation (shortest path between two people)
 - [ ] Cluster detection (shared board networks)
 - [ ] Export/share reports
 - [ ] Node hover tooltips
-- [ ] Lobby register integration
+- [ ] Lobby register integration (lobbyregisteret.no)
 - [ ] News article linking
+- [ ] Regjeringen.no ministers API integration
 

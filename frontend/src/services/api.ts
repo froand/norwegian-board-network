@@ -141,3 +141,34 @@ export async function getCompanyDetails(orgNumber: string): Promise<CompanyDetai
   if (!res.ok) throw new Error('Failed to fetch company details');
   return res.json();
 }
+
+// Person details with positions
+export interface PersonPosition {
+  title: string;
+  organization: string;
+  type: 'political' | 'government' | 'private' | 'board' | 'committee';
+  startYear?: number;
+  endYear?: number | null;
+  isCurrent: boolean;
+  description?: string;
+}
+
+export interface PersonDetails {
+  id: string;
+  name: string;
+  party?: string;
+  fylke?: string;
+  email?: string;
+  birthYear?: number;
+  imageUrl?: string;
+  committees?: string[];
+  currentPositions: PersonPosition[];
+  pastPositions: PersonPosition[];
+}
+
+export async function getPersonDetails(personId: string): Promise<PersonDetails | null> {
+  const res = await fetch(`${API_BASE}/graph/person-details/${encodeURIComponent(personId)}`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error('Failed to fetch person details');
+  return res.json();
+}

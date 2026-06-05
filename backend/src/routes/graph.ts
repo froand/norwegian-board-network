@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { getCompanyRoles, getPersonRolesNetwork } from '../services/brreg.js';
 import { getPoliticalData, getPersonPoliticalNetwork, getPersonTimeline, getAllTimelines, getConflictsForPerson, getAllConflicts } from '../services/political-data.js';
-import { getPartyRepresentatives } from '../services/stortinget.js';
+import { getPartyRepresentatives, getPersonDetails } from '../services/stortinget.js';
 import type { GraphData } from '../types.js';
 
 export const graphRoutes = Router();
@@ -154,4 +154,20 @@ graphRoutes.get('/conflicts', (_req, res) => {
 graphRoutes.get('/conflicts/:personId', (req, res) => {
   const { personId } = req.params;
   res.json(getConflictsForPerson(personId));
+});
+
+// Person details with positions
+graphRoutes.get('/person-details/:personId', async (req, res) => {
+  const { personId } = req.params;
+  try {
+    const details = await getPersonDetails(personId);
+    if (!details) {
+      res.status(404).json({ error: 'Person not found in Stortinget data' });
+      return;
+    }
+    res.json(details);
+  } catch (e) {
+    console.error('Error fetching person details:', e);
+    res.status(500).json({ error: 'Failed to fetch person details' });
+  }
 });

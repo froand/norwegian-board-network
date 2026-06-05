@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import type { ConflictOfInterest } from '../services/api';
 import { getAllConflicts } from '../services/api';
 
@@ -31,6 +31,10 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
   const [conflicts, setConflicts] = useState<ConflictOfInterest[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>('all');
+  const [position, setPosition] = useState({ x: 16, y: 96 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     getAllConflicts()
@@ -39,17 +43,55 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
       .finally(() => setLoading(false));
   }, []);
 
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('button')) return;
+    setIsDragging(true);
+    dragOffset.current = {
+      x: e.clientX - position.x,
+      y: e.clientY - position.y,
+    };
+    e.preventDefault();
+  }, [position]);
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      setPosition({
+        x: e.clientX - dragOffset.current.x,
+        y: e.clientY - dragOffset.current.y,
+      });
+    };
+
+    const handleMouseUp = () => setIsDragging(false);
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging]);
+
   const filtered = filterType === 'all'
     ? conflicts
     : conflicts.filter((c) => c.conflictType === filterType);
 
   return (
-    <div className="absolute top-24 left-4 w-[420px] bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-30 overflow-hidden">
-      <div className="flex justify-between items-center p-4 border-b border-slate-700">
+    <div
+      ref={panelRef}
+      className="fixed w-[420px] bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-30 overflow-hidden"
+      style={{ left: position.x, top: position.y }}
+    >
+      <div
+        className="flex justify-between items-center p-4 border-b border-slate-700 cursor-grab active:cursor-grabbing select-none"
+        onMouseDown={handleMouseDown}
+      >
         <div>
           <h3 className="text-white font-semibold">⚠️ Interessekonflikter</h3>
           <p className="text-xs text-slate-400 mt-1">
             Automatisk oppdagede potensielle konflikter
+            <span className="ml-2 text-slate-500 italic">— dra for å flytte</span>
           </p>
         </div>
         <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">✕</button>

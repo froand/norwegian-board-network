@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 
 export interface FilterState {
   categories: {
@@ -27,6 +27,34 @@ interface Props {
 }
 
 export default function FilterPanel({ filters, onChange, onClose }: Props) {
+  const [position, setPosition] = useState({ x: window.innerWidth - 280, y: 96 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('button')) return;
+    setIsDragging(true);
+    dragOffset.current = {
+      x: e.clientX - position.x,
+      y: e.clientY - position.y,
+    };
+    e.preventDefault();
+  }, [position]);
+
+  useEffect(() => {
+    if (!isDragging) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      setPosition({ x: e.clientX - dragOffset.current.x, y: e.clientY - dragOffset.current.y });
+    };
+    const handleMouseUp = () => setIsDragging(false);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging]);
+
   const toggleCategory = (key: keyof FilterState['categories']) => {
     onChange({
       ...filters,
@@ -42,8 +70,14 @@ export default function FilterPanel({ filters, onChange, onClose }: Props) {
   };
 
   return (
-    <div className="absolute top-24 right-4 w-64 bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-20 overflow-hidden">
-      <div className="flex justify-between items-center p-3 border-b border-slate-700">
+    <div
+      className="fixed w-64 bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-20 overflow-hidden"
+      style={{ left: position.x, top: position.y }}
+    >
+      <div
+        className="flex justify-between items-center p-3 border-b border-slate-700 cursor-grab active:cursor-grabbing select-none"
+        onMouseDown={handleMouseDown}
+      >
         <h3 className="text-white font-semibold text-sm">🔍 Filtre</h3>
         <button onClick={onClose} className="text-slate-400 hover:text-white">✕</button>
       </div>

@@ -2,15 +2,20 @@
 name: norwegian-board-network
 metadata:
   template: norwegian-board-network@0.0.1
+infra:
+  provider: bicep
+  path: ./infra
 services:
   backend:
     project: ./backend
     language: ts
-    host: appservice
-    resourceName: norsk-nettverk-api
+    host: containerapp
+    docker:
+      path: ./backend/Dockerfile
   frontend:
     project: ./frontend
     language: ts
-    host: appservice
-    resourceName: norsk-nettverk-web
+    host: containerapp
+    docker:
+      path: ./frontend/Dockerfile
     dist: dist
