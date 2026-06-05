@@ -15,6 +15,13 @@ const CONFLICT_TYPE_LABELS: Record<string, string> = {
   shared_network: '🤝 Delt nettverk',
 };
 
+const CONFLICT_TYPE_TOOLTIPS: Record<string, string> = {
+  revolving_door: 'Svingdør: Politikere som forlater statlige posisjoner og raskt tar styreverv i privat næringsliv, ofte i samme sektor de regulerte. Kan tyde på interessekonflikter.',
+  concurrent: 'Samtidig: Person som holder politiske og næringslivsroller samtidig.',
+  sector_overlap: 'Sektoroverlapp: Politiker med innflytelse på en sektor som også har styreverv i samme sektor.',
+  shared_network: 'Delt nettverk: Personer som deler flere styreverv eller organisasjonstilknytninger, noe som kan indikere uformell innflytelse.',
+};
+
 interface Props {
   onPersonClick: (personId: string) => void;
   onClose: () => void;
@@ -83,7 +90,10 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
                   <span className={`font-medium text-sm ${colors.text}`}>
                     {conflict.personName}
                   </span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-700 text-slate-300">
+                  <span
+                    className="text-[10px] px-1.5 py-0.5 rounded bg-slate-700 text-slate-300 cursor-help"
+                    title={CONFLICT_TYPE_TOOLTIPS[conflict.conflictType]}
+                  >
                     {CONFLICT_TYPE_LABELS[conflict.conflictType]}
                   </span>
                 </div>

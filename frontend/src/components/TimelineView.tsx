@@ -121,8 +121,12 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
         {/* Revolving door warnings */}
         {gaps.length > 0 && (
           <div className="mt-4 pt-3 border-t border-slate-700">
-            <h4 className="text-xs font-semibold text-red-400 uppercase mb-2">
-              ⚠️ Svingdør-mønster oppdaget
+            <h4 className="text-xs font-semibold text-red-400 uppercase mb-2 group relative inline-flex items-center gap-1 cursor-help">
+              ⚠️ <span className="underline decoration-dotted">Svingdør-mønster</span> oppdaget
+              <span className="invisible group-hover:visible absolute bottom-full left-0 mb-2 w-72 p-3 bg-slate-900 border border-slate-600 rounded-lg shadow-xl text-xs text-slate-300 font-normal normal-case z-50">
+                <strong className="text-white block mb-1">Svingdør (revolving door)</strong>
+                Mønsteret der politikere forlater statlige posisjoner og raskt tar styreverv eller lederroller i privat næringsliv — ofte i samme sektor de regulerte. Dette kan tyde på interessekonflikter: politikeren kan ha tatt gunstige beslutninger i embetet med viten om en fremtidig stilling, eller deres innsidekunnskap gir selskapet en urettferdig fordel. Norge har en <em>karantenelov</em> som krever ventetid før slike overganger.
+              </span>
             </h4>
             {gaps.map((gap, i) => (
               <div key={i} className="bg-red-900/20 border border-red-800/50 rounded p-2 mb-2">
