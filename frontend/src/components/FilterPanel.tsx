@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useI18n } from '../I18nContext';
 
 export interface FilterState {
   categories: {
@@ -27,6 +28,7 @@ interface Props {
 }
 
 export default function FilterPanel({ filters, onChange, onClose }: Props) {
+  const { t } = useI18n();
   const [position, setPosition] = useState({ x: window.innerWidth - 280, y: 96 });
   const [isDragging, setIsDragging] = useState(false);
   const dragOffset = useRef({ x: 0, y: 0 });
@@ -78,35 +80,35 @@ export default function FilterPanel({ filters, onChange, onClose }: Props) {
         className="flex justify-between items-center p-3 border-b border-slate-700 cursor-grab active:cursor-grabbing select-none"
         onMouseDown={handleMouseDown}
       >
-        <h3 className="text-white font-semibold text-sm">🔍 Filtre</h3>
+        <h3 className="text-white font-semibold text-sm">{t('filters.title')}</h3>
         <button onClick={onClose} className="text-slate-400 hover:text-white">✕</button>
       </div>
 
       <div className="p-3 space-y-4">
         {/* Node type filters */}
         <div>
-          <h4 className="text-xs font-semibold text-slate-400 uppercase mb-2">Nodetyper</h4>
+          <h4 className="text-xs font-semibold text-slate-400 uppercase mb-2">{t('filters.nodeTypes')}</h4>
           <div className="space-y-1.5">
             <FilterCheckbox
-              label="👤 Personer"
+              label={t('filters.persons')}
               checked={filters.nodeTypes.person}
               onChange={() => toggleNodeType('person')}
               color="#60a5fa"
             />
             <FilterCheckbox
-              label="🏢 Selskaper"
+              label={t('filters.companies')}
               checked={filters.nodeTypes.company}
               onChange={() => toggleNodeType('company')}
               color="#34d399"
             />
             <FilterCheckbox
-              label="🏛️ Partier"
+              label={t('filters.parties')}
               checked={filters.nodeTypes.political_party}
               onChange={() => toggleNodeType('political_party')}
               color="#f472b6"
             />
             <FilterCheckbox
-              label="⚖️ Statlige organer"
+              label={t('filters.govBodies')}
               checked={filters.nodeTypes.government_body}
               onChange={() => toggleNodeType('government_body')}
               color="#fbbf24"
@@ -116,28 +118,28 @@ export default function FilterPanel({ filters, onChange, onClose }: Props) {
 
         {/* Relationship category filters */}
         <div>
-          <h4 className="text-xs font-semibold text-slate-400 uppercase mb-2">Relasjonstyper</h4>
+          <h4 className="text-xs font-semibold text-slate-400 uppercase mb-2">{t('filters.relationTypes')}</h4>
           <div className="space-y-1.5">
             <FilterCheckbox
-              label="Styreverv"
+              label={t('filters.board')}
               checked={filters.categories.board}
               onChange={() => toggleCategory('board')}
               color="#34d399"
             />
             <FilterCheckbox
-              label="Politisk"
+              label={t('filters.political')}
               checked={filters.categories.political}
               onChange={() => toggleCategory('political')}
               color="#f472b6"
             />
             <FilterCheckbox
-              label="Statlig"
+              label={t('filters.government')}
               checked={filters.categories.government}
               onChange={() => toggleCategory('government')}
               color="#fbbf24"
             />
             <FilterCheckbox
-              label="Ledelse"
+              label={t('filters.executive')}
               checked={filters.categories.executive}
               onChange={() => toggleCategory('executive')}
               color="#a78bfa"

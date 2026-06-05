@@ -1,19 +1,13 @@
 import { useEffect, useState } from 'react';
 import type { PersonTimeline, TimelinePosition } from '../services/api';
 import { getPersonTimeline } from '../services/api';
+import { useI18n } from '../I18nContext';
 
 const CATEGORY_COLORS: Record<string, string> = {
   political: '#f472b6',
   government: '#fbbf24',
   board: '#34d399',
   executive: '#a78bfa',
-};
-
-const CATEGORY_LABELS: Record<string, string> = {
-  political: 'Politisk',
-  government: 'Statlig',
-  board: 'Styreverv',
-  executive: 'Ledelse',
 };
 
 interface Props {
@@ -23,6 +17,7 @@ interface Props {
 }
 
 export default function TimelineView({ personId, personName, onClose }: Props) {
+  const { t } = useI18n();
   const [timeline, setTimeline] = useState<PersonTimeline | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -34,10 +29,17 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
     }).catch(() => setLoading(false));
   }, [personId]);
 
+  const CATEGORY_LABELS: Record<string, string> = {
+    political: t('timeline.catPolitical'),
+    government: t('timeline.catGovernment'),
+    board: t('timeline.catBoard'),
+    executive: t('timeline.catExecutive'),
+  };
+
   if (loading) {
     return (
       <div className="absolute top-24 right-4 w-[500px] bg-slate-800 border border-slate-600 rounded-lg p-4 z-30">
-        <div className="text-slate-400">Laster tidslinje...</div>
+        <div className="text-slate-400">{t('timeline.loading')}</div>
       </div>
     );
   }
@@ -49,7 +51,7 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
           <h3 className="text-white font-semibold">{personName}</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-white">✕</button>
         </div>
-        <div className="text-slate-400 text-sm">Ingen tidslinjedata tilgjengelig for denne personen.</div>
+        <div className="text-slate-400 text-sm">{t('timeline.noData')}</div>
       </div>
     );
   }
@@ -59,15 +61,14 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
   const maxYear = currentYear + 1;
   const totalYears = maxYear - minYear;
 
-  // Detect revolving door gaps (< 2 years between gov/political exit and board/exec entry)
   const gaps = detectRevolvingDoorGaps(timeline.positions);
 
   return (
     <div className="absolute top-24 right-4 w-[550px] bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-30 overflow-hidden">
       <div className="flex justify-between items-center p-4 border-b border-slate-700">
         <div>
-          <h3 className="text-white font-semibold">📅 Tidslinje — {personName}</h3>
-          <p className="text-xs text-slate-400 mt-1">Posisjoner over tid • Røde markører = kort karantene</p>
+          <h3 className="text-white font-semibold">{t('timeline.title')} — {personName}</h3>
+          <p className="text-xs text-slate-400 mt-1">{t('timeline.subtitle')}</p>
         </div>
         <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">✕</button>
       </div>
@@ -109,7 +110,7 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
                     }}
                   >
                     <span className="text-[9px] text-slate-900 font-medium truncate">
-                      {pos.startYear}–{pos.endYear || 'nå'}
+                      {pos.startYear}–{pos.endYear || t('timeline.now')}
                     </span>
                   </div>
                 </div>
@@ -122,10 +123,10 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
         {gaps.length > 0 && (
           <div className="mt-4 pt-3 border-t border-slate-700">
             <h4 className="text-xs font-semibold text-red-400 uppercase mb-2 group relative inline-flex items-center gap-1 cursor-help">
-              ⚠️ <span className="underline decoration-dotted">Svingdør-mønster</span> oppdaget
+              ⚠️ <span className="underline decoration-dotted">{t('timeline.revolvingDoor')}</span> {t('timeline.detected')}
               <span className="invisible group-hover:visible absolute bottom-full left-0 mb-2 w-72 p-3 bg-slate-900 border border-slate-600 rounded-lg shadow-xl text-xs text-slate-300 font-normal normal-case z-50">
-                <strong className="text-white block mb-1">Svingdør (revolving door)</strong>
-                Mønsteret der politikere forlater statlige posisjoner og raskt tar styreverv eller lederroller i privat næringsliv — ofte i samme sektor de regulerte. Dette kan tyde på interessekonflikter: politikeren kan ha tatt gunstige beslutninger i embetet med viten om en fremtidig stilling, eller deres innsidekunnskap gir selskapet en urettferdig fordel. Norge har en <em>karantenelov</em> som krever ventetid før slike overganger.
+                <strong className="text-white block mb-1">{t('timeline.revolvingDoorTitle')}</strong>
+                {t('timeline.revolvingDoorExplain')}
               </span>
             </h4>
             {gaps.map((gap, i) => (
@@ -135,9 +136,9 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
                 </div>
                 <div className="text-xs text-red-400/80 mt-1">
                   {gap.gapYears === 0
-                    ? 'Samme år — ingen karantene'
-                    : `${gap.gapYears} år mellom rollene`}
-                  {gap.gapYears <= 1 && ' — mulig brudd på karanteneregler'}
+                    ? t('timeline.sameYear')
+                    : `${gap.gapYears} ${t('timeline.yearsBetween')}`}
+                  {gap.gapYears <= 1 && ` ${t('timeline.possibleViolation')}`}
                 </div>
               </div>
             ))}

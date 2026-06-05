@@ -10,8 +10,15 @@ import CompanyDetails from './components/CompanyDetails';
 import type { FilterState } from './components/FilterPanel';
 import { getOverviewGraph, expandNode, getCompanyGraph, getPersonGraph } from './services/api';
 import type { GraphData, GraphNode } from './services/api';
+import { I18nContext, createI18nValue } from './I18nContext';
+import type { Language } from './i18n';
 
 export default function App() {
+  const [lang, setLang] = useState<Language>(() => {
+    return (localStorage.getItem('lang') as Language) || 'no';
+  });
+  const i18n = useMemo(() => createI18nValue(lang, (l) => { setLang(l); localStorage.setItem('lang', l); }), [lang]);
+
   const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,7 +42,7 @@ export default function App() {
       setGraphData(data);
       setError(null);
     } catch (e) {
-      setError('Kunne ikke laste data. Er backend kjørende på port 3001?');
+      setError(i18n.t('error.backend'));
     } finally {
       setLoading(false);
     }
@@ -139,6 +146,7 @@ export default function App() {
   }, [graphData]);
 
   return (
+    <I18nContext.Provider value={i18n}>
     <div className="relative w-full h-full flex flex-col">
       {/* Header bar — Stortinget-inspired */}
       <div className="flex-shrink-0 bg-white border-b border-[var(--stortinget-border)] shadow-sm z-20">
@@ -149,10 +157,10 @@ export default function App() {
             <div className="flex items-center gap-4">
               <div>
                 <h1 className="text-xl text-[var(--stortinget-dark)] mb-0 leading-tight">
-                  Norsk Nettverk
+                  {i18n.t('app.title')}
                 </h1>
                 <p className="text-xs text-[var(--stortinget-muted)] mt-0.5">
-                  Styre, makt & interessekonflikter
+                  {i18n.t('app.subtitle')}
                 </p>
               </div>
               <div className="w-px h-8 bg-[var(--stortinget-border)]" />
@@ -162,13 +170,22 @@ export default function App() {
               <button
                 onClick={handleResetToOverview}
                 className="px-3 py-1.5 rounded text-xs font-semibold transition-colors border bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-red)] hover:text-[var(--stortinget-red)]"
-                title="Tilbake til Stortinget-oversikt"
+                title={i18n.t('app.overview.tooltip')}
               >
-                🏛️ Oversikt
+                {i18n.t('app.overview')}
               </button>
             </div>
             {/* Toolbar */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              {/* Language toggle */}
+              <button
+                onClick={() => i18n.setLang(lang === 'no' ? 'en' : 'no')}
+                className="px-2 py-1.5 rounded text-xs font-semibold transition-colors border bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-navy)] hover:text-[var(--stortinget-navy)]"
+                title={lang === 'no' ? 'Switch to English' : 'Bytt til norsk'}
+              >
+                {lang === 'no' ? '🇬🇧 EN' : '🇳🇴 NO'}
+              </button>
+              <div className="w-px h-6 bg-[var(--stortinget-border)]" />
               <button
                 onClick={() => setShowConflicts(!showConflicts)}
                 className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors border ${
@@ -177,7 +194,7 @@ export default function App() {
                     : 'bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-red)] hover:text-[var(--stortinget-red)]'
                 }`}
               >
-                ⚠️ Konflikter
+                {i18n.t('app.conflicts')}
               </button>
               <button
                 onClick={() => setShowFilters(!showFilters)}
@@ -187,7 +204,7 @@ export default function App() {
                     : 'bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-navy)] hover:text-[var(--stortinget-navy)]'
                 }`}
               >
-                🔍 Filtre
+                {i18n.t('app.filters')}
               </button>
               <button
                 onClick={() => {
@@ -200,9 +217,9 @@ export default function App() {
                     ? 'bg-[var(--stortinget-navy)] text-white border-[var(--stortinget-navy)]'
                     : 'bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-navy)] hover:text-[var(--stortinget-navy)]'
                 }`}
-                title={!selectedNode?.type || selectedNode.type !== 'person' ? 'Velg en person først' : ''}
+                title={!selectedNode?.type || selectedNode.type !== 'person' ? i18n.t('app.timeline.select') : ''}
               >
-                📅 Tidslinje
+                {i18n.t('app.timeline')}
               </button>
             </div>
           </div>
@@ -217,7 +234,7 @@ export default function App() {
         {/* Graph */}
         {loading ? (
           <div className="flex items-center justify-center w-full h-full">
-            <div className="text-lg text-[var(--stortinget-muted)]">Laster nettverk...</div>
+            <div className="text-lg text-[var(--stortinget-muted)]">{i18n.t('loading')}</div>
           </div>
         ) : error ? (
           <div className="flex items-center justify-center w-full h-full">
@@ -262,6 +279,7 @@ export default function App() {
           )}
           nodes={graphData.nodes}
           onClose={() => setSelectedNode(null)}
+          onNodeClick={handleNodeClick}
         />
       )}
 
@@ -275,6 +293,7 @@ export default function App() {
       )}
       </div>
     </div>
+    </I18nContext.Provider>
   );
 }
 

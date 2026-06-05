@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { CompanyDetails as CompanyDetailsType } from '../services/api';
 import { getCompanyDetails } from '../services/api';
+import { useI18n } from '../I18nContext';
 
 interface Props {
   orgNumber: string;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function CompanyDetails({ orgNumber, companyName, onClose }: Props) {
+  const { t, lang } = useI18n();
   const [details, setDetails] = useState<CompanyDetailsType | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -23,7 +25,7 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
   if (loading) {
     return (
       <div className="absolute bottom-4 right-4 w-96 bg-slate-800 border border-slate-600 rounded-lg p-4 z-20">
-        <div className="text-slate-400 text-sm">Henter selskapsinformasjon...</div>
+        <div className="text-slate-400 text-sm">{t('company.loading')}</div>
       </div>
     );
   }
@@ -35,7 +37,7 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
           <h3 className="text-white font-semibold">{companyName}</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-white">✕</button>
         </div>
-        <p className="text-slate-400 text-sm">Ingen detaljer tilgjengelig.</p>
+        <p className="text-slate-400 text-sm">{t('company.noDetails')}</p>
       </div>
     );
   }
@@ -52,18 +54,18 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
             </span>
             {details.isStateOwned && (
               <span className="text-xs px-1.5 py-0.5 rounded bg-amber-900/50 text-amber-300 border border-amber-700/50"
-                title="Statlig eid — potensielt relevant for interessekonflikter med politikere">
-                🏛️ Statlig eid
+                title={t('company.stateOwnedTooltip')}>
+                {t('company.stateOwned')}
               </span>
             )}
             {details.isPubliclyListed && (
               <span className="text-xs px-1.5 py-0.5 rounded bg-blue-900/50 text-blue-300 border border-blue-700/50">
-                📈 Børsnotert
+                {t('company.listed')}
               </span>
             )}
             {details.isBankrupt && (
               <span className="text-xs px-1.5 py-0.5 rounded bg-red-900/50 text-red-300 border border-red-700/50">
-                ⚠️ Konkurs
+                {t('company.bankrupt')}
               </span>
             )}
           </div>
@@ -76,23 +78,23 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
         {/* Key metrics */}
         <div className="grid grid-cols-2 gap-3">
           {details.employees && (
-            <MetricCard label="Ansatte" value={details.employees.toLocaleString('nb-NO')} icon="👥" />
+            <MetricCard label={t('company.employees')} value={details.employees.toLocaleString(lang === 'no' ? 'nb-NO' : 'en-US')} icon="👥" />
           )}
           {details.founded && (
-            <MetricCard label="Stiftet" value={formatDate(details.founded)} icon="📅" />
+            <MetricCard label={t('company.founded')} value={formatDate(details.founded, lang)} icon="📅" />
           )}
           {details.lastAnnualReport && (
-            <MetricCard label="Siste årsregnskap" value={details.lastAnnualReport} icon="📊" />
+            <MetricCard label={t('company.lastReport')} value={details.lastAnnualReport} icon="📊" />
           )}
           {details.ownershipSector && (
-            <MetricCard label="Sektor" value={details.ownershipSector} icon="🏢" />
+            <MetricCard label={t('company.sector')} value={details.ownershipSector} icon="🏢" />
           )}
         </div>
 
         {/* Industry */}
         {details.industry.length > 0 && (
           <div>
-            <h4 className="text-xs font-semibold text-slate-400 uppercase mb-1">Bransje / Næringskoder</h4>
+            <h4 className="text-xs font-semibold text-slate-400 uppercase mb-1">{t('company.industry')}</h4>
             <div className="space-y-1">
               {details.industry.map((ind, i) => (
                 <div key={i} className="text-sm text-slate-300 bg-slate-700/50 px-2 py-1 rounded">
@@ -106,7 +108,7 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
         {/* Purpose */}
         {details.purpose && (
           <div>
-            <h4 className="text-xs font-semibold text-slate-400 uppercase mb-1">Formål</h4>
+            <h4 className="text-xs font-semibold text-slate-400 uppercase mb-1">{t('company.purpose')}</h4>
             <p className="text-sm text-slate-300 leading-relaxed">{details.purpose}</p>
           </div>
         )}
@@ -114,31 +116,30 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
         {/* Contact info */}
         <div className="pt-2 border-t border-slate-700 space-y-1.5">
           {details.location && (
-            <InfoRow icon="📍" label="Adresse" value={details.location} />
+            <InfoRow icon="📍" label={t('company.address')} value={details.location} />
           )}
           {details.website && (
             <InfoRow
               icon="🌐"
-              label="Nettside"
+              label={t('company.website')}
               value={details.website}
               href={details.website.startsWith('http') ? details.website : `https://${details.website}`}
             />
           )}
           {details.phone && (
-            <InfoRow icon="📞" label="Telefon" value={details.phone} />
+            <InfoRow icon="📞" label={t('company.phone')} value={details.phone} />
           )}
-          <InfoRow icon="🔢" label="Org.nr" value={details.orgNumber} />
+          <InfoRow icon="🔢" label={t('company.orgNr')} value={details.orgNumber} />
         </div>
 
         {/* State ownership warning */}
         {details.isStateOwned && (
           <div className="bg-amber-900/20 border border-amber-700/50 rounded-lg p-3 mt-2">
             <div className="text-xs font-semibold text-amber-300 mb-1">
-              ⚠️ Relevans for interessekonflikter
+              {t('company.conflictRelevance')}
             </div>
             <p className="text-xs text-amber-200/80">
-              Dette er et statlig eid selskap. Politikere som har hatt ansvar for statlig eierskap
-              og som senere tar styreverv her kan ha interessekonflikter.
+              {t('company.conflictExplain')}
             </p>
           </div>
         )}
@@ -172,9 +173,9 @@ function InfoRow({ icon, label, value, href }: { icon: string; label: string; va
   );
 }
 
-function formatDate(dateStr: string): string {
+function formatDate(dateStr: string, lang: string): string {
   try {
-    return new Date(dateStr).toLocaleDateString('nb-NO', { year: 'numeric', month: 'long', day: 'numeric' });
+    return new Date(dateStr).toLocaleDateString(lang === 'no' ? 'nb-NO' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   } catch {
     return dateStr;
   }

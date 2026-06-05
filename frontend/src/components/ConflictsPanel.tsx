@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import type { ConflictOfInterest } from '../services/api';
 import { getAllConflicts } from '../services/api';
+import { useI18n } from '../I18nContext';
 
 const SEVERITY_COLORS: Record<string, { bg: string; border: string; text: string }> = {
   high: { bg: 'bg-red-900/30', border: 'border-red-700/50', text: 'text-red-300' },
@@ -28,6 +29,7 @@ interface Props {
 }
 
 export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
+  const { t } = useI18n();
   const [conflicts, setConflicts] = useState<ConflictOfInterest[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>('all');
@@ -88,10 +90,10 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
         onMouseDown={handleMouseDown}
       >
         <div>
-          <h3 className="text-white font-semibold">⚠️ Interessekonflikter</h3>
+          <h3 className="text-white font-semibold">{t('conflicts.title')}</h3>
           <p className="text-xs text-slate-400 mt-1">
-            Automatisk oppdagede potensielle konflikter
-            <span className="ml-2 text-slate-500 italic">— dra for å flytte</span>
+            {t('conflicts.subtitle')}
+            <span className="ml-2 text-slate-500 italic">{t('conflicts.drag')}</span>
           </p>
         </div>
         <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">✕</button>
@@ -99,26 +101,35 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
 
       {/* Filter tabs */}
       <div className="flex gap-1 p-2 border-b border-slate-700 overflow-x-auto">
-        {['all', 'revolving_door', 'sector_overlap', 'concurrent', 'shared_network'].map((type) => (
-          <button
-            key={type}
-            onClick={() => setFilterType(type)}
-            className={`px-2 py-1 rounded text-xs whitespace-nowrap ${
-              filterType === type
-                ? 'bg-slate-600 text-white'
-                : 'text-slate-400 hover:bg-slate-700'
-            }`}
-          >
-            {type === 'all' ? 'Alle' : CONFLICT_TYPE_LABELS[type]}
-          </button>
-        ))}
+        {['all', 'revolving_door', 'sector_overlap', 'concurrent', 'shared_network'].map((type) => {
+          const labelMap: Record<string, string> = {
+            all: t('conflicts.all'),
+            revolving_door: t('conflicts.revolvingDoor'),
+            sector_overlap: t('conflicts.sectorOverlap'),
+            concurrent: t('conflicts.concurrent'),
+            shared_network: t('conflicts.sharedNetwork'),
+          };
+          return (
+            <button
+              key={type}
+              onClick={() => setFilterType(type)}
+              className={`px-2 py-1 rounded text-xs whitespace-nowrap ${
+                filterType === type
+                  ? 'bg-slate-600 text-white'
+                  : 'text-slate-400 hover:bg-slate-700'
+              }`}
+            >
+              {labelMap[type]}
+            </button>
+          );
+        })}
       </div>
 
       <div className="p-3 overflow-y-auto max-h-[500px] space-y-2">
         {loading ? (
-          <div className="text-slate-400 text-sm">Laster...</div>
+          <div className="text-slate-400 text-sm">{t('conflicts.loading')}</div>
         ) : filtered.length === 0 ? (
-          <div className="text-slate-400 text-sm">Ingen konflikter funnet.</div>
+          <div className="text-slate-400 text-sm">{t('conflicts.none')}</div>
         ) : (
           filtered.map((conflict, i) => {
             const colors = SEVERITY_COLORS[conflict.severity];

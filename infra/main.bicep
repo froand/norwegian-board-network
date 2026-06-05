@@ -80,7 +80,7 @@ resource backendApp 'Microsoft.App/containerApps@2023-05-01' = {
       containers: [
         {
           name: 'backend'
-          image: '${acr.properties.loginServer}/${environmentName}-backend:latest'
+          image: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
           resources: {
             cpu: json('0.5')
             memory: '1Gi'
@@ -145,7 +145,7 @@ resource frontendApp 'Microsoft.App/containerApps@2023-05-01' = {
       containers: [
         {
           name: 'frontend'
-          image: '${acr.properties.loginServer}/${environmentName}-frontend:latest'
+          image: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
           resources: {
             cpu: json('0.25')
             memory: '0.5Gi'

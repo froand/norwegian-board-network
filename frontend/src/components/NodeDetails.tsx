@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import type { GraphNode, GraphLink, PersonDetails, PersonPosition } from '../services/api';
 import { getPersonDetails } from '../services/api';
+import { useI18n } from '../I18nContext';
 
-const TYPE_LABELS: Record<string, string> = {
-  person: '👤 Person',
-  company: '🏢 Selskap',
-  political_party: '🏛️ Parti',
-  government_body: '⚖️ Statlig organ',
+const TYPE_LABEL_KEYS: Record<string, string> = {
+  person: 'node.person',
+  company: 'node.company',
+  political_party: 'node.party',
+  government_body: 'node.government',
 };
 
 const POSITION_TYPE_ICONS: Record<string, string> = {
@@ -22,9 +23,11 @@ interface Props {
   links: GraphLink[];
   nodes: GraphNode[];
   onClose: () => void;
+  onNodeClick?: (node: GraphNode) => void;
 }
 
-export default function NodeDetails({ node, links, nodes, onClose }: Props) {
+export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }: Props) {
+  const { t } = useI18n();
   const [details, setDetails] = useState<PersonDetails | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
 
@@ -56,7 +59,7 @@ export default function NodeDetails({ node, links, nodes, onClose }: Props) {
   function renderPosition(pos: PersonPosition, index: number) {
     const icon = POSITION_TYPE_ICONS[pos.type] || '•';
     const yearRange = pos.startYear
-      ? `${pos.startYear}–${pos.endYear === null ? 'nå' : pos.endYear || ''}`
+      ? `${pos.startYear}–${pos.endYear === null ? t('node.now') : pos.endYear || ''}`
       : '';
 
     return (
@@ -91,7 +94,7 @@ export default function NodeDetails({ node, links, nodes, onClose }: Props) {
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-[var(--stortinget-dark)] truncate">{node.name}</h3>
           <div className="text-xs text-[var(--stortinget-muted)] mt-0.5">
-            {TYPE_LABELS[node.type] || node.type}
+            {t(TYPE_LABEL_KEYS[node.type] || node.type)}
           </div>
           {(node.meta?.party || details?.party) && (
             <div className="text-xs text-[var(--stortinget-muted)] mt-0.5">
@@ -103,7 +106,7 @@ export default function NodeDetails({ node, links, nodes, onClose }: Props) {
             <div className="text-xs text-blue-600 mt-0.5 truncate">{details.email}</div>
           )}
           {details?.birthYear && (
-            <div className="text-[10px] text-[var(--stortinget-muted)]">Født {details.birthYear}</div>
+            <div className="text-[10px] text-[var(--stortinget-muted)]">{t('node.born')} {details.birthYear}</div>
           )}
         </div>
         <button
@@ -117,13 +120,13 @@ export default function NodeDetails({ node, links, nodes, onClose }: Props) {
       <div className="p-3 overflow-y-auto flex-1">
         {/* Current positions */}
         {loadingDetails && (
-          <div className="text-xs text-[var(--stortinget-muted)] mb-3 animate-pulse">Henter posisjoner...</div>
+          <div className="text-xs text-[var(--stortinget-muted)] mb-3 animate-pulse">{t('node.loadingPositions')}</div>
         )}
 
         {details && details.currentPositions.length > 0 && (
           <div className="mb-3">
             <h4 className="text-[10px] font-semibold text-[var(--stortinget-muted)] uppercase mb-2">
-              Nåværende posisjoner ({details.currentPositions.length})
+              {t('node.currentPositions')} ({details.currentPositions.length})
             </h4>
             <div className="space-y-1">
               {details.currentPositions.map((pos, i) => renderPosition(pos, i))}
@@ -135,7 +138,7 @@ export default function NodeDetails({ node, links, nodes, onClose }: Props) {
         {details && details.pastPositions.length > 0 && (
           <div className="mb-3">
             <h4 className="text-[10px] font-semibold text-[var(--stortinget-muted)] uppercase mb-2">
-              Tidligere posisjoner ({details.pastPositions.length})
+              {t('node.pastPositions')} ({details.pastPositions.length})
             </h4>
             <div className="space-y-1">
               {details.pastPositions.map((pos, i) => renderPosition(pos, i))}
@@ -147,42 +150,51 @@ export default function NodeDetails({ node, links, nodes, onClose }: Props) {
         {links.length > 0 && (
           <div>
             <h4 className="text-[10px] font-semibold text-[var(--stortinget-muted)] uppercase mb-2">
-              Forbindelser ({links.length})
+              {t('node.connections')} ({links.length})
             </h4>
             <div className="space-y-1 max-h-40 overflow-y-auto">
-              {links.map((link, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-2 text-sm py-1.5 px-2 rounded bg-gray-50 border border-gray-100"
-                >
-                  <span
-                    className="w-2 h-2 rounded-full flex-shrink-0"
-                    style={{
-                      backgroundColor:
-                        link.category === 'board'
-                          ? '#22c55e'
-                          : link.category === 'political'
-                          ? '#cf0a2c'
-                          : link.category === 'government'
-                          ? '#f59e0b'
-                          : '#8b5cf6',
+              {links.map((link, i) => {
+                const connectedId = getConnectedId(link);
+                const connectedNode = nodeMap.get(connectedId);
+                return (
+                  <div
+                    key={i}
+                    className={`flex items-center gap-2 text-sm py-1.5 px-2 rounded bg-gray-50 border border-gray-100 ${
+                      onNodeClick && connectedNode ? 'cursor-pointer hover:bg-gray-100 hover:border-gray-200 transition-colors' : ''
+                    }`}
+                    onClick={() => {
+                      if (onNodeClick && connectedNode) onNodeClick(connectedNode);
                     }}
-                  />
-                  <span className="text-[var(--stortinget-text)] truncate">
-                    {getNodeName(getConnectedId(link))}
-                  </span>
-                  <span className="text-[10px] text-[var(--stortinget-muted)] ml-auto flex-shrink-0">
-                    {link.label}
-                  </span>
-                </div>
-              ))}
+                  >
+                    <span
+                      className="w-2 h-2 rounded-full flex-shrink-0"
+                      style={{
+                        backgroundColor:
+                          link.category === 'board'
+                            ? '#22c55e'
+                            : link.category === 'political'
+                            ? '#cf0a2c'
+                            : link.category === 'government'
+                            ? '#f59e0b'
+                            : '#8b5cf6',
+                      }}
+                    />
+                    <span className={`truncate ${onNodeClick && connectedNode ? 'text-blue-700 hover:underline' : 'text-[var(--stortinget-text)]'}`}>
+                      {getNodeName(connectedId)}
+                    </span>
+                    <span className="text-[10px] text-[var(--stortinget-muted)] ml-auto flex-shrink-0">
+                      {link.label}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
 
         {node.type === 'person' && !details && !loadingDetails && (
           <p className="text-xs text-[var(--stortinget-muted)] mt-3">
-            Klikk på andre noder for å utforske nettverket
+            {t('node.explore')}
           </p>
         )}
       </div>

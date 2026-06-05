@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { search } from '../services/api';
 import type { SearchResult } from '../services/api';
+import { useI18n } from '../I18nContext';
 
 interface Props {
   onSelect: (id: string, type: string, orgNumber?: string) => void;
 }
 
 export default function SearchBar({ onSelect }: Props) {
+  const { t } = useI18n();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -47,7 +49,7 @@ export default function SearchBar({ onSelect }: Props) {
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Søk etter person eller selskap..."
+        placeholder={t('search.placeholder')}
         className="w-full px-3 py-1.5 bg-white border border-[var(--stortinget-border)] rounded text-sm text-[var(--stortinget-text)] placeholder-[var(--stortinget-muted)] focus:outline-none focus:border-[var(--stortinget-red)] focus:ring-1 focus:ring-[var(--stortinget-red)]"
       />
 
@@ -56,7 +58,7 @@ export default function SearchBar({ onSelect }: Props) {
           {results.persons.length > 0 && (
             <div>
               <div className="px-3 py-1.5 text-xs font-semibold text-[var(--stortinget-muted)] uppercase border-b border-[var(--stortinget-border)]">
-                Personer
+                {t('search.persons')}
               </div>
               {results.persons.map((p) => (
                 <button
@@ -74,7 +76,7 @@ export default function SearchBar({ onSelect }: Props) {
           {results.companies.length > 0 && (
             <div>
               <div className="px-3 py-1.5 text-xs font-semibold text-[var(--stortinget-muted)] uppercase border-b border-[var(--stortinget-border)]">
-                Selskaper
+                {t('search.companies')}
               </div>
               {results.companies.map((c) => (
                 <button
@@ -92,7 +94,7 @@ export default function SearchBar({ onSelect }: Props) {
 
           {results.persons.length === 0 && results.companies.length === 0 && (
             <div className="px-3 py-4 text-center text-[var(--stortinget-muted)] text-sm">
-              Ingen resultater funnet
+              {t('search.noResults')}
             </div>
           )}
         </div>
