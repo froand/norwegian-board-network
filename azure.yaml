@@ -1,0 +1,16 @@
+# Azure deployment configuration
+name: norwegian-board-network
+metadata:
+  template: norwegian-board-network@0.0.1
+services:
+  backend:
+    project: ./backend
+    language: ts
+    host: appservice
+    resourceName: norsk-nettverk-api
+  frontend:
+    project: ./frontend
+    language: ts
+    host: appservice
+    resourceName: norsk-nettverk-web
+    dist: dist
