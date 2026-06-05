@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getCompanyRoles, getPersonRolesNetwork } from '../services/brreg.js';
-import { getPoliticalData, getPersonPoliticalNetwork } from '../services/political-data.js';
+import { getPoliticalData, getPersonPoliticalNetwork, getPersonTimeline, getAllTimelines, getConflictsForPerson, getAllConflicts } from '../services/political-data.js';
 import type { GraphData } from '../types.js';
 
 export const graphRoutes = Router();
@@ -118,3 +118,28 @@ function mergeGraphData(a: GraphData, b: GraphData): GraphData {
 
   return { nodes: Array.from(nodeMap.values()), links };
 }
+
+// Timeline endpoints
+graphRoutes.get('/timeline/:personId', (req, res) => {
+  const { personId } = req.params;
+  const timeline = getPersonTimeline(personId);
+  if (!timeline) {
+    res.status(404).json({ error: 'No timeline data for this person' });
+    return;
+  }
+  res.json(timeline);
+});
+
+graphRoutes.get('/timelines', (_req, res) => {
+  res.json(getAllTimelines());
+});
+
+// Conflict of interest endpoints
+graphRoutes.get('/conflicts', (_req, res) => {
+  res.json(getAllConflicts());
+});
+
+graphRoutes.get('/conflicts/:personId', (req, res) => {
+  const { personId } = req.params;
+  res.json(getConflictsForPerson(personId));
+});

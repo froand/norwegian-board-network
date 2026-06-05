@@ -59,3 +59,52 @@ export async function expandNode(nodeId: string): Promise<GraphData> {
   if (!res.ok) throw new Error('Failed to expand node');
   return res.json();
 }
+
+// Timeline types and API
+export interface TimelinePosition {
+  orgId: string;
+  orgName: string;
+  role: string;
+  category: 'board' | 'political' | 'government' | 'executive';
+  sector?: string;
+  startYear: number;
+  endYear?: number;
+}
+
+export interface PersonTimeline {
+  personId: string;
+  personName: string;
+  positions: TimelinePosition[];
+}
+
+export interface ConflictOfInterest {
+  personId: string;
+  personName: string;
+  politicalRole: string;
+  politicalOrg: string;
+  boardRole: string;
+  boardOrg: string;
+  sector: string;
+  conflictType: 'revolving_door' | 'concurrent' | 'sector_overlap' | 'shared_network';
+  description: string;
+  severity: 'high' | 'medium' | 'low';
+}
+
+export async function getPersonTimeline(personId: string): Promise<PersonTimeline | null> {
+  const res = await fetch(`${API_BASE}/graph/timeline/${encodeURIComponent(personId)}`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error('Failed to fetch timeline');
+  return res.json();
+}
+
+export async function getAllConflicts(): Promise<ConflictOfInterest[]> {
+  const res = await fetch(`${API_BASE}/graph/conflicts`);
+  if (!res.ok) throw new Error('Failed to fetch conflicts');
+  return res.json();
+}
+
+export async function getPersonConflicts(personId: string): Promise<ConflictOfInterest[]> {
+  const res = await fetch(`${API_BASE}/graph/conflicts/${encodeURIComponent(personId)}`);
+  if (!res.ok) throw new Error('Failed to fetch conflicts');
+  return res.json();
+}
