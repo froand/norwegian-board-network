@@ -32,9 +32,35 @@ export interface GraphData {
   links: GraphLink[];
 }
 
+export interface AiSearchResultNode {
+  id: string;
+  name: string;
+  type: GraphNode['type'];
+}
+
+export interface AiSearchResult {
+  query: string;
+  explanation: string;
+  matchedNodeIds: string[];
+  matchedNodes: AiSearchResultNode[];
+  totalMatches: number;
+}
+
 export async function search(query: string): Promise<SearchResult> {
   const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
   if (!res.ok) throw new Error('Search failed');
+  return res.json();
+}
+
+export async function searchWithAI(query: string): Promise<AiSearchResult> {
+  const res = await fetch(`${API_BASE}/ai/search`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ query }),
+  });
+  if (!res.ok) throw new Error('AI search failed');
   return res.json();
 }
 
