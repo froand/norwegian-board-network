@@ -18,6 +18,7 @@ const { searchRoutes } = await import('./routes/search.js');
 const { graphRoutes } = await import('./routes/graph.js');
 const { companyRoutes } = await import('./routes/company.js');
 const { sourcesRoutes } = await import('./routes/sources.js');
+const { aiRoutes } = await import('./routes/ai.js');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -29,6 +30,7 @@ app.use('/api/search', searchRoutes);
 app.use('/api/graph', graphRoutes);
 app.use('/api/company', companyRoutes);
 app.use('/api/sources', sourcesRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { ConflictOfInterest } from '../services/api';
-import { getAllConflicts } from '../services/api';
+import { detectAiConflicts, getAllConflicts } from '../services/api';
 import { useI18n } from '../I18nContext';
 import { useDraggable } from '../hooks/useDraggable';
 
@@ -30,23 +30,71 @@ interface Props {
   onClose: () => void;
 }
 
+const DISMISSED_AI_CONFLICTS_KEY = 'dismissed-ai-conflicts';
+
+function getConflictDismissKey(conflict: ConflictOfInterest): string {
+  if (conflict.dismissKey) return conflict.dismissKey;
+  return `${conflict.personId}|${conflict.conflictType}|${conflict.boardOrg}|${conflict.boardRole}`.toLowerCase();
+}
+
 export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
   const { t } = useI18n();
   const [conflicts, setConflicts] = useState<ConflictOfInterest[]>([]);
+  const [aiConflicts, setAiConflicts] = useState<ConflictOfInterest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [detecting, setDetecting] = useState(false);
+  const [detectError, setDetectError] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string>('all');
+  const [dismissedAiConflicts, setDismissedAiConflicts] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem(DISMISSED_AI_CONFLICTS_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === 'string') : [];
+    } catch {
+      return [];
+    }
+  });
   const { position, handleMouseDown } = useDraggable({ x: 16, y: 96 });
 
   useEffect(() => {
     getAllConflicts()
-      .then(setConflicts)
+      .then((data) => setConflicts(data.map((conflict) => ({ ...conflict, sourceType: 'curated' }))))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
+  const visibleAiConflicts = aiConflicts.filter((conflict) => {
+    const key = getConflictDismissKey(conflict);
+    return !dismissedAiConflicts.includes(key);
+  });
+
+  const allConflicts = [...conflicts, ...visibleAiConflicts];
+
   const filtered = filterType === 'all'
-    ? conflicts
-    : conflicts.filter((c) => c.conflictType === filterType);
+    ? allConflicts
+    : allConflicts.filter((c) => c.conflictType === filterType);
+
+  const handleDetectConflicts = async () => {
+    setDetecting(true);
+    setDetectError(null);
+    try {
+      const detected = await detectAiConflicts();
+      setAiConflicts(detected.map((conflict) => ({ ...conflict, sourceType: 'ai_suggested' })));
+    } catch (error) {
+      console.error(error);
+      setDetectError(t('conflicts.detectFailed'));
+    } finally {
+      setDetecting(false);
+    }
+  };
+
+  const handleDismissAiConflict = (conflict: ConflictOfInterest) => {
+    const key = getConflictDismissKey(conflict);
+    const next = dismissedAiConflicts.includes(key) ? dismissedAiConflicts : [...dismissedAiConflicts, key];
+    setDismissedAiConflicts(next);
+    localStorage.setItem(DISMISSED_AI_CONFLICTS_KEY, JSON.stringify(next));
+  };
 
   return (
     <div
@@ -65,6 +113,19 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
           </p>
         </div>
         <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg">✕</button>
+      </div>
+
+      <div className="px-4 py-2 border-b border-gray-200">
+        <button
+          onClick={handleDetectConflicts}
+          disabled={detecting}
+          className="w-full text-xs font-medium px-3 py-2 rounded border border-[var(--stortinget-red)] text-[var(--stortinget-red)] hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {detecting ? t('conflicts.detecting') : t('conflicts.detectButton')}
+        </button>
+        {detectError && (
+          <p className="mt-2 text-[11px] text-red-600">{detectError}</p>
+        )}
       </div>
 
       {/* Filter tabs */}
@@ -111,18 +172,30 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
                   <span className={`font-medium text-sm ${colors.text}`}>
                     {conflict.personName}
                   </span>
-                  <span
-                    className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 cursor-help border border-gray-200"
-                    title={CONFLICT_TYPE_TOOLTIPS[conflict.conflictType]}
-                  >
-                    {CONFLICT_TYPE_LABELS[conflict.conflictType]}
-                  </span>
+                  <div className="flex items-center gap-1">
+                    {conflict.sourceType === 'ai_suggested' && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200">
+                        {t('conflicts.aiSuggested')}
+                      </span>
+                    )}
+                    <span
+                      className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 cursor-help border border-gray-200"
+                      title={CONFLICT_TYPE_TOOLTIPS[conflict.conflictType]}
+                    >
+                      {CONFLICT_TYPE_LABELS[conflict.conflictType]}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap gap-1 mt-2 text-[10px] text-gray-600">
                   <span className="px-1.5 py-0.5 rounded bg-white/70 border border-gray-200 uppercase">
                     {conflict.severity}
                   </span>
+                  {typeof conflict.confidenceScore === 'number' && (
+                    <span className="px-1.5 py-0.5 rounded bg-white/70 border border-gray-200">
+                      {t('conflicts.confidence')}: {Math.round(conflict.confidenceScore * 100)}%
+                    </span>
+                  )}
                   {conflict.classification && (
                     <span className="px-1.5 py-0.5 rounded bg-white/70 border border-gray-200">
                       Klasse {conflict.classification}
@@ -147,6 +220,11 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
                 <p className="text-xs text-gray-500 mt-2 italic">
                   {conflict.description}
                 </p>
+                {conflict.explanation && (
+                  <p className="text-xs text-gray-600 mt-1">
+                    {conflict.explanation}
+                  </p>
+                )}
 
                 {conflict.sources && conflict.sources.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
@@ -162,6 +240,20 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
                         {source.label}
                       </a>
                     ))}
+                  </div>
+                )}
+
+                {conflict.sourceType === 'ai_suggested' && (
+                  <div className="mt-2">
+                    <button
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleDismissAiConflict(conflict);
+                      }}
+                      className="text-[11px] text-gray-600 underline hover:text-gray-900"
+                    >
+                      {t('conflicts.dismiss')}
+                    </button>
                   </div>
                 )}
               </div>

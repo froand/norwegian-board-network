@@ -98,6 +98,10 @@ export interface ConflictOfInterest {
   severity: 'critical' | 'high' | 'medium' | 'low';
   classification?: 'A' | 'B' | 'C' | 'D';
   sources?: { label: string; url: string }[];
+  confidenceScore?: number;
+  explanation?: string;
+  sourceType?: 'curated' | 'ai_suggested';
+  dismissKey?: string;
 }
 
 export async function getPersonTimeline(personId: string): Promise<PersonTimeline | null> {
@@ -111,6 +115,19 @@ export async function getAllConflicts(): Promise<ConflictOfInterest[]> {
   const res = await fetch(`${API_BASE}/graph/conflicts`);
   if (!res.ok) throw new Error('Failed to fetch conflicts');
   return res.json();
+}
+
+export async function detectAiConflicts(): Promise<ConflictOfInterest[]> {
+  const res = await fetch(`${API_BASE}/ai/detect-conflicts`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({}),
+  });
+  if (!res.ok) throw new Error('Failed to detect AI conflicts');
+  const data = await res.json() as { conflicts?: ConflictOfInterest[] };
+  return data.conflicts ?? [];
 }
 
 export interface ShortestPathResult {
