@@ -57,11 +57,26 @@ jobs:
           echo "VITE_API_URL=${{ vars.VITE_API_URL }}" > frontend/.env.production
           echo "VITE_APPINSIGHTS_CONNECTION_STRING=${{ secrets.APPINSIGHTS_CONNECTION_STRING }}" >> frontend/.env.production
 
+      - name: Mirror frontend base images into ACR
+        run: |
+          az acr import \
+            --name ${{ env.ACR_NAME }} \
+            --source docker.io/library/node:20-alpine \
+            --image cache/node:20-alpine \
+            --force
+          az acr import \
+            --name ${{ env.ACR_NAME }} \
+            --source docker.io/library/nginx:alpine \
+            --image cache/nginx:alpine \
+            --force
+
       - name: Build and push frontend image
         run: |
           az acr build \
             --registry ${{ env.ACR_NAME }} \
             --image norsk-nettverk-frontend:latest \
+            --build-arg NODE_BASE_IMAGE=${{ env.ACR_NAME }}.azurecr.io/cache/node:20-alpine \
+            --build-arg NGINX_BASE_IMAGE=${{ env.ACR_NAME }}.azurecr.io/cache/nginx:alpine \
             --file frontend/Dockerfile \
             frontend/
 
