@@ -1,3 +1,13 @@
+// Initialize Azure Monitor telemetry (must be before other imports take effect)
+import { useAzureMonitor } from '@azure/monitor-opentelemetry';
+if (process.env.APPLICATIONINSIGHTS_CONNECTION_STRING) {
+  useAzureMonitor({
+    azureMonitorExporterOptions: {
+      connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
+    },
+  });
+}
+
 import express from 'express';
 import cors from 'cors';
 import { searchRoutes } from './routes/search.js';

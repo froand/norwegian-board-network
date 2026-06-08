@@ -58,6 +58,7 @@ jobs:
             --registry ${{ env.ACR_NAME }} \
             --image norsk-nettverk-frontend:latest \
             --build-arg VITE_API_URL=${{ env.VITE_API_URL }} \
+            --build-arg VITE_APPINSIGHTS_CONNECTION_STRING=${{ secrets.APPINSIGHTS_CONNECTION_STRING }} \
             --file frontend/Dockerfile \
             frontend/
 
