@@ -97,6 +97,34 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
 
       {/* Body */}
       <div className="p-4 space-y-3 max-h-[500px] overflow-y-auto">
+        {/* Not found in Brreg notice */}
+        {details.notFoundInBrreg && (
+          <div className="bg-amber-50 border border-amber-200 rounded p-3 text-sm">
+            <p className="text-amber-800 font-medium mb-1">
+              {lang === 'no' ? 'Ikke funnet i Enhetsregisteret' : 'Not found in business registry'}
+            </p>
+            <p className="text-amber-700 text-xs mb-2">
+              {lang === 'no'
+                ? 'Organisasjonen kan være slettet, slått sammen, eller ha byttet organisasjonsnummer.'
+                : 'The organization may have been deleted, merged, or changed its org number.'}
+            </p>
+            {details.brregUrl && (
+              <a href={details.brregUrl} target="_blank" rel="noopener noreferrer"
+                className="text-xs text-blue-600 hover:underline">
+                🔗 {lang === 'no' ? 'Søk i Brønnøysundregistrene' : 'Search Brreg'} →
+              </a>
+            )}
+          </div>
+        )}
+
+        {/* Brreg link for found companies */}
+        {!details.notFoundInBrreg && details.brregUrl && (
+          <a href={details.brregUrl} target="_blank" rel="noopener noreferrer"
+            className="text-xs text-blue-600 hover:underline block">
+            🔗 {lang === 'no' ? 'Se i Brønnøysundregistrene' : 'View in Brreg'} →
+          </a>
+        )}
+
         {/* Entanglement Score */}
         {details.entanglementScore > 0 && (
           <EntanglementScoreBar score={details.entanglementScore} lang={lang} />

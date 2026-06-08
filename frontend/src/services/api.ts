@@ -188,6 +188,8 @@ export interface CompanyDetails {
   liveBoard: LiveBoardMember[];
   isDeleted?: boolean;
   deletedDate?: string | null;
+  notFoundInBrreg?: boolean;
+  brregUrl?: string;
 }
 
 export async function getCompanyDetails(orgNumber: string): Promise<CompanyDetails | null> {

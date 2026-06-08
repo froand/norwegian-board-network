@@ -775,7 +775,7 @@ const politicalNodes: GraphNode[] = [
   { id: 'org-okea', name: 'OKEA ASA (Org.nr. 915 419 062)', type: 'company', group: 'company' },
   { id: 'org-forleggerforeningen', name: 'Den norske Forleggerforening (Org.nr. 970 169 330)', type: 'company', group: 'company' },
   { id: 'org-legemiddelindustrien', name: 'Legemiddelindustrien (LMI) (Org.nr. 983 956 527)', type: 'company', group: 'company' },
-  { id: 'org-sjomat-norge', name: 'Sjømat Norge (Org.nr. 984 736 278)', type: 'company', group: 'company' },
+  { id: 'org-sjomat-norge', name: 'Sjømat Norge (Org.nr. 974 461 021)', type: 'company', group: 'company' },
   { id: 'org-vestre', name: 'Vestre AS (Org.nr. 923 470 565)', type: 'company', group: 'company' },
   { id: 'org-private-aksjeinvesteringer', name: 'Private aksjeinvesteringer', type: 'company', group: 'company' },
   { id: 'org-utoya', name: 'Utøya AS', type: 'company', group: 'company' },

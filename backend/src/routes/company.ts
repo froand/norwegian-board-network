@@ -56,6 +56,8 @@ interface CompanyDetails {
   liveBoard: LiveBoardMember[];
   isDeleted: boolean;
   deletedDate: string | null;
+  notFoundInBrreg: boolean;
+  brregUrl: string;
 }
 
 interface PoliticalConnection {
@@ -165,37 +167,35 @@ companyRoutes.get('/:orgNumber', async (req, res) => {
 
   try {
     if (!companyResponse || !companyResponse.ok) {
-      // Even if Brreg fails, return political connection data
-      if (connections.length > 0) {
-        res.json({
-          orgNumber: resolvedOrgNumber,
-          name: orgNumber,
-          organizationForm: 'Ukjent',
-          industry: [],
-          employees: null,
-          founded: null,
-          registered: null,
-          location: null,
-          website: null,
-          ownershipSector: null,
-          purpose: null,
-          isStateOwned: false,
-          isPubliclyListed: false,
-          isBankrupt: false,
-          lastAnnualReport: null,
-          phone: null,
-          stateOwnershipPercent: null,
-          stateOwnershipSource: null,
-          politicalConnections: connections,
-          entanglementScore,
-          revolvingDoorCount,
-          liveBoard: liveBoardMembers,
-          isDeleted: false,
-          deletedDate: null,
-        });
-        return;
-      }
-      res.status(404).json({ error: 'Company not found' });
+      // Always return at least basic info with Brreg link
+      res.json({
+        orgNumber: resolvedOrgNumber,
+        name: orgNumber,
+        organizationForm: 'Ukjent',
+        industry: [],
+        employees: null,
+        founded: null,
+        registered: null,
+        location: null,
+        website: null,
+        ownershipSector: null,
+        purpose: null,
+        isStateOwned: false,
+        isPubliclyListed: false,
+        isBankrupt: false,
+        lastAnnualReport: null,
+        phone: null,
+        stateOwnershipPercent: null,
+        stateOwnershipSource: null,
+        politicalConnections: connections,
+        entanglementScore,
+        revolvingDoorCount,
+        liveBoard: liveBoardMembers,
+        isDeleted: false,
+        deletedDate: null,
+        notFoundInBrreg: true,
+        brregUrl: `https://data.brreg.no/enhetsregisteret/oppslag/enheter/${resolvedOrgNumber}`,
+      });
       return;
     }
 
@@ -241,6 +241,8 @@ companyRoutes.get('/:orgNumber', async (req, res) => {
       liveBoard: liveBoardMembers,
       isDeleted: data.slettedato != null,
       deletedDate: data.slettedato || null,
+      notFoundInBrreg: false,
+      brregUrl: `https://data.brreg.no/enhetsregisteret/oppslag/enheter/${resolvedOrgNumber}`,
     };
 
     res.json(details);
