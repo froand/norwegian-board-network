@@ -229,3 +229,25 @@ export async function getPersonDetails(personId: string): Promise<PersonDetails 
   if (!res.ok) throw new Error('Failed to fetch person details');
   return res.json();
 }
+
+export interface KaranteneDecision {
+  id: string;
+  personName: string;
+  date: string;
+  previousRole: string;
+  previousDepartment: string;
+  newRole: string;
+  newOrganization: string;
+  quarantineMonths: number;
+  restrictionMonths: number;
+  reasoning: string;
+  pdfUrl: string;
+  year: number;
+  classification: 'B';
+}
+
+export async function getKarantene(personId: string): Promise<KaranteneDecision[]> {
+  const res = await fetch(`${API_BASE}/karantene/${encodeURIComponent(personId)}`);
+  if (!res.ok) throw new Error('Failed to fetch karantene decisions');
+  return res.json();
+}
