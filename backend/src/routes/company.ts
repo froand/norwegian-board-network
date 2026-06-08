@@ -11,6 +11,11 @@ const ORG_NUMBER_MAP: Record<string, string> = {
   'telenor': '982463718',
   'norsk-hydro': '914778271',
   'mckinsey': '979573587',
+  'gambit-hk': '971593865',
+  'wikborg-rein': '916782195',
+  'aker-asa': '914364900',
+  'statkraft': '962986277',
+  'kommunalbanken': '981203267',
 };
 
 // State ownership percentages (from regjeringen.no/eierskapsmeldingen)
@@ -19,6 +24,8 @@ const STATE_OWNERSHIP: Record<string, { percent: number; source: string }> = {
   '984851006': { percent: 34, source: 'Nærings- og fiskeridepartementet' },
   '982463718': { percent: 54, source: 'Nærings- og fiskeridepartementet' },
   '914778271': { percent: 34.3, source: 'Nærings- og fiskeridepartementet' },
+  '962986277': { percent: 100, source: 'Nærings- og fiskeridepartementet' },
+  '981203267': { percent: 100, source: 'Kommunal- og distriktsdepartementet' },
 };
 
 interface CompanyDetails {

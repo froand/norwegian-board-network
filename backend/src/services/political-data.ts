@@ -42,6 +42,11 @@ const ORG_SECTORS: Record<string, string[]> = {
   'org-finansdepartementet': ['finans', 'skatt', 'økonomi'],
   'org-naringsdepartementet': ['næringsliv', 'industri', 'energi'],
   'org-utenriksdepartementet': ['utenriks', 'handel', 'bistand'],
+  'org-gambit-hk': ['kommunikasjon', 'lobbyisme', 'rådgivning'],
+  'org-wikborg-rein': ['juridisk', 'advokat', 'rådgivning'],
+  'org-aker-asa': ['industri', 'energi', 'investering'],
+  'org-statkraft': ['energi', 'fornybar', 'kraft'],
+  'org-kommunalbanken': ['finans', 'bank', 'kommune'],
 };
 
 // Timeline data showing when positions were held
@@ -121,6 +126,43 @@ const timelines: PositionTimeline[] = [
       { orgId: 'org-finansdepartementet', orgName: 'Finansdepartementet', role: 'Finansminister', category: 'government', sector: 'finans', startYear: 2021 },
     ],
   },
+  {
+    personId: 'person-kristin-halvorsen',
+    personName: 'Kristin Halvorsen',
+    positions: [
+      { orgId: 'org-sosialistisk-venstreparti', orgName: 'Sosialistisk Venstreparti', role: 'Partileder', category: 'political', startYear: 2005, endYear: 2012 },
+      { orgId: 'org-stortinget', orgName: 'Stortinget', role: 'Stortingsrepresentant', category: 'political', startYear: 1997, endYear: 2013 },
+      { orgId: 'org-finansdepartementet', orgName: 'Finansdepartementet', role: 'Finansminister', category: 'government', sector: 'finans', startYear: 2005, endYear: 2009 },
+      { orgId: 'org-statkraft', orgName: 'Statkraft SF', role: 'Styremedlem', category: 'board', sector: 'energi', startYear: 2022 },
+    ],
+  },
+  {
+    personId: 'person-thorhild-widvey',
+    personName: 'Thorhild Widvey',
+    positions: [
+      { orgId: 'org-hoyre', orgName: 'Høyre', role: 'Stortingsrepresentant', category: 'political', startYear: 1997, endYear: 2005 },
+      { orgId: 'org-naringsdepartementet', orgName: 'Olje- og energidepartementet', role: 'Olje- og energiminister', category: 'government', sector: 'energi', startYear: 2004, endYear: 2005 },
+      { orgId: 'org-naringsdepartementet', orgName: 'Kulturdepartementet', role: 'Kulturminister', category: 'government', startYear: 2013, endYear: 2015 },
+      { orgId: 'org-statkraft', orgName: 'Statkraft SF', role: 'Styreleder', category: 'board', sector: 'energi', startYear: 2022 },
+    ],
+  },
+  {
+    personId: 'person-kristin-krohn-devold',
+    personName: 'Kristin Krohn Devold',
+    positions: [
+      { orgId: 'org-hoyre', orgName: 'Høyre', role: 'Stortingsrepresentant', category: 'political', startYear: 1993, endYear: 2005 },
+      { orgId: 'org-naringsdepartementet', orgName: 'Forsvarsdepartementet', role: 'Forsvarsminister', category: 'government', startYear: 2001, endYear: 2005 },
+      { orgId: 'org-aker-asa', orgName: 'Aker ASA', role: 'Styremedlem', category: 'board', sector: 'industri', startYear: 2018 },
+    ],
+  },
+  {
+    personId: 'person-andre-oktay-dahl',
+    personName: 'André Oktay Dahl',
+    positions: [
+      { orgId: 'org-hoyre', orgName: 'Høyre', role: 'Stortingsrepresentant', category: 'political', startYear: 2005, endYear: 2013 },
+      { orgId: 'org-gambit-hk', orgName: 'Gambit H+K', role: 'Seniorrådgiver', category: 'executive', sector: 'kommunikasjon', startYear: 2013 },
+    ],
+  },
 ];
 
 // Detected conflicts of interest (based on public analysis)
@@ -173,6 +215,54 @@ const conflicts: ConflictOfInterest[] = [
     description: 'Tidligere finansminister med budsjettansvar, raskt over i industristyret etter regjeringsskiftet.',
     severity: 'medium',
   },
+  {
+    personId: 'person-thorhild-widvey',
+    personName: 'Thorhild Widvey',
+    politicalRole: 'Olje- og energiminister (2004-2005)',
+    politicalOrg: 'Olje- og energidepartementet',
+    boardRole: 'Styreleder (2022–)',
+    boardOrg: 'Statkraft SF',
+    sector: 'energi',
+    conflictType: 'revolving_door',
+    description: 'Tidligere olje- og energiminister ble styreleder i statens eget energikonsern. Sitter på detaljert sektorkunnskap og nettverk fra politisk ansvar for den samme sektoren.',
+    severity: 'high',
+  },
+  {
+    personId: 'person-kristin-halvorsen',
+    personName: 'Kristin Halvorsen',
+    politicalRole: 'Finansminister (2005-2009)',
+    politicalOrg: 'Finansdepartementet',
+    boardRole: 'Styremedlem (2022–)',
+    boardOrg: 'Statkraft SF',
+    sector: 'energi',
+    conflictType: 'revolving_door',
+    description: 'Tidligere finansminister og SV-leder, nå styremedlem i 100 % statseiet energikonsern. Staten eier selskapet hun er med å styre.',
+    severity: 'medium',
+  },
+  {
+    personId: 'person-kristin-krohn-devold',
+    personName: 'Kristin Krohn Devold',
+    politicalRole: 'Forsvarsminister (2001-2005)',
+    politicalOrg: 'Forsvarsdepartementet',
+    boardRole: 'Styremedlem',
+    boardOrg: 'Aker ASA',
+    sector: 'industri',
+    conflictType: 'revolving_door',
+    description: 'Tidligere forsvarsminister i styret til industrikonsern med interesser i forsvarsrelatert sektor. Politisk nettverk og innsidekunnskap fra offentlig tjeneste kommersialiseres.',
+    severity: 'medium',
+  },
+  {
+    personId: 'person-andre-oktay-dahl',
+    personName: 'André Oktay Dahl',
+    politicalRole: 'Stortingsrepresentant Høyre (2005-2013)',
+    politicalOrg: 'Stortinget',
+    boardRole: 'Seniorrådgiver (2013–)',
+    boardOrg: 'Gambit H+K',
+    sector: 'kommunikasjon',
+    conflictType: 'revolving_door',
+    description: 'Gikk direkte fra Stortinget til kommunikasjons- og lobbybyrå. Bruker politisk nettverk og parlamentarisk erfaring kommersielt for klienter som ønsker å påvirke politiske beslutninger.',
+    severity: 'high',
+  },
 ];
 
 const politicalNodes: GraphNode[] = [
@@ -189,6 +279,10 @@ const politicalNodes: GraphNode[] = [
   { id: 'person-bent-hoie', name: 'Bent Høie', type: 'person', group: 'person' },
   { id: 'person-abid-raja', name: 'Abid Raja', type: 'person', group: 'person' },
   { id: 'person-ketil-solvik-olsen', name: 'Ketil Solvik-Olsen', type: 'person', group: 'person' },
+  { id: 'person-kristin-halvorsen', name: 'Kristin Halvorsen', type: 'person', group: 'person' },
+  { id: 'person-thorhild-widvey', name: 'Thorhild Widvey', type: 'person', group: 'person' },
+  { id: 'person-kristin-krohn-devold', name: 'Kristin Krohn Devold', type: 'person', group: 'person' },
+  { id: 'person-andre-oktay-dahl', name: 'André Oktay Dahl', type: 'person', group: 'person' },
 
   { id: 'org-arbeiderpartiet', name: 'Arbeiderpartiet', type: 'political_party', group: 'political' },
   { id: 'org-hoyre', name: 'Høyre', type: 'political_party', group: 'political' },
@@ -213,6 +307,11 @@ const politicalNodes: GraphNode[] = [
   { id: 'org-nho', name: 'NHO', type: 'company', group: 'company' },
   { id: 'org-mckinsey', name: 'McKinsey & Company', type: 'company', group: 'company' },
   { id: 'org-first-house', name: 'First House', type: 'company', group: 'company' },
+  { id: 'org-gambit-hk', name: 'Gambit H+K', type: 'company', group: 'company' },
+  { id: 'org-wikborg-rein', name: 'Wikborg Rein', type: 'company', group: 'company' },
+  { id: 'org-aker-asa', name: 'Aker ASA', type: 'company', group: 'company' },
+  { id: 'org-statkraft', name: 'Statkraft SF', type: 'company', group: 'company' },
+  { id: 'org-kommunalbanken', name: 'Kommunalbanken', type: 'company', group: 'company' },
 ];
 
 const politicalLinks: GraphLink[] = [
@@ -264,6 +363,29 @@ const politicalLinks: GraphLink[] = [
   { source: 'person-nikolai-astrup', target: 'org-mckinsey', label: 'Partner (2022–)', category: 'executive' },
   { source: 'person-siv-jensen', target: 'org-norsk-hydro', label: 'Styremedlem NBIM (Oljefondet)', category: 'board' },
   { source: 'person-ketil-solvik-olsen', target: 'org-nho', label: 'Rådgiver, First House', category: 'executive' },
+
+  // New people — party memberships
+  { source: 'person-kristin-halvorsen', target: 'org-sosialistisk-venstreparti', label: 'Tidl. Partileder', category: 'political' },
+  { source: 'person-thorhild-widvey', target: 'org-hoyre', label: 'Medlem', category: 'political' },
+  { source: 'person-kristin-krohn-devold', target: 'org-hoyre', label: 'Tidl. Stortingsrepresentant', category: 'political' },
+  { source: 'person-andre-oktay-dahl', target: 'org-hoyre', label: 'Tidl. Stortingsrepresentant', category: 'political' },
+
+  // New people — Stortinget
+  { source: 'person-kristin-halvorsen', target: 'org-stortinget', label: 'Tidl. Stortingsrepresentant', category: 'political' },
+  { source: 'person-thorhild-widvey', target: 'org-stortinget', label: 'Tidl. Stortingsrepresentant', category: 'political' },
+  { source: 'person-kristin-krohn-devold', target: 'org-stortinget', label: 'Tidl. Stortingsrepresentant', category: 'political' },
+  { source: 'person-andre-oktay-dahl', target: 'org-stortinget', label: 'Tidl. Stortingsrepresentant', category: 'political' },
+
+  // New people — government positions
+  { source: 'person-kristin-halvorsen', target: 'org-finansdepartementet', label: 'Tidl. Finansminister (2005-2009)', category: 'government' },
+  { source: 'person-thorhild-widvey', target: 'org-naringsdepartementet', label: 'Tidl. Olje- og energiminister (2004-2005)', category: 'government' },
+  { source: 'person-kristin-krohn-devold', target: 'org-naringsdepartementet', label: 'Tidl. Forsvarsminister (2001-2005)', category: 'government' },
+
+  // New people — board/corporate positions
+  { source: 'person-kristin-halvorsen', target: 'org-statkraft', label: 'Styremedlem (2022–)', category: 'board' },
+  { source: 'person-thorhild-widvey', target: 'org-statkraft', label: 'Styreleder (2022–)', category: 'board' },
+  { source: 'person-kristin-krohn-devold', target: 'org-aker-asa', label: 'Styremedlem', category: 'board' },
+  { source: 'person-andre-oktay-dahl', target: 'org-gambit-hk', label: 'Seniorrådgiver (2013–)', category: 'executive' },
 ];
 
 export function getPoliticalData(): GraphData {
