@@ -55,7 +55,6 @@ const ORG_SECTORS: Record<string, string[]> = {
   'org-sjomat-norge': ['sjømat', 'eksport', 'næringsliv'],
   'org-utoya': ['utdanning', 'kultur', 'demokrati'],
   'org-wergelandsenteret': ['utdanning', 'kultur', 'menneskerettigheter'],
-  'org-offentlige-styrer-verv': ['kultur', 'offentlig sektor'],
   'org-offshore-norge': ['olje', 'energi', 'næringsliv'],
   'org-solvtrans': ['sjømat', 'havbruk', 'maritim'],
   'org-raeder': ['jus', 'rådgivning'],
@@ -772,17 +771,20 @@ const politicalNodes: GraphNode[] = [
   { id: 'org-nho-service-handel', name: 'NHO Service og Handel (Org.nr. 977 041 707)', type: 'company', group: 'company' },
   { id: 'org-norges-rederiforbund', name: 'Norges Rederiforbund (Org.nr. 971 436 190)', type: 'company', group: 'company' },
   { id: 'org-okea', name: 'OKEA ASA (Org.nr. 915 419 062)', type: 'company', group: 'company' },
-  { id: 'org-forleggerforeningen', name: 'Den norske Forleggerforening (Org.nr. 970 169 330)', type: 'company', group: 'company' },
+  { id: 'org-forleggerforeningen', name: 'Den norske Forleggerforening (Org.nr. 956 609 046)', type: 'company', group: 'company' },
   { id: 'org-legemiddelindustrien', name: 'Legemiddelindustrien (LMI) (Org.nr. 983 956 527)', type: 'company', group: 'company' },
   { id: 'org-sjomat-norge', name: 'Sjømat Norge (Org.nr. 974 461 021)', type: 'company', group: 'company' },
   { id: 'org-vestre', name: 'Vestre AS (Org.nr. 923 470 565)', type: 'company', group: 'company' },
   { id: 'org-utoya', name: 'Utøya AS', type: 'company', group: 'company' },
   { id: 'org-wergelandsenteret', name: 'Wergelandsenteret', type: 'company', group: 'company' },
-  { id: 'org-offentlige-styrer-verv', name: 'Offentlige styrer og verv', type: 'company', group: 'company' },
   { id: 'org-offshore-norge', name: 'Offshore Norge (tidl. Norsk olje og gass)', type: 'company', group: 'company' },
   { id: 'org-solvtrans', name: 'Sølvtrans', type: 'company', group: 'company' },
   { id: 'org-raeder', name: 'Advokatfirmaet Ræder', type: 'company', group: 'company' },
   { id: 'org-nbim', name: 'Norges Bank Investment Management (Oljefondet)', type: 'company', group: 'company' },
+  { id: 'org-storebrand', name: 'Storebrand ASA (Org.nr. 911 106 396)', type: 'company', group: 'company' },
+  { id: 'org-scatec', name: 'Scatec ASA (Org.nr. 990 918 546)', type: 'company', group: 'company' },
+  { id: 'org-cloudberry', name: 'Cloudberry Clean Energy ASA (Org.nr. 821 820 362)', type: 'company', group: 'company' },
+  { id: 'org-summa-equity', name: 'Summa Equity', type: 'company', group: 'company' },
 ];
 
 const politicalLinks: GraphLink[] = [
@@ -893,7 +895,6 @@ const politicalLinks: GraphLink[] = [
   { source: 'person-anniken-hauglie', target: 'org-offshore-norge', label: 'Karantenevurdert direktørrolle', category: 'executive' },
   { source: 'person-tonje-brenna', target: 'org-utoya', label: 'Habilitetssak: nære relasjoner', category: 'board' },
   { source: 'person-tonje-brenna', target: 'org-wergelandsenteret', label: 'Habilitetssak: nære relasjoner', category: 'board' },
-  { source: 'person-anette-trettebergstuen', target: 'org-offentlige-styrer-verv', label: 'Utnevnelser av nære venner', category: 'board' },
   { source: 'person-julie-brodtkorb', target: 'org-first-house', label: 'Partner / rådgiver', category: 'executive' },
   { source: 'person-harald-tom-nesvik', target: 'org-solvtrans', label: 'Kommunikasjonssjef', category: 'executive' },
   { source: 'person-joran-kallmyr', target: 'org-raeder', label: 'Advokat og partner', category: 'executive' },
@@ -913,7 +914,12 @@ const politicalLinks: GraphLink[] = [
   { source: 'person-ola-elvestuen', target: 'org-finans-norge', label: 'Styremedlem i bærekraftsforum', category: 'board' },
   { source: 'person-jan-christian-vestre', target: 'org-vestre', label: 'Tidl. Daglig leder og 70% eier (2014-2021)', category: 'executive' },
   { source: 'person-nicolai-tangen', target: 'org-nbim', label: 'Oljefondssjef', category: 'executive' },
-  { source: 'person-yngve-slyngstad', target: 'org-nbim', label: 'Tidl. Oljefondssjef', category: 'executive' },
+  { source: 'person-yngve-slyngstad', target: 'org-nbim', label: 'Tidl. Oljefondssjef (2008-2020)', category: 'executive' },
+  { source: 'person-yngve-slyngstad', target: 'org-aker-asa', label: 'Styremedlem (2021–)', category: 'board' },
+  { source: 'person-yngve-slyngstad', target: 'org-storebrand', label: 'Styreleder (2021–)', category: 'board' },
+  { source: 'person-yngve-slyngstad', target: 'org-scatec', label: 'Styreleder (2021–)', category: 'board' },
+  { source: 'person-yngve-slyngstad', target: 'org-cloudberry', label: 'Styremedlem (2022–)', category: 'board' },
+  { source: 'person-yngve-slyngstad', target: 'org-summa-equity', label: 'Rådgiver', category: 'executive' },
 ];
 
 export function getPoliticalData(): GraphData {

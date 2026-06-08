@@ -26,10 +26,14 @@ const ORG_NUMBER_MAP: Record<string, string> = {
   'nho-service-handel': '977041707',
   'norges-rederiforbund': '971436190',
   'okea': '915419062',
-  'forleggerforeningen': '970169330',
+  'forleggerforeningen': '956609046',
   'legemiddelindustrien': '983956527',
   'sjomat-norge': '974461021',
   'offshore-norge': '987989297',
+  'raeder': '914093473',
+  'storebrand': '911106396',
+  'scatec': '990918546',
+  'cloudberry': '821820362',
 };
 
 // State ownership percentages (from regjeringen.no/eierskapsmeldingen)
