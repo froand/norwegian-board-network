@@ -73,6 +73,19 @@ interface CompanyDetails {
   deletedDate: string | null;
   notFoundInBrreg: boolean;
   brregUrl: string;
+  financials: CompanyFinancials | null;
+}
+
+interface CompanyFinancials {
+  year: string;
+  currency: string;
+  revenue: number | null;
+  operatingResult: number | null;
+  netIncome: number | null;
+  totalAssets: number | null;
+  equity: number | null;
+  totalDebt: number | null;
+  accountingStandard: string | null;
 }
 
 interface PoliticalConnection {
@@ -84,6 +97,33 @@ interface PoliticalConnection {
   endYear?: number;
   isRevolvingDoor: boolean;
   previousPoliticalRole?: string;
+}
+
+async function fetchFinancials(orgNumber: string): Promise<CompanyFinancials | null> {
+  try {
+    const res = await fetch(`https://data.brreg.no/regnskapsregisteret/regnskap/${orgNumber}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) return null;
+    // Get the latest SELSKAP entry (company-level, not consolidated)
+    const latest = data.find((r: any) => r.regnskapstype === 'SELSKAP') || data[0];
+    const result = latest.resultatregnskapResultat || {};
+    const drift = result.driftsresultat || {};
+    const balance = latest.egenkapitalGjeld || {};
+    return {
+      year: latest.regnskapsperiode?.tilDato?.substring(0, 4) || '',
+      currency: latest.valuta || 'NOK',
+      revenue: drift.driftsinntekter?.sumDriftsinntekter ?? null,
+      operatingResult: drift.driftsresultat ?? null,
+      netIncome: result.aarsresultat ?? null,
+      totalAssets: latest.eiendeler?.sumEiendeler ?? null,
+      equity: balance.egenkapital?.sumEgenkapital ?? null,
+      totalDebt: balance.gjeldOversikt?.sumGjeld ?? null,
+      accountingStandard: latest.regnkapsprinsipper?.regnskapsregler ?? null,
+    };
+  } catch {
+    return null;
+  }
 }
 
 function resolveOrgNumber(input: string): string {
@@ -199,18 +239,21 @@ companyRoutes.get('/:orgNumber', async (req, res) => {
       deletedDate: null,
       notFoundInBrreg: true,
       brregUrl: '',
+      financials: null,
     });
     return;
   }
 
-  // Fetch live board data in parallel with company details
-  const [liveBoard, response] = await Promise.allSettled([
+  // Fetch live board, company details, and financials in parallel
+  const [liveBoard, response, financialsResult] = await Promise.allSettled([
     getLiveBoardMembers(resolvedOrgNumber),
     fetch(`https://data.brreg.no/enhetsregisteret/api/enheter/${resolvedOrgNumber}`),
+    fetchFinancials(resolvedOrgNumber),
   ]);
 
   const liveBoardMembers = liveBoard.status === 'fulfilled' ? liveBoard.value : [];
   const companyResponse = response.status === 'fulfilled' ? response.value : null;
+  const financials = financialsResult.status === 'fulfilled' ? financialsResult.value : null;
 
   try {
     if (!companyResponse || !companyResponse.ok) {
@@ -242,6 +285,7 @@ companyRoutes.get('/:orgNumber', async (req, res) => {
         deletedDate: null,
         notFoundInBrreg: true,
         brregUrl: `https://data.brreg.no/enhetsregisteret/oppslag/enheter/${resolvedOrgNumber}`,
+        financials,
       });
       return;
     }
@@ -290,6 +334,7 @@ companyRoutes.get('/:orgNumber', async (req, res) => {
       deletedDate: data.slettedato || null,
       notFoundInBrreg: false,
       brregUrl: `https://data.brreg.no/enhetsregisteret/oppslag/enheter/${resolvedOrgNumber}`,
+      financials,
     };
 
     res.json(details);

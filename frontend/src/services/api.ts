@@ -233,6 +233,19 @@ export interface CompanyDetails {
   deletedDate?: string | null;
   notFoundInBrreg?: boolean;
   brregUrl?: string;
+  financials?: CompanyFinancials | null;
+}
+
+export interface CompanyFinancials {
+  year: string;
+  currency: string;
+  revenue: number | null;
+  operatingResult: number | null;
+  netIncome: number | null;
+  totalAssets: number | null;
+  equity: number | null;
+  totalDebt: number | null;
+  accountingStandard: string | null;
 }
 
 export async function getCompanyDetails(orgNumber: string): Promise<CompanyDetails | null> {

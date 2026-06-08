@@ -150,6 +150,61 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
           )}
         </div>
 
+        {/* Financials */}
+        {details.financials && (
+          <div>
+            <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">
+              {lang === 'no' ? `Regnskap ${details.financials.year}` : `Financials ${details.financials.year}`}
+              <span className="text-[10px] font-normal ml-1 text-gray-400">({details.financials.currency})</span>
+            </h4>
+            <div className="grid grid-cols-2 gap-2">
+              {details.financials.revenue != null && (
+                <div className="bg-gray-50 rounded px-2 py-1.5 border border-gray-100">
+                  <div className="text-[10px] text-gray-500">{lang === 'no' ? 'Driftsinntekter' : 'Revenue'}</div>
+                  <div className="text-sm font-semibold text-gray-800">{formatAmount(details.financials.revenue, lang)}</div>
+                </div>
+              )}
+              {details.financials.operatingResult != null && (
+                <div className="bg-gray-50 rounded px-2 py-1.5 border border-gray-100">
+                  <div className="text-[10px] text-gray-500">{lang === 'no' ? 'Driftsresultat' : 'Operating result'}</div>
+                  <div className={`text-sm font-semibold ${details.financials.operatingResult >= 0 ? 'text-green-700' : 'text-red-600'}`}>
+                    {formatAmount(details.financials.operatingResult, lang)}
+                  </div>
+                </div>
+              )}
+              {details.financials.netIncome != null && (
+                <div className="bg-gray-50 rounded px-2 py-1.5 border border-gray-100">
+                  <div className="text-[10px] text-gray-500">{lang === 'no' ? 'Årsresultat' : 'Net income'}</div>
+                  <div className={`text-sm font-semibold ${details.financials.netIncome >= 0 ? 'text-green-700' : 'text-red-600'}`}>
+                    {formatAmount(details.financials.netIncome, lang)}
+                  </div>
+                </div>
+              )}
+              {details.financials.totalAssets != null && (
+                <div className="bg-gray-50 rounded px-2 py-1.5 border border-gray-100">
+                  <div className="text-[10px] text-gray-500">{lang === 'no' ? 'Eiendeler' : 'Total assets'}</div>
+                  <div className="text-sm font-semibold text-gray-800">{formatAmount(details.financials.totalAssets, lang)}</div>
+                </div>
+              )}
+              {details.financials.equity != null && (
+                <div className="bg-gray-50 rounded px-2 py-1.5 border border-gray-100">
+                  <div className="text-[10px] text-gray-500">{lang === 'no' ? 'Egenkapital' : 'Equity'}</div>
+                  <div className="text-sm font-semibold text-gray-800">{formatAmount(details.financials.equity, lang)}</div>
+                </div>
+              )}
+              {details.financials.totalDebt != null && (
+                <div className="bg-gray-50 rounded px-2 py-1.5 border border-gray-100">
+                  <div className="text-[10px] text-gray-500">{lang === 'no' ? 'Gjeld' : 'Debt'}</div>
+                  <div className="text-sm font-semibold text-gray-800">{formatAmount(details.financials.totalDebt, lang)}</div>
+                </div>
+              )}
+            </div>
+            <div className="text-[10px] text-gray-400 mt-1">
+              {lang === 'no' ? 'Kilde: Brønnøysundregistrene' : 'Source: Brønnøysundregistrene'}
+            </div>
+          </div>
+        )}
+
         {/* Industry */}
         {details.industry.length > 0 && (
           <div>
@@ -363,4 +418,14 @@ function formatDate(dateStr: string, lang: string): string {
   } catch {
     return dateStr;
   }
+}
+
+function formatAmount(amount: number, lang: string): string {
+  const locale = lang === 'no' ? 'nb-NO' : 'en-US';
+  const abs = Math.abs(amount);
+  const sign = amount < 0 ? '-' : '';
+  if (abs >= 1_000_000_000) return `${sign}${(abs / 1_000_000_000).toLocaleString(locale, { maximumFractionDigits: 1 })} mrd`;
+  if (abs >= 1_000_000) return `${sign}${(abs / 1_000_000).toLocaleString(locale, { maximumFractionDigits: 0 })} mill`;
+  if (abs >= 1_000) return `${sign}${(abs / 1_000).toLocaleString(locale, { maximumFractionDigits: 0 })} tusen`;
+  return amount.toLocaleString(locale);
 }
