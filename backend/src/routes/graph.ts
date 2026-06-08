@@ -258,7 +258,7 @@ graphRoutes.get('/person-details/:personId', async (req, res) => {
         : 'board';
 
       // Detect party from political links to party nodes
-      if (targetNode.group === 'party' || (targetNode.type === 'party')) {
+      if (targetNode.group === 'party' || targetNode.type === 'political_party') {
         party = targetNode.name;
       }
 
