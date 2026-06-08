@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Parliament building silhouette with network nodes -->
+  <rect width="32" height="32" rx="4" fill="#ba2025"/>
+  <!-- Simplified parliament dome/columns -->
+  <path d="M16 5 L8 12 H24 Z" fill="white" opacity="0.9"/>
+  <rect x="9" y="12" width="2" height="8" fill="white" opacity="0.9"/>
+  <rect x="13" y="12" width="2" height="8" fill="white" opacity="0.9"/>
+  <rect x="17" y="12" width="2" height="8" fill="white" opacity="0.9"/>
+  <rect x="21" y="12" width="2" height="8" fill="white" opacity="0.9"/>
+  <rect x="7" y="20" width="18" height="2" fill="white" opacity="0.9"/>
+  <!-- Network connection dots -->
+  <circle cx="8" cy="27" r="2" fill="white" opacity="0.8"/>
+  <circle cx="16" cy="25" r="2" fill="white" opacity="0.8"/>
+  <circle cx="24" cy="27" r="2" fill="white" opacity="0.8"/>
+  <line x1="8" y1="27" x2="16" y2="25" stroke="white" stroke-width="0.8" opacity="0.6"/>
+  <line x1="16" y1="25" x2="24" y2="27" stroke="white" stroke-width="0.8" opacity="0.6"/>
+  <line x1="8" y1="27" x2="24" y2="27" stroke="white" stroke-width="0.8" opacity="0.4"/>
+</svg>
