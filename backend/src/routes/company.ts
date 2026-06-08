@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllTimelines, getAllConflicts } from '../services/political-data.js';
+import { getAllTimelines, getAllConflicts, getPoliticalData } from '../services/political-data.js';
 import { getLiveBoardMembers } from '../services/brreg-roller.js';
 import type { LiveBoardMember } from '../services/brreg-roller.js';
 
@@ -19,6 +19,17 @@ const ORG_NUMBER_MAP: Record<string, string> = {
   'aker-asa': '914364900',
   'statkraft': '962986277',
   'kommunalbanken': '981203267',
+  'first-house': '993810660',
+  'helse-vest-rhf': '983658725',
+  'finans-norge': '996549488',
+  'nho-logistikk-transport': '970187384',
+  'nho-service-handel': '977041707',
+  'norges-rederiforbund': '971436190',
+  'okea': '915419062',
+  'forleggerforeningen': '970169330',
+  'legemiddelindustrien': '983956527',
+  'sjomat-norge': '974461021',
+  'offshore-norge': '987989297',
 };
 
 // State ownership percentages (from regjeringen.no/eierskapsmeldingen)
@@ -144,17 +155,49 @@ function getPoliticalConnectionsForOrg(orgId: string): {
 companyRoutes.get('/:orgNumber', async (req, res) => {
   const { orgNumber } = req.params;
   const resolvedOrgNumber = resolveOrgNumber(orgNumber);
-
-  if (!resolvedOrgNumber) {
-    res.status(404).json({ error: 'Company not found' });
-    return;
-  }
-
   const orgId = `org-${orgNumber}`;
+
+  // Look up company name from graph data
+  const graphData = getPoliticalData();
+  const graphNode = graphData.nodes.find((n) => n.id === orgId);
+  const displayName = graphNode?.name || orgNumber;
 
   // Get political connections regardless of Brreg lookup success
   const { connections, entanglementScore, revolvingDoorCount } =
     getPoliticalConnectionsForOrg(orgId);
+
+  if (!resolvedOrgNumber) {
+    // No Brreg org number — return what we know from graph data
+    res.json({
+      orgNumber: '',
+      name: displayName,
+      organizationForm: 'Ukjent',
+      industry: [],
+      employees: null,
+      founded: null,
+      registered: null,
+      location: null,
+      website: null,
+      ownershipSector: null,
+      purpose: null,
+      isStateOwned: false,
+      isPubliclyListed: false,
+      isBankrupt: false,
+      lastAnnualReport: null,
+      phone: null,
+      stateOwnershipPercent: null,
+      stateOwnershipSource: null,
+      politicalConnections: connections,
+      entanglementScore,
+      revolvingDoorCount,
+      liveBoard: [],
+      isDeleted: false,
+      deletedDate: null,
+      notFoundInBrreg: true,
+      brregUrl: '',
+    });
+    return;
+  }
 
   // Fetch live board data in parallel with company details
   const [liveBoard, response] = await Promise.allSettled([

@@ -1,19 +1,14 @@
 import { useI18n } from '../I18nContext';
-import { useDraggable } from '../hooks/useDraggable';
 
 export default function Legend() {
   const { t } = useI18n();
-  const { position, handleMouseDown } = useDraggable({ x: 16, y: 16 });
 
   return (
     <div
       className="bg-white/95 border border-[var(--stortinget-border)] rounded-lg p-3 shadow-sm backdrop-blur-sm z-20"
-      style={{ position: 'absolute', left: position.x, top: position.y }}
+      style={{ position: 'absolute', left: 16, bottom: 16 }}
     >
-      <div
-        className="cursor-grab active:cursor-grabbing select-none mb-2"
-        onMouseDown={handleMouseDown}
-      >
+      <div className="mb-2">
         <h4 className="text-[10px] font-semibold text-[var(--stortinget-muted)] uppercase">{t('legend.title')}</h4>
       </div>
       <div className="space-y-1.5 text-sm">
