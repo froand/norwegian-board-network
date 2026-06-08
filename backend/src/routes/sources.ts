@@ -157,6 +157,18 @@ sourcesRoutes.get('/info', (_req, res) => {
         provides: ['Lobby meetings', 'Organization contacts', 'Policy topics'],
       },
       {
+        name: 'Karantenenemnda (avgjørelser)',
+        url: 'https://www.regjeringen.no/no/dep/dfd/org/styrer-rad-og-utvalg-under-digitaliserings-og-forvaltningsdepartementet/karantenenemnda/avgjorelser-fra-karantenenemnda/id2472135/',
+        type: 'official documents',
+        provides: ['Quarantine decisions', 'Duration and restrictions', 'Conflict assessments', 'PDF documents per person'],
+      },
+      {
+        name: 'Store norske leksikon (snl.no)',
+        url: 'https://snl.no',
+        type: 'reference',
+        provides: ['Politician biographies', 'Career history', 'Background information'],
+      },
+      {
         name: 'OpenCorporates',
         url: 'https://api.opencorporates.com',
         type: 'planned (requires API key)',

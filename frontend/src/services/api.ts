@@ -95,7 +95,9 @@ export interface ConflictOfInterest {
   sector: string;
   conflictType: 'revolving_door' | 'concurrent' | 'sector_overlap' | 'shared_network';
   description: string;
-  severity: 'high' | 'medium' | 'low';
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  classification?: 'A' | 'B' | 'C' | 'D';
+  sources?: { label: string; url: string }[];
 }
 
 export async function getPersonTimeline(personId: string): Promise<PersonTimeline | null> {

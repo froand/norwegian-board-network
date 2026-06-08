@@ -5,6 +5,7 @@ import { useI18n } from '../I18nContext';
 import { useDraggable } from '../hooks/useDraggable';
 
 const SEVERITY_COLORS: Record<string, { bg: string; border: string; text: string }> = {
+  critical: { bg: 'bg-red-100', border: 'border-red-300', text: 'text-red-800' },
   high: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700' },
   medium: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' },
   low: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700' },
@@ -99,14 +100,14 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
           <div className="text-gray-500 text-sm">{t('conflicts.none')}</div>
         ) : (
           filtered.map((conflict, i) => {
-            const colors = SEVERITY_COLORS[conflict.severity];
+            const colors = SEVERITY_COLORS[conflict.severity] ?? SEVERITY_COLORS.medium;
             return (
               <div
                 key={i}
                 className={`${colors.bg} border ${colors.border} rounded-lg p-3 cursor-pointer hover:opacity-80 transition-opacity`}
                 onClick={() => onPersonClick(conflict.personId)}
               >
-                <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center justify-between mb-1 gap-2">
                   <span className={`font-medium text-sm ${colors.text}`}>
                     {conflict.personName}
                   </span>
@@ -116,6 +117,17 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
                   >
                     {CONFLICT_TYPE_LABELS[conflict.conflictType]}
                   </span>
+                </div>
+
+                <div className="flex flex-wrap gap-1 mt-2 text-[10px] text-gray-600">
+                  <span className="px-1.5 py-0.5 rounded bg-white/70 border border-gray-200 uppercase">
+                    {conflict.severity}
+                  </span>
+                  {conflict.classification && (
+                    <span className="px-1.5 py-0.5 rounded bg-white/70 border border-gray-200">
+                      Klasse {conflict.classification}
+                    </span>
+                  )}
                 </div>
 
                 <div className="text-xs text-gray-600 space-y-1 mt-2">
@@ -135,6 +147,23 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
                 <p className="text-xs text-gray-500 mt-2 italic">
                   {conflict.description}
                 </p>
+
+                {conflict.sources && conflict.sources.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
+                    {conflict.sources.map((source) => (
+                      <a
+                        key={source.url}
+                        href={source.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-blue-700 underline"
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        {source.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })
