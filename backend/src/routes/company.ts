@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { getAllTimelines, getAllConflicts } from '../services/political-data.js';
+import { getLiveBoardMembers } from '../services/brreg-roller.js';
+import type { LiveBoardMember } from '../services/brreg-roller.js';
 
 export const companyRoutes = Router();
 
@@ -50,6 +52,7 @@ interface CompanyDetails {
   politicalConnections: PoliticalConnection[];
   entanglementScore: number;
   revolvingDoorCount: number;
+  liveBoard: LiveBoardMember[];
 }
 
 interface PoliticalConnection {
@@ -64,7 +67,11 @@ interface PoliticalConnection {
 }
 
 function resolveOrgNumber(input: string): string {
-  return ORG_NUMBER_MAP[input] || input;
+  const mapped = ORG_NUMBER_MAP[input];
+  if (mapped) return mapped;
+  // Only allow valid 9-digit Norwegian org numbers as pass-through values
+  if (/^\d{9}$/.test(input)) return input;
+  return '';
 }
 
 function getPoliticalConnectionsForOrg(orgId: string): {
@@ -132,18 +139,29 @@ function getPoliticalConnectionsForOrg(orgId: string): {
 companyRoutes.get('/:orgNumber', async (req, res) => {
   const { orgNumber } = req.params;
   const resolvedOrgNumber = resolveOrgNumber(orgNumber);
+
+  if (!resolvedOrgNumber) {
+    res.status(404).json({ error: 'Company not found' });
+    return;
+  }
+
   const orgId = `org-${orgNumber}`;
 
   // Get political connections regardless of Brreg lookup success
   const { connections, entanglementScore, revolvingDoorCount } =
     getPoliticalConnectionsForOrg(orgId);
 
-  try {
-    const response = await fetch(
-      `https://data.brreg.no/enhetsregisteret/api/enheter/${resolvedOrgNumber}`
-    );
+  // Fetch live board data in parallel with company details
+  const [liveBoard, response] = await Promise.allSettled([
+    getLiveBoardMembers(resolvedOrgNumber),
+    fetch(`https://data.brreg.no/enhetsregisteret/api/enheter/${resolvedOrgNumber}`),
+  ]);
 
-    if (!response.ok) {
+  const liveBoardMembers = liveBoard.status === 'fulfilled' ? liveBoard.value : [];
+  const companyResponse = response.status === 'fulfilled' ? response.value : null;
+
+  try {
+    if (!companyResponse || !companyResponse.ok) {
       // Even if Brreg fails, return political connection data
       if (connections.length > 0) {
         res.json({
@@ -168,6 +186,7 @@ companyRoutes.get('/:orgNumber', async (req, res) => {
           politicalConnections: connections,
           entanglementScore,
           revolvingDoorCount,
+          liveBoard: liveBoardMembers,
         });
         return;
       }
@@ -175,7 +194,7 @@ companyRoutes.get('/:orgNumber', async (req, res) => {
       return;
     }
 
-    const data = await response.json();
+    const data = await companyResponse.json();
 
     const industries: string[] = [];
     if (data.naeringskode1) industries.push(data.naeringskode1.beskrivelse);
@@ -214,6 +233,7 @@ companyRoutes.get('/:orgNumber', async (req, res) => {
       politicalConnections: connections,
       entanglementScore,
       revolvingDoorCount,
+      liveBoard: liveBoardMembers,
     };
 
     res.json(details);
