@@ -5,13 +5,13 @@ on:
     branches: [master]
 
 env:
-  ACR_NAME: YOUR_ACR_NAME
-  RESOURCE_GROUP: norwegian-board-network
-  BACKEND_APP: YOUR_BACKEND_APP
-  FRONTEND_APP: YOUR_FRONTEND_APP
-  BACKEND_IMAGE: YOUR_ACR_NAME.azurecr.io/norsk-nettverk-backend:latest
-  FRONTEND_IMAGE: YOUR_ACR_NAME.azurecr.io/norsk-nettverk-frontend:latest
-  VITE_API_URL: https://YOUR_BACKEND_APP.YOUR_APP_ENV.swedencentral.azurecontainerapps.io
+  ACR_NAME: ${{ vars.ACR_NAME }}
+  RESOURCE_GROUP: ${{ vars.RESOURCE_GROUP }}
+  BACKEND_APP: ${{ vars.BACKEND_APP }}
+  FRONTEND_APP: ${{ vars.FRONTEND_APP }}
+  BACKEND_IMAGE: ${{ vars.ACR_NAME }}.azurecr.io/norsk-nettverk-backend:latest
+  FRONTEND_IMAGE: ${{ vars.ACR_NAME }}.azurecr.io/norsk-nettverk-frontend:latest
+  VITE_API_URL: ${{ vars.VITE_API_URL }}
 
 jobs:
   deploy-backend:

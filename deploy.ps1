@@ -4,7 +4,7 @@
 $ErrorActionPreference = "Stop"
 
 # Configuration
-$SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$SUBSCRIPTION_ID = $env:AZURE_SUBSCRIPTION_ID  # Set via environment variable
 $RESOURCE_GROUP = "norwegian-board-network"
 $LOCATION = "norwayeast"
 $ENV_NAME = "norsk-nettverk"

@@ -97,7 +97,7 @@ Backend: http://localhost:3001
 ### Deploy
 ```powershell
 # Login to Azure
-az login --tenant YOUR_TENANT.onmicrosoft.com
+az login --tenant <your-tenant>.onmicrosoft.com
 
 # Run deployment script
 ./deploy.ps1
