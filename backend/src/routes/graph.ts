@@ -156,6 +156,25 @@ graphRoutes.get('/conflicts/:personId', (req, res) => {
   res.json(getConflictsForPerson(personId));
 });
 
+// Degrees of separation — BFS shortest path between two nodes
+graphRoutes.get('/shortest-path', (req, res) => {
+  const { from, to } = req.query;
+  if (!from || !to) {
+    res.status(400).json({ error: 'from and to query params required' });
+    return;
+  }
+  const data = getPoliticalData();
+  const path = findShortestPath(data, from as string, to as string);
+  res.json({ path });
+});
+
+// Cluster detection — find groups of people sharing multiple connections
+graphRoutes.get('/clusters', (_req, res) => {
+  const data = getPoliticalData();
+  const clusters = detectClusters(data);
+  res.json(clusters);
+});
+
 // Person details with positions
 graphRoutes.get('/person-details/:personId', async (req, res) => {
   const { personId } = req.params;
@@ -171,3 +190,115 @@ graphRoutes.get('/person-details/:personId', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch person details' });
   }
 });
+
+// BFS shortest path between two nodes
+function findShortestPath(data: GraphData, fromId: string, toId: string): { nodes: string[]; links: { source: string; target: string; label: string }[] } | null {
+  if (fromId === toId) return { nodes: [fromId], links: [] };
+
+  // Build adjacency list
+  const adj = new Map<string, { neighbor: string; label: string }[]>();
+  for (const node of data.nodes) {
+    adj.set(node.id, []);
+  }
+  for (const link of data.links) {
+    const src = typeof link.source === 'string' ? link.source : (link.source as any).id;
+    const tgt = typeof link.target === 'string' ? link.target : (link.target as any).id;
+    adj.get(src)?.push({ neighbor: tgt, label: link.label });
+    adj.get(tgt)?.push({ neighbor: src, label: link.label });
+  }
+
+  // BFS
+  const visited = new Set<string>([fromId]);
+  const parent = new Map<string, { node: string; label: string }>();
+  const queue: string[] = [fromId];
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    const neighbors = adj.get(current) || [];
+    for (const { neighbor, label } of neighbors) {
+      if (!visited.has(neighbor)) {
+        visited.add(neighbor);
+        parent.set(neighbor, { node: current, label });
+        if (neighbor === toId) {
+          // Reconstruct path
+          const nodes: string[] = [];
+          const links: { source: string; target: string; label: string }[] = [];
+          let cur = toId;
+          while (cur !== fromId) {
+            nodes.unshift(cur);
+            const p = parent.get(cur)!;
+            links.unshift({ source: p.node, target: cur, label: p.label });
+            cur = p.node;
+          }
+          nodes.unshift(fromId);
+          return { nodes, links };
+        }
+        queue.push(neighbor);
+      }
+    }
+  }
+  return null;
+}
+
+// Detect clusters of people sharing multiple organizational connections
+interface Cluster {
+  id: string;
+  members: { id: string; name: string }[];
+  sharedOrgs: { id: string; name: string }[];
+  strength: number;
+}
+
+function detectClusters(data: GraphData): Cluster[] {
+  // Map person -> set of orgs they connect to
+  const personOrgs = new Map<string, Set<string>>();
+  const personNodes = data.nodes.filter(n => n.type === 'person');
+  const orgNodes = new Map(data.nodes.filter(n => n.type !== 'person').map(n => [n.id, n]));
+  const personMap = new Map(personNodes.map(n => [n.id, n]));
+
+  for (const link of data.links) {
+    const src = typeof link.source === 'string' ? link.source : (link.source as any).id;
+    const tgt = typeof link.target === 'string' ? link.target : (link.target as any).id;
+
+    if (personMap.has(src) && orgNodes.has(tgt)) {
+      if (!personOrgs.has(src)) personOrgs.set(src, new Set());
+      personOrgs.get(src)!.add(tgt);
+    }
+    if (personMap.has(tgt) && orgNodes.has(src)) {
+      if (!personOrgs.has(tgt)) personOrgs.set(tgt, new Set());
+      personOrgs.get(tgt)!.add(src);
+    }
+  }
+
+  // Find pairs of people sharing 2+ orgs
+  const clusters: Cluster[] = [];
+  const persons = Array.from(personOrgs.entries());
+  const usedPairs = new Set<string>();
+
+  for (let i = 0; i < persons.length; i++) {
+    for (let j = i + 1; j < persons.length; j++) {
+      const [p1Id, p1Orgs] = persons[i];
+      const [p2Id, p2Orgs] = persons[j];
+      const shared = [...p1Orgs].filter(o => p2Orgs.has(o));
+      if (shared.length >= 2) {
+        const key = [p1Id, p2Id].sort().join('|');
+        if (!usedPairs.has(key)) {
+          usedPairs.add(key);
+          clusters.push({
+            id: `cluster-${clusters.length}`,
+            members: [
+              { id: p1Id, name: personMap.get(p1Id)?.name || p1Id },
+              { id: p2Id, name: personMap.get(p2Id)?.name || p2Id },
+            ],
+            sharedOrgs: shared.map(orgId => ({
+              id: orgId,
+              name: orgNodes.get(orgId)?.name || orgId,
+            })),
+            strength: shared.length,
+          });
+        }
+      }
+    }
+  }
+
+  return clusters.sort((a, b) => b.strength - a.strength);
+}

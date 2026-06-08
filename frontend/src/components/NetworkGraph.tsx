@@ -70,7 +70,7 @@ export default function NetworkGraph({ data, onNodeClick, selectedNode }: Props)
     if (isSelected) {
       const ringGeometry = new THREE.RingGeometry(radius + 2, radius + 3, 32);
       const ringMaterial = new THREE.MeshBasicMaterial({
-        color: '#ffffff',
+        color: '#cf0a2c',
         side: THREE.DoubleSide,
       });
       const ring = new THREE.Mesh(ringGeometry, ringMaterial);
@@ -83,7 +83,7 @@ export default function NetworkGraph({ data, onNodeClick, selectedNode }: Props)
     canvas.width = 256;
     canvas.height = 64;
     ctx.font = '24px Sans-Serif';
-    ctx.fillStyle = '#e2e8f0';
+    ctx.fillStyle = '#1a1a2e';
     ctx.textAlign = 'center';
     ctx.fillText(node.name, 128, 40);
 
@@ -112,7 +112,7 @@ export default function NetworkGraph({ data, onNodeClick, selectedNode }: Props)
       linkDirectionalParticleSpeed={0.005}
       linkLabel={(link: any) => link.label || ''}
       onNodeClick={(node: any) => onNodeClick(node as GraphNode)}
-      backgroundColor="#1a1a2e"
+      backgroundColor="#faf9f7"
       width={window.innerWidth}
       height={window.innerHeight - 70}
       showNavInfo={false}
