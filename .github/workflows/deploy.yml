@@ -52,13 +52,16 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Create .env.production for Vite build
+        run: |
+          echo "VITE_API_URL=${{ vars.VITE_API_URL }}" > frontend/.env.production
+          echo "VITE_APPINSIGHTS_CONNECTION_STRING=${{ secrets.APPINSIGHTS_CONNECTION_STRING }}" >> frontend/.env.production
+
       - name: Build and push frontend image
         run: |
           az acr build \
             --registry ${{ env.ACR_NAME }} \
             --image norsk-nettverk-frontend:latest \
-            --build-arg "VITE_API_URL=${{ env.VITE_API_URL }}" \
-            --build-arg "VITE_APPINSIGHTS_CONNECTION_STRING=${{ secrets.APPINSIGHTS_CONNECTION_STRING }}" \
             --file frontend/Dockerfile \
             frontend/
 

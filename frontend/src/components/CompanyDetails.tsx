@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { CompanyDetails as CompanyDetailsType } from '../services/api';
+import type { CompanyDetails as CompanyDetailsType, PoliticalConnection } from '../services/api';
 import { getCompanyDetails } from '../services/api';
 import { useI18n } from '../I18nContext';
 import { useDraggable } from '../hooks/useDraggable';
@@ -14,8 +14,8 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
   const { t, lang } = useI18n();
   const [details, setDetails] = useState<CompanyDetailsType | null>(null);
   const [loading, setLoading] = useState(true);
-  const { position, handleMouseDown } = useDraggable({ x: window.innerWidth - 420, y: window.innerHeight - 400 });
-  const panelClassName = 'w-[400px] bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-20 overflow-hidden';
+  const { position, handleMouseDown } = useDraggable({ x: window.innerWidth - 460, y: 80 });
+  const panelClassName = 'w-[440px] bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-20 overflow-hidden';
   const panelStyle = { position: 'absolute' as const, left: position.x, top: position.y };
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
       >
         <div>
           <h3 className="text-white font-semibold text-lg">{details.name}</h3>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
             <span className="text-xs px-1.5 py-0.5 rounded bg-green-900/50 text-green-300 border border-green-700/50">
               {details.organizationForm}
             </span>
@@ -91,20 +91,29 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
       </div>
 
       {/* Body */}
-      <div className="p-4 space-y-3 max-h-[400px] overflow-y-auto">
+      <div className="p-4 space-y-3 max-h-[500px] overflow-y-auto">
+        {/* Entanglement Score */}
+        {details.entanglementScore > 0 && (
+          <EntanglementScoreBar score={details.entanglementScore} lang={lang} />
+        )}
+
         {/* Key metrics */}
         <div className="grid grid-cols-2 gap-3">
-          {details.employees && (
+          {details.employees != null && (
             <MetricCard label={t('company.employees')} value={details.employees.toLocaleString(lang === 'no' ? 'nb-NO' : 'en-US')} icon="👥" />
           )}
           {details.founded && (
             <MetricCard label={t('company.founded')} value={formatDate(details.founded, lang)} icon="📅" />
           )}
+          {details.stateOwnershipPercent != null && (
+            <MetricCard
+              label={lang === 'no' ? 'Statlig eierandel' : 'State ownership'}
+              value={`${details.stateOwnershipPercent}%`}
+              icon="🏛️"
+            />
+          )}
           {details.lastAnnualReport && (
             <MetricCard label={t('company.lastReport')} value={details.lastAnnualReport} icon="📊" />
-          )}
-          {details.ownershipSector && (
-            <MetricCard label={t('company.sector')} value={details.ownershipSector} icon="🏢" />
           )}
         </div>
 
@@ -130,6 +139,15 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
           </div>
         )}
 
+        {/* Political Connections */}
+        {details.politicalConnections.length > 0 && (
+          <PoliticalConnectionsSection
+            connections={details.politicalConnections}
+            revolvingDoorCount={details.revolvingDoorCount}
+            lang={lang}
+          />
+        )}
+
         {/* Contact info */}
         <div className="pt-2 border-t border-slate-700 space-y-1.5">
           {details.location && (
@@ -147,6 +165,9 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
             <InfoRow icon="📞" label={t('company.phone')} value={details.phone} />
           )}
           <InfoRow icon="🔢" label={t('company.orgNr')} value={details.orgNumber} />
+          {details.stateOwnershipSource && (
+            <InfoRow icon="🏛️" label={lang === 'no' ? 'Eier' : 'Owner'} value={details.stateOwnershipSource} />
+          )}
         </div>
 
         {/* State ownership warning */}
@@ -160,6 +181,119 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
             </p>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function EntanglementScoreBar({ score, lang }: { score: number; lang: string }) {
+  const getColor = (s: number) => {
+    if (s >= 70) return { bg: 'bg-red-500', text: 'text-red-300', border: 'border-red-700/50', bgFill: 'bg-red-900/30' };
+    if (s >= 40) return { bg: 'bg-amber-500', text: 'text-amber-300', border: 'border-amber-700/50', bgFill: 'bg-amber-900/30' };
+    return { bg: 'bg-green-500', text: 'text-green-300', border: 'border-green-700/50', bgFill: 'bg-green-900/30' };
+  };
+
+  const colors = getColor(score);
+  const label = lang === 'no' ? 'Politisk innflytelsesgrad' : 'Political Entanglement Score';
+  const levelLabel = score >= 70
+    ? (lang === 'no' ? 'Høy' : 'High')
+    : score >= 40
+      ? (lang === 'no' ? 'Middels' : 'Medium')
+      : (lang === 'no' ? 'Lav' : 'Low');
+
+  return (
+    <div className={`${colors.bgFill} border ${colors.border} rounded-lg p-3`}>
+      <div className="flex justify-between items-center mb-1.5">
+        <span className="text-xs font-semibold text-slate-300">{label}</span>
+        <span className={`text-xs font-bold ${colors.text}`}>{score}/100 ({levelLabel})</span>
+      </div>
+      <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+        <div
+          className={`h-full ${colors.bg} rounded-full transition-all duration-500`}
+          style={{ width: `${score}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function PoliticalConnectionsSection({
+  connections,
+  revolvingDoorCount,
+  lang,
+}: {
+  connections: PoliticalConnection[];
+  revolvingDoorCount: number;
+  lang: string;
+}) {
+  const title = lang === 'no' ? 'Politiske forbindelser' : 'Political Connections';
+  const rdLabel = lang === 'no' ? 'Svingdør-tilfeller' : 'Revolving door cases';
+
+  return (
+    <div className="pt-2 border-t border-slate-700">
+      <div className="flex justify-between items-center mb-2">
+        <h4 className="text-xs font-semibold text-slate-400 uppercase">{title}</h4>
+        <span className="text-xs text-slate-500">{connections.length} {lang === 'no' ? 'personer' : 'people'}</span>
+      </div>
+
+      {revolvingDoorCount > 0 && (
+        <div className="flex items-center gap-1.5 mb-2 px-2 py-1 bg-red-900/20 border border-red-800/40 rounded text-xs text-red-300">
+          <span>🚪</span>
+          <span>{rdLabel}: <strong>{revolvingDoorCount}</strong></span>
+        </div>
+      )}
+
+      <div className="space-y-2">
+        {connections.map((conn, i) => (
+          <ConnectionCard key={i} connection={conn} lang={lang} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ConnectionCard({ connection, lang }: { connection: PoliticalConnection; lang: string }) {
+  const yearRange = connection.endYear
+    ? `${connection.startYear}–${connection.endYear}`
+    : `${connection.startYear}–${lang === 'no' ? 'nå' : 'present'}`;
+
+  const categoryColors: Record<string, string> = {
+    board: 'bg-blue-900/50 text-blue-300 border-blue-700/50',
+    executive: 'bg-purple-900/50 text-purple-300 border-purple-700/50',
+    political: 'bg-green-900/50 text-green-300 border-green-700/50',
+    government: 'bg-amber-900/50 text-amber-300 border-amber-700/50',
+  };
+
+  const categoryLabels: Record<string, Record<string, string>> = {
+    board: { no: 'Styre', en: 'Board' },
+    executive: { no: 'Ledelse', en: 'Executive' },
+    political: { no: 'Politisk', en: 'Political' },
+    government: { no: 'Regjering', en: 'Government' },
+  };
+
+  return (
+    <div className="bg-slate-700/40 rounded-lg p-2.5">
+      <div className="flex items-start justify-between">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-white font-medium truncate">{connection.personName}</span>
+            {connection.isRevolvingDoor && (
+              <span className="text-xs" title={lang === 'no' ? 'Svingdør' : 'Revolving door'}>🚪</span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-xs text-slate-400">{connection.role}</span>
+            <span className="text-[10px] text-slate-500">{yearRange}</span>
+          </div>
+          {connection.previousPoliticalRole && (
+            <div className="text-[10px] text-red-300/80 mt-0.5 italic">
+              ← {lang === 'no' ? 'Tidl.' : 'Former'}: {connection.previousPoliticalRole}
+            </div>
+          )}
+        </div>
+        <span className={`text-[10px] px-1.5 py-0.5 rounded border ${categoryColors[connection.category] || ''}`}>
+          {categoryLabels[connection.category]?.[lang] || connection.category}
+        </span>
       </div>
     </div>
   );

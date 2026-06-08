@@ -141,6 +141,17 @@ export async function getPersonConflicts(personId: string): Promise<ConflictOfIn
 }
 
 // Company details
+export interface PoliticalConnection {
+  personId: string;
+  personName: string;
+  role: string;
+  category: 'board' | 'political' | 'government' | 'executive';
+  startYear: number;
+  endYear?: number;
+  isRevolvingDoor: boolean;
+  previousPoliticalRole?: string;
+}
+
 export interface CompanyDetails {
   orgNumber: string;
   name: string;
@@ -158,6 +169,11 @@ export interface CompanyDetails {
   isBankrupt: boolean;
   lastAnnualReport: string | null;
   phone: string | null;
+  stateOwnershipPercent: number | null;
+  stateOwnershipSource: string | null;
+  politicalConnections: PoliticalConnection[];
+  entanglementScore: number;
+  revolvingDoorCount: number;
 }
 
 export async function getCompanyDetails(orgNumber: string): Promise<CompanyDetails | null> {
