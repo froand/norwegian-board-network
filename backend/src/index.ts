@@ -19,6 +19,7 @@ const { aiSearchRoutes } = await import('./routes/ai-search.js');
 const { graphRoutes } = await import('./routes/graph.js');
 const { companyRoutes } = await import('./routes/company.js');
 const { sourcesRoutes } = await import('./routes/sources.js');
+const { aiRoutes } = await import('./routes/ai.js');
 const { karanteneRoutes } = await import('./routes/karantene.js');
 
 const app = express();
@@ -32,6 +33,7 @@ app.use('/api/ai', aiSearchRoutes);
 app.use('/api/graph', graphRoutes);
 app.use('/api/company', companyRoutes);
 app.use('/api/sources', sourcesRoutes);
+app.use('/api/ai', aiRoutes);
 app.use('/api/karantene', karanteneRoutes);
 
 app.get('/api/health', (_req, res) => {

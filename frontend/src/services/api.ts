@@ -256,6 +256,19 @@ export async function getPersonDetails(personId: string): Promise<PersonDetails 
   return res.json();
 }
 
+export interface PersonAiSummary {
+  personId: string;
+  summary: string;
+  generatedAt: string;
+}
+
+export async function getPersonAiSummary(personId: string): Promise<PersonAiSummary | null> {
+  const res = await fetch(`${API_BASE}/ai/person-summary/${encodeURIComponent(personId)}`);
+  if (res.status === 404 || res.status === 503) return null;
+  if (!res.ok) throw new Error('Failed to fetch AI person summary');
+  return res.json();
+}
+
 export interface KaranteneDecision {
   id: string;
   personName: string;
