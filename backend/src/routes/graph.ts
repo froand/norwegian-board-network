@@ -132,14 +132,56 @@ function mergeGraphData(a: GraphData, b: GraphData): GraphData {
 }
 
 // Timeline endpoints
-graphRoutes.get('/timeline/:personId', (req, res) => {
+graphRoutes.get('/timeline/:personId', async (req, res) => {
   const { personId } = req.params;
+
+  // First check curated timelines
   const timeline = getPersonTimeline(personId);
-  if (!timeline) {
-    res.status(404).json({ error: 'No timeline data for this person' });
+  if (timeline) {
+    res.json(timeline);
     return;
   }
-  res.json(timeline);
+
+  // Fallback: generate timeline from person details (KNOWN_POSITIONS + Stortinget API)
+  try {
+    const details = await getPersonDetails(personId);
+    if (details) {
+      const allPositions = [...details.currentPositions, ...details.pastPositions];
+      if (allPositions.length > 0) {
+        const categoryMap: Record<string, 'political' | 'government' | 'board' | 'executive'> = {
+          political: 'political',
+          government: 'government',
+          private: 'executive',
+          board: 'board',
+          committee: 'political',
+        };
+
+        const positions = allPositions
+          .filter((p: { startYear?: number }) => p.startYear)
+          .map((p: { organization: string; title: string; type: string; startYear?: number; endYear?: number | null }) => ({
+            orgId: `org-${p.organization.toLowerCase().replace(/\s+/g, '-')}`,
+            orgName: p.organization,
+            role: p.title,
+            category: categoryMap[p.type] || 'political',
+            startYear: p.startYear!,
+            endYear: p.endYear === null ? undefined : p.endYear,
+          }));
+
+        if (positions.length > 0) {
+          res.json({
+            personId,
+            personName: details.name,
+            positions,
+          });
+          return;
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Failed to generate timeline from person details:', e);
+  }
+
+  res.status(404).json({ error: 'No timeline data for this person' });
 });
 
 graphRoutes.get('/timelines', (_req, res) => {

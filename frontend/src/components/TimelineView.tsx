@@ -21,7 +21,7 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
   const { t } = useI18n();
   const [timeline, setTimeline] = useState<PersonTimeline | null>(null);
   const [loading, setLoading] = useState(true);
-  const { position, handleMouseDown } = useDraggable({ x: window.innerWidth - 520, y: 96 });
+  const { position, handleMouseDown } = useDraggable({ x: 16, y: 20 });
 
   useEffect(() => {
     setLoading(true);
@@ -38,20 +38,20 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
     executive: t('timeline.catExecutive'),
   };
 
-  const panelClassName = 'w-[500px] bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-30 overflow-hidden';
+  const panelClassName = 'w-[500px] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-xl z-30 overflow-hidden';
   const panelStyle = { position: 'absolute' as const, left: position.x, top: position.y };
 
   if (loading) {
     return (
       <div className={panelClassName} style={panelStyle}>
         <div
-          className="flex justify-between items-center p-4 border-b border-slate-700 cursor-grab active:cursor-grabbing select-none"
+          className="flex justify-between items-center p-4 border-b border-gray-200 cursor-grab active:cursor-grabbing select-none"
           onMouseDown={handleMouseDown}
         >
-          <h3 className="text-white font-semibold">{t('timeline.title')} — {personName}</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">✕</button>
+          <h3 className="text-gray-900 font-semibold">{t('timeline.title')} — {personName}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg">✕</button>
         </div>
-        <div className="p-4 text-slate-400">{t('timeline.loading')}</div>
+        <div className="p-4 text-gray-500">{t('timeline.loading')}</div>
       </div>
     );
   }
@@ -60,13 +60,13 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
     return (
       <div className={panelClassName} style={panelStyle}>
         <div
-          className="flex justify-between items-center p-4 border-b border-slate-700 cursor-grab active:cursor-grabbing select-none"
+          className="flex justify-between items-center p-4 border-b border-gray-200 cursor-grab active:cursor-grabbing select-none"
           onMouseDown={handleMouseDown}
         >
-          <h3 className="text-white font-semibold">{personName}</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">✕</button>
+          <h3 className="text-gray-900 font-semibold">{personName}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg">✕</button>
         </div>
-        <div className="p-4 text-slate-400 text-sm">{t('timeline.noData')}</div>
+        <div className="p-4 text-gray-500 text-sm">{t('timeline.noData')}</div>
       </div>
     );
   }
@@ -81,20 +81,20 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
   return (
     <div className={panelClassName} style={panelStyle}>
       <div
-        className="flex justify-between items-center p-4 border-b border-slate-700 cursor-grab active:cursor-grabbing select-none"
+        className="flex justify-between items-center p-4 border-b border-gray-200 cursor-grab active:cursor-grabbing select-none"
         onMouseDown={handleMouseDown}
       >
         <div>
-          <h3 className="text-white font-semibold">{t('timeline.title')} — {personName}</h3>
-          <p className="text-xs text-slate-400 mt-1">{t('timeline.subtitle')}</p>
+          <h3 className="text-gray-900 font-semibold">{t('timeline.title')} — {personName}</h3>
+          <p className="text-xs text-gray-500 mt-1">{t('timeline.subtitle')}</p>
         </div>
-        <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">✕</button>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg">✕</button>
       </div>
 
       <div className="p-4 overflow-y-auto max-h-[500px]">
         {/* Year axis */}
         <div className="relative mb-2 ml-[140px]">
-          <div className="flex justify-between text-xs text-slate-500">
+          <div className="flex justify-between text-xs text-gray-500">
             {Array.from({ length: Math.ceil(totalYears / 5) + 1 }, (_, i) => {
               const year = minYear + i * 5;
               if (year > maxYear) return null;
@@ -113,12 +113,12 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
             return (
               <div key={i} className="flex items-center gap-2">
                 <div className="w-[140px] flex-shrink-0 text-right">
-                  <div className="text-xs text-slate-300 truncate" title={pos.orgName}>
+                  <div className="text-xs text-gray-700 truncate" title={pos.orgName}>
                     {pos.orgName}
                   </div>
-                  <div className="text-[10px] text-slate-500">{pos.role}</div>
+                  <div className="text-[10px] text-gray-500">{pos.role}</div>
                 </div>
-                <div className="flex-1 relative h-6 bg-slate-700/50 rounded">
+                <div className="flex-1 relative h-6 bg-gray-100 rounded">
                   <div
                     className="absolute h-full rounded opacity-90 flex items-center px-1"
                     style={{
@@ -127,7 +127,7 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
                       backgroundColor: CATEGORY_COLORS[pos.category],
                     }}
                   >
-                    <span className="text-[9px] text-slate-900 font-medium truncate">
+                    <span className="text-[9px] text-white font-medium truncate drop-shadow-sm">
                       {pos.startYear}–{pos.endYear || t('timeline.now')}
                     </span>
                   </div>
@@ -139,20 +139,20 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
 
         {/* Revolving door warnings */}
         {gaps.length > 0 && (
-          <div className="mt-4 pt-3 border-t border-slate-700">
-            <h4 className="text-xs font-semibold text-red-400 uppercase mb-2 group relative inline-flex items-center gap-1 cursor-help">
+          <div className="mt-4 pt-3 border-t border-gray-200">
+            <h4 className="text-xs font-semibold text-red-600 uppercase mb-2 group relative inline-flex items-center gap-1 cursor-help">
               ⚠️ <span className="underline decoration-dotted">{t('timeline.revolvingDoor')}</span> {t('timeline.detected')}
-              <span className="invisible group-hover:visible absolute bottom-full left-0 mb-2 w-72 p-3 bg-slate-900 border border-slate-600 rounded-lg shadow-xl text-xs text-slate-300 font-normal normal-case z-50">
+              <span className="invisible group-hover:visible absolute bottom-full left-0 mb-2 w-72 p-3 bg-gray-900 border border-gray-600 rounded-lg shadow-xl text-xs text-gray-200 font-normal normal-case z-50">
                 <strong className="text-white block mb-1">{t('timeline.revolvingDoorTitle')}</strong>
                 {t('timeline.revolvingDoorExplain')}
               </span>
             </h4>
             {gaps.map((gap, i) => (
-              <div key={i} className="bg-red-900/20 border border-red-800/50 rounded p-2 mb-2">
-                <div className="text-sm text-red-300">
+              <div key={i} className="bg-red-50 border border-red-200 rounded p-2 mb-2">
+                <div className="text-sm text-red-700">
                   {gap.fromRole} → {gap.toRole}
                 </div>
-                <div className="text-xs text-red-400/80 mt-1">
+                <div className="text-xs text-red-500 mt-1">
                   {gap.gapYears === 0
                     ? t('timeline.sameYear')
                     : `${gap.gapYears} ${t('timeline.yearsBetween')}`}
@@ -164,9 +164,9 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
         )}
 
         {/* Legend */}
-        <div className="mt-4 pt-3 border-t border-slate-700 flex flex-wrap gap-3">
+        <div className="mt-4 pt-3 border-t border-gray-200 flex flex-wrap gap-3">
           {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-            <div key={key} className="flex items-center gap-1 text-xs text-slate-400">
+            <div key={key} className="flex items-center gap-1 text-xs text-gray-600">
               <span
                 className="w-3 h-2 rounded"
                 style={{ backgroundColor: CATEGORY_COLORS[key] }}

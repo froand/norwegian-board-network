@@ -10,6 +10,7 @@ const ORG_NUMBER_MAP: Record<string, string> = {
   'equinor': '923609016',
   'telenor': '982463718',
   'norsk-hydro': '914778271',
+  'mckinsey': '979573587',
 };
 
 // State ownership percentages (from regjeringen.no/eierskapsmeldingen)

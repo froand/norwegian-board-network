@@ -14,8 +14,8 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
   const { t, lang } = useI18n();
   const [details, setDetails] = useState<CompanyDetailsType | null>(null);
   const [loading, setLoading] = useState(true);
-  const { position, handleMouseDown } = useDraggable({ x: window.innerWidth - 460, y: 80 });
-  const panelClassName = 'w-[440px] bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-20 overflow-hidden';
+  const { position, handleMouseDown } = useDraggable({ x: window.innerWidth - 460, y: 20 });
+  const panelClassName = 'w-[440px] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-xl z-20 overflow-hidden';
   const panelStyle = { position: 'absolute' as const, left: position.x, top: position.y };
 
   useEffect(() => {
@@ -30,13 +30,13 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
     return (
       <div className={panelClassName} style={panelStyle}>
         <div
-          className="flex justify-between items-center p-4 border-b border-slate-700 cursor-grab active:cursor-grabbing select-none"
+          className="flex justify-between items-center p-4 border-b border-gray-200 cursor-grab active:cursor-grabbing select-none"
           onMouseDown={handleMouseDown}
         >
-          <h3 className="text-white font-semibold">{companyName}</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">✕</button>
+          <h3 className="text-gray-900 font-semibold">{companyName}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg">✕</button>
         </div>
-        <div className="p-4 text-slate-400 text-sm">{t('company.loading')}</div>
+        <div className="p-4 text-gray-500 text-sm">{t('company.loading')}</div>
       </div>
     );
   }
@@ -45,13 +45,13 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
     return (
       <div className={panelClassName} style={panelStyle}>
         <div
-          className="flex justify-between items-center p-4 border-b border-slate-700 cursor-grab active:cursor-grabbing select-none"
+          className="flex justify-between items-center p-4 border-b border-gray-200 cursor-grab active:cursor-grabbing select-none"
           onMouseDown={handleMouseDown}
         >
-          <h3 className="text-white font-semibold">{companyName}</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">✕</button>
+          <h3 className="text-gray-900 font-semibold">{companyName}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg">✕</button>
         </div>
-        <div className="p-4 text-slate-400 text-sm">{t('company.noDetails')}</div>
+        <div className="p-4 text-gray-500 text-sm">{t('company.noDetails')}</div>
       </div>
     );
   }
@@ -60,34 +60,34 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
     <div className={panelClassName} style={panelStyle}>
       {/* Header */}
       <div
-        className="flex justify-between items-start p-4 border-b border-slate-700 cursor-grab active:cursor-grabbing select-none"
+        className="flex justify-between items-start p-4 border-b border-gray-200 cursor-grab active:cursor-grabbing select-none"
         onMouseDown={handleMouseDown}
       >
         <div>
-          <h3 className="text-white font-semibold text-lg">{details.name}</h3>
+          <h3 className="text-gray-900 font-semibold text-lg">{details.name}</h3>
           <div className="flex items-center gap-2 mt-1 flex-wrap">
-            <span className="text-xs px-1.5 py-0.5 rounded bg-green-900/50 text-green-300 border border-green-700/50">
+            <span className="text-xs px-1.5 py-0.5 rounded bg-green-100 text-green-700 border border-green-200">
               {details.organizationForm}
             </span>
             {details.isStateOwned && (
-              <span className="text-xs px-1.5 py-0.5 rounded bg-amber-900/50 text-amber-300 border border-amber-700/50"
+              <span className="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 border border-amber-200"
                 title={t('company.stateOwnedTooltip')}>
                 {t('company.stateOwned')}
               </span>
             )}
             {details.isPubliclyListed && (
-              <span className="text-xs px-1.5 py-0.5 rounded bg-blue-900/50 text-blue-300 border border-blue-700/50">
+              <span className="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200">
                 {t('company.listed')}
               </span>
             )}
             {details.isBankrupt && (
-              <span className="text-xs px-1.5 py-0.5 rounded bg-red-900/50 text-red-300 border border-red-700/50">
+              <span className="text-xs px-1.5 py-0.5 rounded bg-red-100 text-red-700 border border-red-200">
                 {t('company.bankrupt')}
               </span>
             )}
           </div>
         </div>
-        <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">✕</button>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg">✕</button>
       </div>
 
       {/* Body */}
@@ -120,10 +120,10 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
         {/* Industry */}
         {details.industry.length > 0 && (
           <div>
-            <h4 className="text-xs font-semibold text-slate-400 uppercase mb-1">{t('company.industry')}</h4>
+            <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">{t('company.industry')}</h4>
             <div className="space-y-1">
               {details.industry.map((ind, i) => (
-                <div key={i} className="text-sm text-slate-300 bg-slate-700/50 px-2 py-1 rounded">
+                <div key={i} className="text-sm text-gray-700 bg-slate-700/50 px-2 py-1 rounded">
                   {ind}
                 </div>
               ))}
@@ -134,8 +134,8 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
         {/* Purpose */}
         {details.purpose && (
           <div>
-            <h4 className="text-xs font-semibold text-slate-400 uppercase mb-1">{t('company.purpose')}</h4>
-            <p className="text-sm text-slate-300 leading-relaxed">{details.purpose}</p>
+            <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">{t('company.purpose')}</h4>
+            <p className="text-sm text-gray-700 leading-relaxed">{details.purpose}</p>
           </div>
         )}
 
@@ -149,7 +149,7 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
         )}
 
         {/* Contact info */}
-        <div className="pt-2 border-t border-slate-700 space-y-1.5">
+        <div className="pt-2 border-t border-gray-200 space-y-1.5">
           {details.location && (
             <InfoRow icon="📍" label={t('company.address')} value={details.location} />
           )}
@@ -172,11 +172,11 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
 
         {/* State ownership warning */}
         {details.isStateOwned && (
-          <div className="bg-amber-900/20 border border-amber-700/50 rounded-lg p-3 mt-2">
-            <div className="text-xs font-semibold text-amber-300 mb-1">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2">
+            <div className="text-xs font-semibold text-amber-700 mb-1">
               {t('company.conflictRelevance')}
             </div>
-            <p className="text-xs text-amber-200/80">
+            <p className="text-xs text-amber-600">
               {t('company.conflictExplain')}
             </p>
           </div>
@@ -188,8 +188,8 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
 
 function EntanglementScoreBar({ score, lang }: { score: number; lang: string }) {
   const getColor = (s: number) => {
-    if (s >= 70) return { bg: 'bg-red-500', text: 'text-red-300', border: 'border-red-700/50', bgFill: 'bg-red-900/30' };
-    if (s >= 40) return { bg: 'bg-amber-500', text: 'text-amber-300', border: 'border-amber-700/50', bgFill: 'bg-amber-900/30' };
+    if (s >= 70) return { bg: 'bg-red-500', text: 'text-red-600', border: 'border-red-700/50', bgFill: 'bg-red-900/30' };
+    if (s >= 40) return { bg: 'bg-amber-500', text: 'text-amber-700', border: 'border-amber-700/50', bgFill: 'bg-amber-900/30' };
     return { bg: 'bg-green-500', text: 'text-green-300', border: 'border-green-700/50', bgFill: 'bg-green-900/30' };
   };
 
@@ -204,7 +204,7 @@ function EntanglementScoreBar({ score, lang }: { score: number; lang: string }) 
   return (
     <div className={`${colors.bgFill} border ${colors.border} rounded-lg p-3`}>
       <div className="flex justify-between items-center mb-1.5">
-        <span className="text-xs font-semibold text-slate-300">{label}</span>
+        <span className="text-xs font-semibold text-gray-700">{label}</span>
         <span className={`text-xs font-bold ${colors.text}`}>{score}/100 ({levelLabel})</span>
       </div>
       <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
@@ -230,14 +230,14 @@ function PoliticalConnectionsSection({
   const rdLabel = lang === 'no' ? 'Svingdør-tilfeller' : 'Revolving door cases';
 
   return (
-    <div className="pt-2 border-t border-slate-700">
+    <div className="pt-2 border-t border-gray-200">
       <div className="flex justify-between items-center mb-2">
-        <h4 className="text-xs font-semibold text-slate-400 uppercase">{title}</h4>
-        <span className="text-xs text-slate-500">{connections.length} {lang === 'no' ? 'personer' : 'people'}</span>
+        <h4 className="text-xs font-semibold text-gray-500 uppercase">{title}</h4>
+        <span className="text-xs text-gray-400">{connections.length} {lang === 'no' ? 'personer' : 'people'}</span>
       </div>
 
       {revolvingDoorCount > 0 && (
-        <div className="flex items-center gap-1.5 mb-2 px-2 py-1 bg-red-900/20 border border-red-800/40 rounded text-xs text-red-300">
+        <div className="flex items-center gap-1.5 mb-2 px-2 py-1 bg-red-50 border border-red-200 rounded text-xs text-red-600">
           <span>🚪</span>
           <span>{rdLabel}: <strong>{revolvingDoorCount}</strong></span>
         </div>
@@ -259,9 +259,9 @@ function ConnectionCard({ connection, lang }: { connection: PoliticalConnection;
 
   const categoryColors: Record<string, string> = {
     board: 'bg-blue-900/50 text-blue-300 border-blue-700/50',
-    executive: 'bg-purple-900/50 text-purple-300 border-purple-700/50',
+    executive: 'bg-purple-100 text-purple-700 border-purple-200',
     political: 'bg-green-900/50 text-green-300 border-green-700/50',
-    government: 'bg-amber-900/50 text-amber-300 border-amber-700/50',
+    government: 'bg-amber-900/50 text-amber-700 border-amber-700/50',
   };
 
   const categoryLabels: Record<string, Record<string, string>> = {
@@ -272,21 +272,21 @@ function ConnectionCard({ connection, lang }: { connection: PoliticalConnection;
   };
 
   return (
-    <div className="bg-slate-700/40 rounded-lg p-2.5">
+    <div className="bg-gray-50 border border-gray-200 rounded-lg p-2.5">
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-white font-medium truncate">{connection.personName}</span>
+            <span className="text-sm text-gray-900 font-medium truncate">{connection.personName}</span>
             {connection.isRevolvingDoor && (
               <span className="text-xs" title={lang === 'no' ? 'Svingdør' : 'Revolving door'}>🚪</span>
             )}
           </div>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-xs text-slate-400">{connection.role}</span>
-            <span className="text-[10px] text-slate-500">{yearRange}</span>
+            <span className="text-xs text-gray-500">{connection.role}</span>
+            <span className="text-[10px] text-gray-400">{yearRange}</span>
           </div>
           {connection.previousPoliticalRole && (
-            <div className="text-[10px] text-red-300/80 mt-0.5 italic">
+            <div className="text-[10px] text-red-600 mt-0.5 italic">
               ← {lang === 'no' ? 'Tidl.' : 'Former'}: {connection.previousPoliticalRole}
             </div>
           )}
@@ -301,9 +301,9 @@ function ConnectionCard({ connection, lang }: { connection: PoliticalConnection;
 
 function MetricCard({ label, value, icon }: { label: string; value: string; icon: string }) {
   return (
-    <div className="bg-slate-700/50 rounded-lg p-2">
-      <div className="text-[10px] text-slate-400 uppercase">{icon} {label}</div>
-      <div className="text-sm text-white font-medium mt-0.5">{value}</div>
+    <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
+      <div className="text-[10px] text-gray-500 uppercase">{icon} {label}</div>
+      <div className="text-sm text-gray-900 font-medium mt-0.5">{value}</div>
     </div>
   );
 }
@@ -312,13 +312,13 @@ function InfoRow({ icon, label, value, href }: { icon: string; label: string; va
   return (
     <div className="flex items-center gap-2 text-sm">
       <span className="text-xs">{icon}</span>
-      <span className="text-slate-400">{label}:</span>
+      <span className="text-gray-500">{label}:</span>
       {href ? (
-        <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline truncate">
+        <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate">
           {value}
         </a>
       ) : (
-        <span className="text-slate-300 truncate">{value}</span>
+        <span className="text-gray-700 truncate">{value}</span>
       )}
     </div>
   );

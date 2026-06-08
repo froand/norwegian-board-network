@@ -5,9 +5,9 @@ import { useI18n } from '../I18nContext';
 import { useDraggable } from '../hooks/useDraggable';
 
 const SEVERITY_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-  high: { bg: 'bg-red-900/30', border: 'border-red-700/50', text: 'text-red-300' },
-  medium: { bg: 'bg-amber-900/30', border: 'border-amber-700/50', text: 'text-amber-300' },
-  low: { bg: 'bg-blue-900/30', border: 'border-blue-700/50', text: 'text-blue-300' },
+  high: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700' },
+  medium: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' },
+  low: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700' },
 };
 
 const CONFLICT_TYPE_LABELS: Record<string, string> = {
@@ -49,25 +49,25 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
 
   return (
     <div
-      className="w-[420px] bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-30 overflow-hidden"
+      className="w-[420px] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-xl z-30 overflow-hidden"
       style={{ position: 'absolute', left: position.x, top: position.y }}
     >
       <div
-        className="flex justify-between items-center p-4 border-b border-slate-700 cursor-grab active:cursor-grabbing select-none"
+        className="flex justify-between items-center p-4 border-b border-gray-200 cursor-grab active:cursor-grabbing select-none"
         onMouseDown={handleMouseDown}
       >
         <div>
-          <h3 className="text-white font-semibold">{t('conflicts.title')}</h3>
-          <p className="text-xs text-slate-400 mt-1">
+          <h3 className="text-gray-900 font-semibold">{t('conflicts.title')}</h3>
+          <p className="text-xs text-gray-500 mt-1">
             {t('conflicts.subtitle')}
-            <span className="ml-2 text-slate-500 italic">{t('conflicts.drag')}</span>
+            <span className="ml-2 text-gray-400 italic">{t('conflicts.drag')}</span>
           </p>
         </div>
-        <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">✕</button>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg">✕</button>
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1 p-2 border-b border-slate-700 overflow-x-auto">
+      <div className="flex gap-1 p-2 border-b border-gray-200 overflow-x-auto">
         {['all', 'revolving_door', 'sector_overlap', 'concurrent', 'shared_network'].map((type) => {
           const labelMap: Record<string, string> = {
             all: t('conflicts.all'),
@@ -82,8 +82,8 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
               onClick={() => setFilterType(type)}
               className={`px-2 py-1 rounded text-xs whitespace-nowrap ${
                 filterType === type
-                  ? 'bg-slate-600 text-white'
-                  : 'text-slate-400 hover:bg-slate-700'
+                  ? 'bg-[var(--stortinget-red)] text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               {labelMap[type]}
@@ -94,16 +94,16 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
 
       <div className="p-3 overflow-y-auto max-h-[500px] space-y-2">
         {loading ? (
-          <div className="text-slate-400 text-sm">{t('conflicts.loading')}</div>
+          <div className="text-gray-500 text-sm">{t('conflicts.loading')}</div>
         ) : filtered.length === 0 ? (
-          <div className="text-slate-400 text-sm">{t('conflicts.none')}</div>
+          <div className="text-gray-500 text-sm">{t('conflicts.none')}</div>
         ) : (
           filtered.map((conflict, i) => {
             const colors = SEVERITY_COLORS[conflict.severity];
             return (
               <div
                 key={i}
-                className={`${colors.bg} border ${colors.border} rounded-lg p-3 cursor-pointer hover:opacity-90 transition-opacity`}
+                className={`${colors.bg} border ${colors.border} rounded-lg p-3 cursor-pointer hover:opacity-80 transition-opacity`}
                 onClick={() => onPersonClick(conflict.personId)}
               >
                 <div className="flex items-center justify-between mb-1">
@@ -111,28 +111,28 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
                     {conflict.personName}
                   </span>
                   <span
-                    className="text-[10px] px-1.5 py-0.5 rounded bg-slate-700 text-slate-300 cursor-help"
+                    className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 cursor-help border border-gray-200"
                     title={CONFLICT_TYPE_TOOLTIPS[conflict.conflictType]}
                   >
                     {CONFLICT_TYPE_LABELS[conflict.conflictType]}
                   </span>
                 </div>
 
-                <div className="text-xs text-slate-400 space-y-1 mt-2">
+                <div className="text-xs text-gray-600 space-y-1 mt-2">
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
+                    <span className="w-2 h-2 rounded-full bg-amber-500 flex-shrink-0" />
                     {conflict.politicalRole}
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-600">↓</span>
+                    <span className="text-gray-400">↓</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
+                    <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
                     {conflict.boardRole} — {conflict.boardOrg}
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-500 mt-2 italic">
+                <p className="text-xs text-gray-500 mt-2 italic">
                   {conflict.description}
                 </p>
               </div>
