@@ -59,17 +59,20 @@ Interactive graph visualization exploring conflicts of interest between Norwegia
 - Dark navy 3D graph background for contrast
 - Responsive layout matching stortinget.no aesthetics
 
-## Data Sources
-- **Stortinget.no** — Live API for all current representatives, committees, parties, photos
-- **Brønnøysundregistrene (brreg.no)** — Company roles and board members (live API)
-- **Curated dataset** — Notable politicians' past positions (minister roles, private sector moves)
-- **Regjeringen.no** — Government position data (curated)
+## Data Sources (all live APIs, no static data)
+- **Stortinget.no** — All current representatives, committees, parties, photos, hearing submissions
+- **Brønnøysundregistrene (brreg.no)** — Company details, board roles, ownership (live API)
+- **Wikidata SPARQL** — Full politician position history, board memberships, party affiliations
+- **Regjeringen API** — Current government ministers with department and title
+- **Stortinget Høringsinnspill** — 1,300+ hearing submissions scraped live (Norway's effective lobby register — shows which organizations submit input to parliamentary committees)
+- **Curated dataset** — Notable politicians' known private sector moves and revolving door cases
 
 ## Tech Stack
 - **Frontend**: React + TypeScript + Vite + Tailwind CSS + react-force-graph-3d (Three.js)
 - **Backend**: Express + TypeScript
-- **Data**: Stortinget.no API + brreg.no REST API + curated political dataset
+- **Data**: Stortinget.no API + brreg.no REST API + Wikidata SPARQL + curated political dataset
 - **Deployment**: Azure Container Apps + Azure Container Registry
+- **CI/CD**: GitHub Actions — auto-deploys on every push to master
 
 ## Getting Started
 
@@ -103,11 +106,14 @@ az login --tenant YOUR_TENANT.onmicrosoft.com
 ### Configuration
 - `infra/main.bicep` — Infrastructure as Code (Bicep)
 - `infra/main.parameters.json` — Deployment parameters
-- `deploy.ps1` — Full build + deploy script
+- `.github/workflows/deploy.yml` — CI/CD pipeline (auto-deploy on push)
+- `deploy.ps1` — Manual full build + deploy script
 - `azure.yaml` — Azure Developer CLI config
 
 ## Project Structure
 ```
+├── .github/workflows/
+│   └── deploy.yml              # CI/CD: auto-deploy on push to master
 ├── backend/
 │   ├── src/
 │   │   ├── index.ts              # Express server
@@ -115,11 +121,15 @@ az login --tenant YOUR_TENANT.onmicrosoft.com
 │   │   ├── routes/
 │   │   │   ├── search.ts         # Search API (Stortinget + brreg + political)
 │   │   │   ├── graph.ts          # Graph, timeline, conflicts, person-details API
-│   │   │   └── company.ts        # Company details from brreg.no
+│   │   │   ├── company.ts        # Company details from brreg.no
+│   │   │   └── sources.ts        # Wikidata, Government, Lobby data endpoints
 │   │   └── services/
 │   │       ├── brreg.ts          # Brønnøysundregistrene API client
 │   │       ├── stortinget.ts     # Stortinget.no API (reps, photos, positions)
-│   │       └── political-data.ts # Political dataset + conflicts detection
+│   │       ├── political-data.ts # Political dataset + conflicts detection
+│   │       ├── wikidata.ts       # Wikidata SPARQL queries
+│   │       ├── regjeringen.ts    # Government ministers API
+│   │       └── lobbyregister.ts  # Hearing submissions scraper (lobby data)
 │   └── Dockerfile
 ├── frontend/
 │   ├── src/
@@ -140,7 +150,7 @@ az login --tenant YOUR_TENANT.onmicrosoft.com
 ├── infra/
 │   ├── main.bicep                # Azure infrastructure
 │   └── main.parameters.json      # Deployment params
-├── deploy.ps1                    # Deployment script
+├── deploy.ps1                    # Manual deployment script
 ├── azure.yaml                    # Azure Developer CLI config
 └── package.json
 ```
@@ -149,11 +159,17 @@ az login --tenant YOUR_TENANT.onmicrosoft.com
 - [x] Live Stortinget.no API integration
 - [x] Person position history (current + past)
 - [x] Draggable panels
+- [x] Norwegian/English language switch (i18n)
+- [x] Clickable connections in detail panels
+- [x] Wikidata SPARQL integration (full politician histories)
+- [x] Regjeringen.no ministers API
+- [x] Lobby data via Stortinget hearing submissions (1,300+ organizations)
+- [x] CI/CD auto-deploy (GitHub Actions → Azure)
+- [x] Custom parliament-themed favicon
 - [ ] Degrees of separation (shortest path between two people)
 - [ ] Cluster detection (shared board networks)
 - [ ] Export/share reports
 - [ ] Node hover tooltips
-- [ ] Lobby register integration (lobbyregisteret.no)
+- [ ] Frontend panels for lobby data and government members
 - [ ] News article linking
-- [ ] Regjeringen.no ministers API integration
 
