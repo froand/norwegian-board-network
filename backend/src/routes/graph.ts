@@ -222,11 +222,72 @@ graphRoutes.get('/person-details/:personId', async (req, res) => {
   const { personId } = req.params;
   try {
     const details = await getPersonDetails(personId);
-    if (!details) {
-      res.status(404).json({ error: 'Person not found in Stortinget data' });
+    if (details) {
+      res.json(details);
       return;
     }
-    res.json(details);
+
+    // Fallback: build details from curated graph data (links/nodes)
+    const politicalData = getPoliticalData();
+    const personNode = politicalData.nodes.find(n => n.id === personId);
+    if (!personNode) {
+      res.status(404).json({ error: 'Person not found' });
+      return;
+    }
+
+    // Find all links for this person
+    const personLinks = politicalData.links.filter(
+      l => l.source === personId || l.target === personId
+    );
+
+    const currentPositions: { title: string; organization: string; type: string; startYear?: number; endYear?: number; isCurrent: boolean }[] = [];
+    const pastPositions: { title: string; organization: string; type: string; startYear?: number; endYear?: number; isCurrent: boolean }[] = [];
+    let party: string | undefined;
+
+    for (const link of personLinks) {
+      const targetId = link.source === personId ? link.target : link.source;
+      const targetNode = politicalData.nodes.find(n => n.id === targetId);
+      if (!targetNode) continue;
+
+      const label = (link as any).label || '';
+      const category = (link as any).category || '';
+      const isCurrent = !label.toLowerCase().includes('tidl');
+      const type = category === 'political' ? 'political'
+        : category === 'government' ? 'government'
+        : category === 'executive' ? 'private'
+        : 'board';
+
+      // Detect party from political links to party nodes
+      if (targetNode.group === 'party' || (targetNode.type === 'party')) {
+        party = targetNode.name;
+      }
+
+      const position = {
+        title: label || 'Medlem',
+        organization: targetNode.name,
+        type,
+        isCurrent,
+      };
+
+      if (isCurrent) {
+        currentPositions.push(position);
+      } else {
+        pastPositions.push(position);
+      }
+    }
+
+    res.json({
+      id: personId,
+      name: personNode.name,
+      party,
+      fylke: undefined,
+      email: undefined,
+      birthYear: undefined,
+      imageUrl: undefined,
+      committees: undefined,
+      currentPositions,
+      pastPositions,
+    });
   } catch (e) {
     console.error('Error fetching person details:', e);
     res.status(500).json({ error: 'Failed to fetch person details' });
