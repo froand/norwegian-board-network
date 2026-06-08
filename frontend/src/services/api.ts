@@ -111,6 +111,29 @@ export async function getAllConflicts(): Promise<ConflictOfInterest[]> {
   return res.json();
 }
 
+export interface ShortestPathResult {
+  path: { nodes: string[]; links: { source: string; target: string; label: string }[] } | null;
+}
+
+export async function getShortestPath(fromId: string, toId: string): Promise<ShortestPathResult> {
+  const res = await fetch(`${API_BASE}/graph/shortest-path?from=${encodeURIComponent(fromId)}&to=${encodeURIComponent(toId)}`);
+  if (!res.ok) throw new Error('Failed to find path');
+  return res.json();
+}
+
+export interface Cluster {
+  id: string;
+  members: { id: string; name: string }[];
+  sharedOrgs: { id: string; name: string }[];
+  strength: number;
+}
+
+export async function getClusters(): Promise<Cluster[]> {
+  const res = await fetch(`${API_BASE}/graph/clusters`);
+  if (!res.ok) throw new Error('Failed to fetch clusters');
+  return res.json();
+}
+
 export async function getPersonConflicts(personId: string): Promise<ConflictOfInterest[]> {
   const res = await fetch(`${API_BASE}/graph/conflicts/${encodeURIComponent(personId)}`);
   if (!res.ok) throw new Error('Failed to fetch conflicts');

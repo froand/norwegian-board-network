@@ -2,6 +2,7 @@ import { useRef, useCallback, useEffect } from 'react';
 import ForceGraph3D from 'react-force-graph-3d';
 import type { GraphData, GraphNode } from '../services/api';
 import * as THREE from 'three';
+import { useI18n } from '../I18nContext';
 
 const NODE_COLORS: Record<string, string> = {
   person: '#60a5fa',
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export default function NetworkGraph({ data, onNodeClick, selectedNode }: Props) {
+  const { t } = useI18n();
   const fgRef = useRef<any>(null);
 
   useEffect(() => {
@@ -97,11 +99,36 @@ export default function NetworkGraph({ data, onNodeClick, selectedNode }: Props)
     return group;
   }, [selectedNode]);
 
+  const nodeLabel = useCallback((node: GraphNode) => {
+    const badgeColor = NODE_COLORS[node.type] || '#475569';
+    const typeLabel = node.type === 'person'
+      ? t('node.person')
+      : node.type === 'company'
+      ? t('node.company')
+      : node.type === 'political_party'
+      ? t('node.party')
+      : t('node.government');
+    const partyLine = node.type === 'person' && node.meta?.party
+      ? `<div style="font-size:12px;color:#cbd5e1;margin-top:4px;">${escapeHtml(node.meta.party)}</div>`
+      : '';
+
+    return `
+      <div style="background:#111827;color:#ffffff;padding:10px 12px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);max-width:240px;">
+        <div style="font-weight:700;font-size:14px;line-height:1.4;">${escapeHtml(node.name)}</div>
+        ${partyLine}
+        <div style="margin-top:8px;display:inline-block;background:${badgeColor};color:#ffffff;border-radius:9999px;padding:3px 8px;font-size:11px;font-weight:700;">
+          ${escapeHtml(typeLabel)}
+        </div>
+      </div>
+    `;
+  }, [t]);
+
   return (
     <ForceGraph3D
       ref={fgRef}
       graphData={data}
       nodeId="id"
+      nodeLabel={nodeLabel}
       nodeThreeObject={nodeThreeObject}
       nodeThreeObjectExtend={false}
       linkColor={(link: any) => LINK_COLORS[link.category] || '#475569'}
@@ -118,4 +145,13 @@ export default function NetworkGraph({ data, onNodeClick, selectedNode }: Props)
       showNavInfo={false}
     />
   );
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
