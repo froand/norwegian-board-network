@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { PersonTimeline, TimelinePosition } from '../services/api';
 import { getPersonTimeline } from '../services/api';
 import { useI18n } from '../I18nContext';
+import { useDraggable } from '../hooks/useDraggable';
 
 const CATEGORY_COLORS: Record<string, string> = {
   political: '#f472b6',
@@ -20,6 +21,7 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
   const { t } = useI18n();
   const [timeline, setTimeline] = useState<PersonTimeline | null>(null);
   const [loading, setLoading] = useState(true);
+  const { position, handleMouseDown } = useDraggable({ x: window.innerWidth - 520, y: 96 });
 
   useEffect(() => {
     setLoading(true);
@@ -36,22 +38,35 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
     executive: t('timeline.catExecutive'),
   };
 
+  const panelClassName = 'w-[500px] bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-30 overflow-hidden';
+  const panelStyle = { position: 'absolute' as const, left: position.x, top: position.y };
+
   if (loading) {
     return (
-      <div className="absolute top-24 right-4 w-[500px] bg-slate-800 border border-slate-600 rounded-lg p-4 z-30">
-        <div className="text-slate-400">{t('timeline.loading')}</div>
+      <div className={panelClassName} style={panelStyle}>
+        <div
+          className="flex justify-between items-center p-4 border-b border-slate-700 cursor-grab active:cursor-grabbing select-none"
+          onMouseDown={handleMouseDown}
+        >
+          <h3 className="text-white font-semibold">{t('timeline.title')} — {personName}</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">✕</button>
+        </div>
+        <div className="p-4 text-slate-400">{t('timeline.loading')}</div>
       </div>
     );
   }
 
   if (!timeline) {
     return (
-      <div className="absolute top-24 right-4 w-[500px] bg-slate-800 border border-slate-600 rounded-lg p-4 z-30">
-        <div className="flex justify-between items-center mb-3">
+      <div className={panelClassName} style={panelStyle}>
+        <div
+          className="flex justify-between items-center p-4 border-b border-slate-700 cursor-grab active:cursor-grabbing select-none"
+          onMouseDown={handleMouseDown}
+        >
           <h3 className="text-white font-semibold">{personName}</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">✕</button>
+          <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">✕</button>
         </div>
-        <div className="text-slate-400 text-sm">{t('timeline.noData')}</div>
+        <div className="p-4 text-slate-400 text-sm">{t('timeline.noData')}</div>
       </div>
     );
   }
@@ -64,8 +79,11 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
   const gaps = detectRevolvingDoorGaps(timeline.positions);
 
   return (
-    <div className="absolute top-24 right-4 w-[550px] bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-30 overflow-hidden">
-      <div className="flex justify-between items-center p-4 border-b border-slate-700">
+    <div className={panelClassName} style={panelStyle}>
+      <div
+        className="flex justify-between items-center p-4 border-b border-slate-700 cursor-grab active:cursor-grabbing select-none"
+        onMouseDown={handleMouseDown}
+      >
         <div>
           <h3 className="text-white font-semibold">{t('timeline.title')} — {personName}</h3>
           <p className="text-xs text-slate-400 mt-1">{t('timeline.subtitle')}</p>

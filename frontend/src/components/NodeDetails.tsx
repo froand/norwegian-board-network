@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { GraphNode, GraphLink, PersonDetails, PersonPosition } from '../services/api';
 import { getPersonDetails } from '../services/api';
 import { useI18n } from '../I18nContext';
+import { useDraggable } from '../hooks/useDraggable';
 
 const TYPE_LABEL_KEYS: Record<string, string> = {
   person: 'node.person',
@@ -30,6 +31,7 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
   const { t } = useI18n();
   const [details, setDetails] = useState<PersonDetails | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const { position, handleMouseDown } = useDraggable({ x: window.innerWidth - 340, y: window.innerHeight - 400 });
 
   useEffect(() => {
     if (node.type === 'person') {
@@ -80,9 +82,15 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
   }
 
   return (
-    <div className="absolute bottom-4 right-4 w-80 bg-white border border-[var(--stortinget-border)] rounded-lg shadow-lg z-20 overflow-hidden max-h-[80vh] flex flex-col">
+    <div
+      className="w-80 bg-white border border-[var(--stortinget-border)] rounded-lg shadow-lg z-20 overflow-hidden max-h-[80vh] flex flex-col"
+      style={{ position: 'absolute', left: position.x, top: position.y }}
+    >
       {/* Header with photo */}
-      <div className="flex items-start gap-3 p-4 border-b border-[var(--stortinget-border)] flex-shrink-0">
+      <div
+        className="flex items-start gap-3 p-4 border-b border-[var(--stortinget-border)] flex-shrink-0 cursor-grab active:cursor-grabbing select-none"
+        onMouseDown={handleMouseDown}
+      >
         {node.type === 'person' && (node.imageUrl || details?.imageUrl) && (
           <img
             src={node.imageUrl || details?.imageUrl}

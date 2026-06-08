@@ -64,6 +64,15 @@ const PARTY_ID_MAP: Record<string, { id: string; name: string }> = {
   'PF': { id: 'org-pasientfokus', name: 'Pasientfokus' },
 };
 
+// Fallback party affiliation for curated politicians not in Stortinget API
+const KNOWN_PARTY_MAP: Record<string, string> = {
+  'monica-mæland': 'Høyre',
+  'nikolai-astrup': 'Høyre',
+  'torbjørn-røe-isaksen': 'Høyre',
+  'ketil-solvik-olsen': 'Fremskrittspartiet',
+  'bent-høie': 'Høyre',
+};
+
 let cachedRepresentatives: StortingetRepresentant[] | null = null;
 let cachedDagensRepresentanter: DagensRepresentant[] | null = null;
 
@@ -212,7 +221,55 @@ export async function getPersonDetails(personId: string): Promise<PersonDetails 
       || `${r.fornavn}-${r.etternavn}`.toLowerCase().replace(/\s+/g, '-') === nameParts.join('-')
   );
 
-  if (!rep && !dagensRep) return null;
+  // Check curated KNOWN_POSITIONS by matching the name key
+  const nameKey = nameParts.join('-').normalize('NFC');
+  // Normalize Norwegian chars for matching: strip æøå to ascii equivalents and vice versa
+  function normalizeNorwegian(s: string): string {
+    return s.replace(/æ/g, 'ae').replace(/ø/g, 'o').replace(/å/g, 'aa');
+  }
+  const nameKeyNormalized = normalizeNorwegian(nameKey);
+  const knownKey = Object.keys(KNOWN_POSITIONS).find((k) => {
+    const kNorm = normalizeNorwegian(k);
+    return k === nameKey || kNorm === nameKeyNormalized
+      || nameKey.includes(k) || k.includes(nameKey)
+      || nameKeyNormalized.includes(kNorm) || kNorm.includes(nameKeyNormalized);
+  });
+
+  // If person is NOT in Stortinget API, build from curated data
+  if (!rep && !dagensRep) {
+    if (!knownKey) return null;
+
+    const currentPositions: PersonPosition[] = [];
+    const pastPositions: PersonPosition[] = [];
+    // Use the knownKey to build a proper display name (preserves æøå)
+    const displayName = knownKey.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+
+    for (const pos of KNOWN_POSITIONS[knownKey]) {
+      if (pos.isCurrent) {
+        currentPositions.push(pos);
+      } else {
+        pastPositions.push(pos);
+      }
+    }
+
+    // Determine party from political positions or well-known affiliations
+    const politicalPos = KNOWN_POSITIONS[knownKey].find(p => p.type === 'political' && p.organization !== 'Stortinget');
+    const party = politicalPos?.organization || KNOWN_PARTY_MAP[knownKey];
+    pastPositions.sort((a, b) => (b.startYear || 0) - (a.startYear || 0));
+
+    return {
+      id: personId,
+      name: displayName,
+      party,
+      fylke: undefined,
+      email: undefined,
+      birthYear: undefined,
+      imageUrl: undefined,
+      committees: undefined,
+      currentPositions,
+      pastPositions,
+    };
+  }
 
   const person = dagensRep || rep!;
   const partyInfo = PARTY_ID_MAP[person.parti.id];
@@ -248,14 +305,7 @@ export async function getPersonDetails(personId: string): Promise<PersonDetails 
     }
   }
 
-  // Check curated past positions
-  const nameKey = `${person.fornavn}-${person.etternavn}`.toLowerCase()
-    .replace(/\s+/g, '-')
-    .normalize('NFC');
-  const knownKey = Object.keys(KNOWN_POSITIONS).find((k) =>
-    nameKey.includes(k) || k.includes(nameKey.replace(/[^a-zæøå-]/g, ''))
-  );
-
+  // Check curated past positions (reuse knownKey from above)
   if (knownKey) {
     for (const pos of KNOWN_POSITIONS[knownKey]) {
       if (pos.isCurrent) {

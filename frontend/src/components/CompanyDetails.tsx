@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { CompanyDetails as CompanyDetailsType } from '../services/api';
 import { getCompanyDetails } from '../services/api';
 import { useI18n } from '../I18nContext';
+import { useDraggable } from '../hooks/useDraggable';
 
 interface Props {
   orgNumber: string;
@@ -13,6 +14,9 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
   const { t, lang } = useI18n();
   const [details, setDetails] = useState<CompanyDetailsType | null>(null);
   const [loading, setLoading] = useState(true);
+  const { position, handleMouseDown } = useDraggable({ x: window.innerWidth - 420, y: window.innerHeight - 400 });
+  const panelClassName = 'w-[400px] bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-20 overflow-hidden';
+  const panelStyle = { position: 'absolute' as const, left: position.x, top: position.y };
 
   useEffect(() => {
     setLoading(true);
@@ -24,28 +28,41 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
 
   if (loading) {
     return (
-      <div className="absolute bottom-4 right-4 w-96 bg-slate-800 border border-slate-600 rounded-lg p-4 z-20">
-        <div className="text-slate-400 text-sm">{t('company.loading')}</div>
+      <div className={panelClassName} style={panelStyle}>
+        <div
+          className="flex justify-between items-center p-4 border-b border-slate-700 cursor-grab active:cursor-grabbing select-none"
+          onMouseDown={handleMouseDown}
+        >
+          <h3 className="text-white font-semibold">{companyName}</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">✕</button>
+        </div>
+        <div className="p-4 text-slate-400 text-sm">{t('company.loading')}</div>
       </div>
     );
   }
 
   if (!details) {
     return (
-      <div className="absolute bottom-4 right-4 w-96 bg-slate-800 border border-slate-600 rounded-lg p-4 z-20">
-        <div className="flex justify-between items-center mb-2">
+      <div className={panelClassName} style={panelStyle}>
+        <div
+          className="flex justify-between items-center p-4 border-b border-slate-700 cursor-grab active:cursor-grabbing select-none"
+          onMouseDown={handleMouseDown}
+        >
           <h3 className="text-white font-semibold">{companyName}</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">✕</button>
+          <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">✕</button>
         </div>
-        <p className="text-slate-400 text-sm">{t('company.noDetails')}</p>
+        <div className="p-4 text-slate-400 text-sm">{t('company.noDetails')}</div>
       </div>
     );
   }
 
   return (
-    <div className="absolute bottom-4 right-4 w-[400px] bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-20 overflow-hidden">
+    <div className={panelClassName} style={panelStyle}>
       {/* Header */}
-      <div className="flex justify-between items-start p-4 border-b border-slate-700">
+      <div
+        className="flex justify-between items-start p-4 border-b border-slate-700 cursor-grab active:cursor-grabbing select-none"
+        onMouseDown={handleMouseDown}
+      >
         <div>
           <h3 className="text-white font-semibold text-lg">{details.name}</h3>
           <div className="flex items-center gap-2 mt-1">
