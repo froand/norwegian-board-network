@@ -15,6 +15,7 @@ if (process.env.APPLICATIONINSIGHTS_CONNECTION_STRING) {
 const { default: express } = await import('express');
 const { default: cors } = await import('cors');
 const { searchRoutes } = await import('./routes/search.js');
+const { aiSearchRoutes } = await import('./routes/ai-search.js');
 const { graphRoutes } = await import('./routes/graph.js');
 const { companyRoutes } = await import('./routes/company.js');
 const { sourcesRoutes } = await import('./routes/sources.js');
@@ -26,6 +27,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/search', searchRoutes);
+app.use('/api/ai', aiSearchRoutes);
 app.use('/api/graph', graphRoutes);
 app.use('/api/company', companyRoutes);
 app.use('/api/sources', sourcesRoutes);

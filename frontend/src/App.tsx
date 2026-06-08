@@ -1,5 +1,6 @@
 import { useRef, useCallback, useEffect, useState, useMemo } from 'react';
 import SearchBar from './components/SearchBar';
+import AiSearchBar from './components/AiSearchBar';
 import NetworkGraph from './components/NetworkGraph';
 import NodeDetails from './components/NodeDetails';
 import Legend from './components/Legend';
@@ -17,6 +18,7 @@ import {
   getPersonGraph,
   getPersonDetails,
   getPersonConflicts,
+  searchWithAI,
 } from './services/api';
 import type {
   ConflictOfInterest,
@@ -37,6 +39,10 @@ export default function App() {
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [aiExplanation, setAiExplanation] = useState<string | null>(null);
+  const [aiMatchedNodeIds, setAiMatchedNodeIds] = useState<string[]>([]);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
   const loadedNodes = useRef(new Set<string>());
 
   const [showTimeline, setShowTimeline] = useState(false);
@@ -112,6 +118,9 @@ export default function App() {
   }, []);
 
   const handleSearchSelect = useCallback(async (id: string, type: string, orgNumber?: string) => {
+    setAiExplanation(null);
+    setAiError(null);
+    setAiMatchedNodeIds([]);
     if (type === 'company' && orgNumber) {
       try {
         const data = await getCompanyGraph(orgNumber);
@@ -143,11 +152,44 @@ export default function App() {
   }, []);
 
   const handleResetToOverview = useCallback(() => {
+    setAiExplanation(null);
+    setAiError(null);
+    setAiMatchedNodeIds([]);
     setSelectedNode(null);
     setShowTimeline(false);
     loadedNodes.current.clear();
     loadOverview();
   }, [loadOverview]);
+
+  const handleAiSearch = useCallback(async (query: string) => {
+    try {
+      setAiLoading(true);
+      setAiError(null);
+      const [overviewData, aiResult] = await Promise.all([
+        getOverviewGraph(),
+        searchWithAI(query),
+      ]);
+
+      setGraphData(overviewData);
+      loadedNodes.current.clear();
+
+      setAiExplanation(aiResult.explanation);
+      setAiMatchedNodeIds(aiResult.matchedNodeIds);
+
+      const firstNodeId = aiResult.matchedNodeIds[0];
+      const firstNode = firstNodeId
+        ? overviewData.nodes.find((node) => node.id === firstNodeId) || null
+        : null;
+      setSelectedNode(firstNode);
+      setShowTimeline(firstNode?.type === 'person');
+    } catch (_error) {
+      setAiExplanation(null);
+      setAiMatchedNodeIds([]);
+      setAiError(i18n.t('ai.search.error'));
+    } finally {
+      setAiLoading(false);
+    }
+  }, [i18n]);
 
   const handlePersonFocus = useCallback(async (personId: string) => {
     const existingNode = graphData.nodes.find((node) => node.id === personId);
@@ -280,6 +322,9 @@ export default function App() {
                 <div className="w-80">
                   <SearchBar onSelect={handleSearchSelect} />
                 </div>
+                <div className="w-96">
+                  <AiSearchBar onAsk={handleAiSearch} loading={aiLoading} />
+                </div>
                 <button
                   onClick={handleResetToOverview}
                   className="px-3 py-1.5 rounded text-xs font-semibold transition-colors border bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-red)] hover:text-[var(--stortinget-red)]"
@@ -376,7 +421,26 @@ export default function App() {
               <div className="text-lg text-[var(--stortinget-red)] text-center p-8">{error}</div>
             </div>
           ) : (
-            <NetworkGraph data={filteredGraphData} onNodeClick={handleNodeClick} selectedNode={selectedNode} />
+            <NetworkGraph
+              data={filteredGraphData}
+              onNodeClick={handleNodeClick}
+              selectedNode={selectedNode}
+              highlightedNodeIds={new Set(aiMatchedNodeIds)}
+            />
+          )}
+
+          {(aiExplanation || aiError) && !loading && !error && (
+            <div className="absolute top-4 left-4 max-w-xl rounded-lg border border-[var(--stortinget-border)] bg-white/95 px-4 py-3 shadow-md z-30">
+              <div className="text-xs font-semibold uppercase tracking-wide text-[var(--stortinget-muted)]">
+                {i18n.t('ai.search.result')}
+              </div>
+              <div className={`mt-1 text-sm ${aiError ? 'text-[var(--stortinget-red)]' : 'text-[var(--stortinget-text)]'}`}>
+                {aiError || aiExplanation}
+              </div>
+              {!aiError && aiMatchedNodeIds.length === 0 && (
+                <div className="mt-1 text-xs text-[var(--stortinget-muted)]">{i18n.t('ai.search.noResults')}</div>
+              )}
+            </div>
           )}
 
           {showTimeline && selectedNode?.type === 'person' && (

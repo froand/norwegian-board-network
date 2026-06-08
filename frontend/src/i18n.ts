@@ -24,6 +24,12 @@ export const translations: Record<Language, Record<string, string>> = {
     'search.persons': 'Personer',
     'search.companies': 'Selskaper',
     'search.noResults': 'Ingen treff',
+    'ai.search.label': 'Ask AI',
+    'ai.search.placeholder': 'Hvem har bånd til både Equinor og Finansdepartementet?',
+    'ai.search.button': 'Ask AI',
+    'ai.search.result': 'AI-resultat',
+    'ai.search.noResults': 'Ingen treff i nettverksdataene.',
+    'ai.search.error': 'AI-søket feilet. Sjekk backend-konfigurasjonen.',
 
     // Node details
     'node.person': '👤 Person',
@@ -168,6 +174,12 @@ export const translations: Record<Language, Record<string, string>> = {
     'search.persons': 'Persons',
     'search.companies': 'Companies',
     'search.noResults': 'No results found',
+    'ai.search.label': 'Ask AI',
+    'ai.search.placeholder': 'Who has ties to both Equinor and the Ministry of Finance?',
+    'ai.search.button': 'Ask AI',
+    'ai.search.result': 'AI result',
+    'ai.search.noResults': 'No matches found in the graph dataset.',
+    'ai.search.error': 'AI search failed. Check backend configuration.',
 
     // Node details
     'node.person': '👤 Person',
