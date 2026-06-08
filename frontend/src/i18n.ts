@@ -37,6 +37,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'node.pastPositions': 'Tidligere posisjoner',
     'node.loadingPositions': 'Henter posisjoner...',
     'node.now': 'nå',
+    'node.noDetails': 'Ingen detaljert informasjon tilgjengelig for denne personen.',
 
     // Conflicts panel
     'conflicts.title': '⚠️ Interessekonflikter',
@@ -180,6 +181,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'node.pastPositions': 'Past positions',
     'node.loadingPositions': 'Loading positions...',
     'node.now': 'now',
+    'node.noDetails': 'No detailed information available for this person.',
 
     // Conflicts panel
     'conflicts.title': '⚠️ Conflicts of Interest',

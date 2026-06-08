@@ -28,7 +28,7 @@ interface Props {
 }
 
 export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }: Props) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [details, setDetails] = useState<PersonDetails | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const { position, handleMouseDown } = useDraggable({ x: window.innerWidth - 340, y: window.innerHeight - 400 });
@@ -56,6 +56,36 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
     const sourceId = typeof link.source === 'string' ? link.source : (link.source as any).id;
     const targetId = typeof link.target === 'string' ? link.target : (link.target as any).id;
     return sourceId === node.id ? targetId : sourceId;
+  }
+
+  // Translate Norwegian link labels to English when needed
+  const LABEL_TRANSLATIONS: Record<string, string> = {
+    'Medlem': 'Member',
+    'Styremedlem': 'Board member',
+    'Styreleder': 'Board chair',
+    'Leder': 'Leader',
+    'Nestleder': 'Deputy leader',
+    'Varamedlem': 'Deputy member',
+    'Daglig leder': 'CEO',
+    'Administrerende direktør': 'CEO',
+    'Kontaktperson': 'Contact person',
+    'Observatør': 'Observer',
+    'Innehaver': 'Owner',
+    'Komitémedlem': 'Committee member',
+    'Stortingsrepresentant': 'MP',
+  };
+
+  function translateLabel(label: string): string {
+    if (lang === 'no') return label;
+    // Direct match
+    if (LABEL_TRANSLATIONS[label]) return LABEL_TRANSLATIONS[label];
+    // Partial match for "Tidl." (former) prefix
+    if (label.startsWith('Tidl. ')) {
+      const rest = label.slice(6);
+      const translated = LABEL_TRANSLATIONS[rest];
+      return `Former ${translated || rest}`;
+    }
+    return label;
   }
 
   function renderPosition(pos: PersonPosition, index: number) {
@@ -191,7 +221,7 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
                       {getNodeName(connectedId)}
                     </span>
                     <span className="text-[10px] text-[var(--stortinget-muted)] ml-auto flex-shrink-0">
-                      {link.label}
+                      {translateLabel(link.label)}
                     </span>
                   </div>
                 );
@@ -201,6 +231,12 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
         )}
 
         {node.type === 'person' && !details && !loadingDetails && (
+          <p className="text-xs text-[var(--stortinget-muted)] mt-3 mb-3 italic">
+            {t('node.noDetails')}
+          </p>
+        )}
+
+        {node.type === 'person' && links.length === 0 && !details && !loadingDetails && (
           <p className="text-xs text-[var(--stortinget-muted)] mt-3">
             {t('node.explore')}
           </p>
