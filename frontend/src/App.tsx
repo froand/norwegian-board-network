@@ -176,12 +176,18 @@ export default function App() {
       setAiExplanation(aiResult.explanation);
       setAiMatchedNodeIds(aiResult.matchedNodeIds);
 
-      const firstNodeId = aiResult.matchedNodeIds[0];
-      const firstNode = firstNodeId
-        ? overviewData.nodes.find((node) => node.id === firstNodeId) || null
-        : null;
-      setSelectedNode(firstNode);
-      setShowTimeline(firstNode?.type === 'person');
+      // If only one person matched, select them directly
+      const matchedNodes = aiResult.matchedNodeIds
+        .map((id: string) => overviewData.nodes.find((n) => n.id === id))
+        .filter(Boolean);
+      const personNodes = matchedNodes.filter((n) => n!.type === 'person');
+      if (personNodes.length === 1) {
+        setSelectedNode(personNodes[0]!);
+        setShowTimeline(true);
+      } else {
+        setSelectedNode(null);
+        setShowTimeline(false);
+      }
     } catch (_error) {
       setAiExplanation(null);
       setAiMatchedNodeIds([]);
@@ -439,6 +445,23 @@ export default function App() {
               </div>
               {!aiError && aiMatchedNodeIds.length === 0 && (
                 <div className="mt-1 text-xs text-[var(--stortinget-muted)]">{i18n.t('ai.search.noResults')}</div>
+              )}
+              {!aiError && aiMatchedNodeIds.length > 1 && (
+                <ul className="mt-2 space-y-1">
+                  {aiMatchedNodeIds
+                    .map((id) => graphData.nodes.find((n) => n.id === id))
+                    .filter((n) => n && n.type === 'person')
+                    .map((node) => (
+                      <li key={node!.id}>
+                        <button
+                          onClick={() => handleNodeClick(node!)}
+                          className="text-sm text-blue-700 hover:underline hover:text-[var(--stortinget-red)] cursor-pointer"
+                        >
+                          → {node!.name}
+                        </button>
+                      </li>
+                    ))}
+                </ul>
               )}
             </div>
           )}
