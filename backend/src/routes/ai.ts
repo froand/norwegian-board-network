@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { detectAiConflicts } from '../services/ai-conflicts.js';
 import { getPersonSummary } from '../services/ai-summary.js';
 
 export const aiRoutes = Router();
@@ -21,5 +22,17 @@ aiRoutes.get('/person-summary/:personId', async (req, res) => {
       return;
     }
     res.status(500).json({ error: 'Failed to generate AI person summary' });
+  }
+});
+
+aiRoutes.post('/detect-conflicts', async (_req, res) => {
+  try {
+    const conflicts = await detectAiConflicts();
+    res.json({ conflicts });
+  } catch (error) {
+    console.error('AI conflict detection failed:', error);
+    res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to detect conflicts',
+    });
   }
 });
