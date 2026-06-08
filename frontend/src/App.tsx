@@ -316,7 +316,11 @@ export default function App() {
           <div className="px-6 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div>
+                <div
+                  onClick={handleResetToOverview}
+                  className="cursor-pointer select-none"
+                  title={i18n.t('app.overview.tooltip')}
+                >
                   <h1 className="text-xl text-[var(--stortinget-dark)] mb-0 leading-tight">
                     {i18n.t('app.title')}
                   </h1>
