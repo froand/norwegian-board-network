@@ -22,9 +22,10 @@ interface Props {
   data: GraphData;
   onNodeClick: (node: GraphNode) => void;
   selectedNode: GraphNode | null;
+  highlightedNodeIds?: Set<string>;
 }
 
-export default function NetworkGraph({ data, onNodeClick, selectedNode }: Props) {
+export default function NetworkGraph({ data, onNodeClick, selectedNode, highlightedNodeIds }: Props) {
   const { t } = useI18n();
   const fgRef = useRef<any>(null);
 
@@ -53,6 +54,8 @@ export default function NetworkGraph({ data, onNodeClick, selectedNode }: Props)
 
   const nodeThreeObject = useCallback((node: any) => {
     const isSelected = selectedNode?.id === node.id;
+    const isHighlighted = highlightedNodeIds?.has(node.id) === true;
+    const hasHighlights = (highlightedNodeIds?.size || 0) > 0;
     const color = NODE_COLORS[node.type] || '#94a3b8';
     const radius = node.type === 'person' ? 5 : 7;
 
@@ -63,7 +66,7 @@ export default function NetworkGraph({ data, onNodeClick, selectedNode }: Props)
     const material = new THREE.MeshLambertMaterial({
       color,
       transparent: true,
-      opacity: 0.9,
+      opacity: hasHighlights && !isSelected && !isHighlighted ? 0.35 : 0.9,
     });
     const sphere = new THREE.Mesh(geometry, material);
     group.add(sphere);
@@ -73,6 +76,14 @@ export default function NetworkGraph({ data, onNodeClick, selectedNode }: Props)
       const ringGeometry = new THREE.RingGeometry(radius + 2, radius + 3, 32);
       const ringMaterial = new THREE.MeshBasicMaterial({
         color: '#cf0a2c',
+        side: THREE.DoubleSide,
+      });
+      const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+      group.add(ring);
+    } else if (isHighlighted) {
+      const ringGeometry = new THREE.RingGeometry(radius + 1.5, radius + 2.5, 32);
+      const ringMaterial = new THREE.MeshBasicMaterial({
+        color: '#1f4f7f',
         side: THREE.DoubleSide,
       });
       const ring = new THREE.Mesh(ringGeometry, ringMaterial);
@@ -97,7 +108,7 @@ export default function NetworkGraph({ data, onNodeClick, selectedNode }: Props)
     group.add(sprite);
 
     return group;
-  }, [selectedNode]);
+  }, [highlightedNodeIds, selectedNode]);
 
   const nodeLabel = useCallback((node: GraphNode) => {
     const badgeColor = NODE_COLORS[node.type] || '#475569';

@@ -32,9 +32,35 @@ export interface GraphData {
   links: GraphLink[];
 }
 
+export interface AiSearchResultNode {
+  id: string;
+  name: string;
+  type: GraphNode['type'];
+}
+
+export interface AiSearchResult {
+  query: string;
+  explanation: string;
+  matchedNodeIds: string[];
+  matchedNodes: AiSearchResultNode[];
+  totalMatches: number;
+}
+
 export async function search(query: string): Promise<SearchResult> {
   const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
   if (!res.ok) throw new Error('Search failed');
+  return res.json();
+}
+
+export async function searchWithAI(query: string): Promise<AiSearchResult> {
+  const res = await fetch(`${API_BASE}/ai/search`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ query }),
+  });
+  if (!res.ok) throw new Error('AI search failed');
   return res.json();
 }
 
@@ -240,5 +266,27 @@ export async function getPersonAiSummary(personId: string): Promise<PersonAiSumm
   const res = await fetch(`${API_BASE}/ai/person-summary/${encodeURIComponent(personId)}`);
   if (res.status === 404 || res.status === 503) return null;
   if (!res.ok) throw new Error('Failed to fetch AI person summary');
+  return res.json();
+}
+
+export interface KaranteneDecision {
+  id: string;
+  personName: string;
+  date: string;
+  previousRole: string;
+  previousDepartment: string;
+  newRole: string;
+  newOrganization: string;
+  quarantineMonths: number;
+  restrictionMonths: number;
+  reasoning: string;
+  pdfUrl: string;
+  year: number;
+  classification: 'B';
+}
+
+export async function getKarantene(personId: string): Promise<KaranteneDecision[]> {
+  const res = await fetch(`${API_BASE}/karantene/${encodeURIComponent(personId)}`);
+  if (!res.ok) throw new Error('Failed to fetch karantene decisions');
   return res.json();
 }
