@@ -207,7 +207,6 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
           </div>
         )}
 
-<<<<<<< HEAD
         {node.type === 'person' && (
           <div className="mb-3">
             <h4 className="text-[10px] font-semibold text-[var(--stortinget-muted)] uppercase mb-2">
@@ -225,7 +224,9 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
             {!loadingAiSummary && !aiSummary && (
               <p className="text-xs text-[var(--stortinget-muted)] italic">{t('node.noAiSummary')}</p>
             )}
-=======
+          </div>
+        )}
+
         {karantene.length > 0 && (
           <div className="mb-3">
             <h4 className="text-[10px] font-semibold text-[var(--stortinget-muted)] uppercase mb-2">
@@ -254,7 +255,6 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
                   </div>
                 ))}
             </div>
->>>>>>> origin/master
           </div>
         )}
 
