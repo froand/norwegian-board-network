@@ -13,6 +13,7 @@ const ORG_NUMBER_MAP: Record<string, string> = {
   'telenor': '982463718',
   'norsk-hydro': '914778271',
   'mckinsey': '979573587',
+  'vestre': '923470565',
   'gambit-hk': '971593865',
   'wikborg-rein': '916782195',
   'aker-asa': '914364900',

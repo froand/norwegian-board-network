@@ -28,7 +28,7 @@ export interface ConflictOfInterest {
   sector: string;
   conflictType: 'revolving_door' | 'concurrent' | 'sector_overlap' | 'shared_network';
   description: string;
-  severity: 'high' | 'medium' | 'low';
+  severity: 'critical' | 'high' | 'medium' | 'low';
 }
 
 // Sector tags for organizations to detect regulatory conflicts
@@ -312,6 +312,19 @@ const timelines: PositionTimeline[] = [
       { orgId: 'org-finans-norge', orgName: 'Finans Norge (Org.nr. 981 423 682)', role: 'Styremedlem i bærekraftsforum', category: 'board', sector: 'finans', startYear: 2023 },
     ],
   },
+  {
+    personId: 'person-jan-christian-vestre',
+    personName: 'Jan Christian Vestre',
+    positions: [
+      { orgId: 'org-vestre', orgName: 'Vestre AS (Org.nr. 923 470 565)', role: 'Daglig leder og 70% eier', category: 'executive', sector: 'møbler', startYear: 2014, endYear: 2021 },
+      { orgId: 'org-arbeiderpartiet', orgName: 'Arbeiderpartiet', role: 'Sentralstyremedlem AUF', category: 'political', startYear: 2010, endYear: 2012 },
+      { orgId: 'org-naeringsdep', orgName: 'Nærings- og fiskeridepartementet', role: 'Politisk rådgiver', category: 'government', sector: 'næring', startYear: 2013, endYear: 2013 },
+      { orgId: 'org-naeringsdep', orgName: 'Nærings- og fiskeridepartementet', role: 'Næringsminister', category: 'government', sector: 'næring', startYear: 2021, endYear: 2024 },
+      { orgId: 'org-helsedep', orgName: 'Helse- og omsorgsdepartementet', role: 'Helseminister', category: 'government', sector: 'helse', startYear: 2024 },
+      { orgId: 'org-stortinget', orgName: 'Stortinget', role: 'Stortingsrepresentant', category: 'political', startYear: 2025 },
+      { orgId: 'org-arbeiderpartiet', orgName: 'Arbeiderpartiet', role: 'Nestleder', category: 'political', startYear: 2023 },
+    ],
+  },
 ];
 
 // Detected conflicts of interest (based on public analysis)
@@ -485,6 +498,18 @@ const conflicts: ConflictOfInterest[] = [
     description: 'Tidligere helsepolitiker leder nå legemiddelindustriens interesseorganisasjon.',
     severity: 'medium',
   },
+  {
+    personId: 'person-jan-christian-vestre',
+    personName: 'Jan Christian Vestre',
+    politicalRole: 'Næringsminister (2021-2024)',
+    politicalOrg: 'Nærings- og fiskeridepartementet',
+    boardRole: 'Daglig leder og 70% eier (2014-2021)',
+    boardOrg: 'Vestre AS',
+    sector: 'møbler/offentlige anskaffelser',
+    conflictType: 'concurrent',
+    description: 'Eier 70% av Vestre AS som produserer møbler for offentlige rom. Ble næringsminister med ansvar for næringspolitikk og offentlige anskaffelser. Selskapet selger møbler til stat og kommune — spesifikasjoner for offentlige innkjøp ble utformet mens han var minister.',
+    severity: 'critical',
+  },
 ];
 
 const politicalNodes: GraphNode[] = [
@@ -521,6 +546,7 @@ const politicalNodes: GraphNode[] = [
   { id: 'person-kristin-halvorsen', name: 'Kristin Halvorsen', type: 'person', group: 'person' },
   { id: 'person-heikki-holmas', name: 'Heikki Holmås', type: 'person', group: 'person' },
   { id: 'person-ola-elvestuen', name: 'Ola Elvestuen', type: 'person', group: 'person' },
+  { id: 'person-jan-christian-vestre', name: 'Jan Christian Vestre', type: 'person', group: 'person' },
 
   { id: 'org-arbeiderpartiet', name: 'Arbeiderpartiet', type: 'political_party', group: 'political' },
   { id: 'org-hoyre', name: 'Høyre', type: 'political_party', group: 'political' },
@@ -554,6 +580,7 @@ const politicalNodes: GraphNode[] = [
   { id: 'org-forleggerforeningen', name: 'Den norske Forleggerforening (Org.nr. 970 169 330)', type: 'company', group: 'company' },
   { id: 'org-legemiddelindustrien', name: 'Legemiddelindustrien (LMI) (Org.nr. 983 956 527)', type: 'company', group: 'company' },
   { id: 'org-sjomat-norge', name: 'Sjømat Norge (Org.nr. 984 736 278)', type: 'company', group: 'company' },
+  { id: 'org-vestre', name: 'Vestre AS (Org.nr. 923 470 565)', type: 'company', group: 'company' },
 ];
 
 const politicalLinks: GraphLink[] = [
@@ -663,6 +690,11 @@ const politicalLinks: GraphLink[] = [
   { source: 'person-kristin-halvorsen', target: 'org-finans-norge', label: 'Styremedlem i bransjeråd', category: 'board' },
   { source: 'person-heikki-holmas', target: 'org-first-house', label: 'Seniorrådgiver', category: 'executive' },
   { source: 'person-ola-elvestuen', target: 'org-finans-norge', label: 'Styremedlem i bærekraftsforum', category: 'board' },
+
+  // Jan Christian Vestre
+  { source: 'person-jan-christian-vestre', target: 'org-arbeiderpartiet', label: 'Nestleder', category: 'political' },
+  { source: 'person-jan-christian-vestre', target: 'org-stortinget', label: 'Stortingsrepresentant', category: 'political' },
+  { source: 'person-jan-christian-vestre', target: 'org-vestre', label: 'Tidl. Daglig leder og 70% eier (2014-2021)', category: 'executive' },
 ];
 
 export function getPoliticalData(): GraphData {

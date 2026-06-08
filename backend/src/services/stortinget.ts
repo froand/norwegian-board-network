@@ -151,6 +151,15 @@ const KNOWN_POSITIONS: Record<string, PersonPosition[]> = {
     { title: 'Barne- og likestillingsminister', organization: 'Regjeringen', type: 'government', startYear: 2008, endYear: 2009, isCurrent: false },
     { title: 'Arbeidsminister', organization: 'Regjeringen', type: 'government', startYear: 2012, endYear: 2013, isCurrent: false },
   ],
+  'jan-christian-vestre': [
+    { title: 'Helseminister', organization: 'Regjeringen', type: 'government', startYear: 2024, endYear: null, isCurrent: true },
+    { title: 'Næringsminister', organization: 'Regjeringen', type: 'government', startYear: 2021, endYear: 2024, isCurrent: false, description: 'Ansvarlig for næringspolitikk og offentlige anskaffelser' },
+    { title: 'Nestleder', organization: 'Arbeiderpartiet', type: 'political', startYear: 2023, endYear: null, isCurrent: true },
+    { title: 'Stortingsrepresentant', organization: 'Stortinget', type: 'political', startYear: 2025, endYear: null, isCurrent: true },
+    { title: 'Daglig leder og 70% eier', organization: 'Vestre AS', type: 'private', startYear: 2014, endYear: 2021, isCurrent: false, description: 'Møbelprodusent som selger til offentlig sektor — parker, byrom, offentlige bygg' },
+    { title: 'Politisk rådgiver', organization: 'Nærings- og fiskeridepartementet', type: 'government', startYear: 2013, endYear: 2013, isCurrent: false },
+    { title: 'Politisk rådgiver', organization: 'Arbeiderpartiets stortingsgruppe', type: 'political', startYear: 2010, endYear: 2012, isCurrent: false },
+  ],
 };
 
 async function fetchRepresentatives(): Promise<StortingetRepresentant[]> {
