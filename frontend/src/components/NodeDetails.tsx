@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import type { GraphNode, GraphLink, PersonDetails, PersonPosition, KaranteneDecision } from '../services/api';
-import { getPersonAiSummary, getKarantene, getPersonDetails } from '../services/api';
+import type { GraphNode, GraphLink, PersonDetails, PersonPosition } from '../services/api';
+import { getPersonAiSummary, getPersonDetails } from '../services/api';
 import { useI18n } from '../I18nContext';
 import { useDraggable } from '../hooks/useDraggable';
 
@@ -33,7 +33,6 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [loadingAiSummary, setLoadingAiSummary] = useState(false);
-  const [karantene, setKarantene] = useState<KaranteneDecision[]>([]);
   const { position, handleMouseDown } = useDraggable({ x: window.innerWidth - 340, y: 20 });
 
   useEffect(() => {
@@ -48,20 +47,11 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
         .then((result) => setAiSummary(result?.summary || null))
         .catch(() => setAiSummary(null))
         .finally(() => setLoadingAiSummary(false));
-
-      getKarantene(node.id)
-        .then((decisions) => setKarantene(decisions))
-        .catch(() => setKarantene([]));
     } else {
       setDetails(null);
       setAiSummary(null);
-      setKarantene([]);
     }
   }, [node.id, node.type]);
-
-  const latestKarantene = karantene
-    .slice()
-    .sort((a, b) => b.date.localeCompare(a.date))[0];
 
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
 
@@ -164,11 +154,6 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
           {details?.birthYear && (
             <div className="text-[10px] text-[var(--stortinget-muted)]">{t('node.born')} {details.birthYear}</div>
           )}
-          {latestKarantene && (
-            <div className="mt-1 inline-flex items-center rounded-full bg-amber-100 text-amber-900 px-2 py-0.5 text-[10px] font-semibold">
-              ⚖️ Karantene: {latestKarantene.quarantineMonths} mnd
-            </div>
-          )}
         </div>
         <button
           onClick={onClose}
@@ -227,34 +212,16 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
           </div>
         )}
 
-        {karantene.length > 0 && (
+        {node.type === 'person' && (
           <div className="mb-3">
-            <h4 className="text-[10px] font-semibold text-[var(--stortinget-muted)] uppercase mb-2">
-              Karantenenemnda ({karantene.length})
-            </h4>
-            <div className="space-y-2">
-              {karantene
-                .slice()
-                .sort((a, b) => b.date.localeCompare(a.date))
-                .map((decision) => (
-                  <div key={decision.id} className="text-xs bg-amber-50 border border-amber-200 rounded px-2 py-1.5">
-                    <div className="font-medium text-[var(--stortinget-text)]">
-                      ⚖️ Karantene: {decision.quarantineMonths} mnd • Saksforbud: {decision.restrictionMonths} mnd
-                    </div>
-                    {decision.reasoning && (
-                      <div className="text-[var(--stortinget-muted)] mt-0.5 line-clamp-3">{decision.reasoning}</div>
-                    )}
-                    <a
-                      href={decision.pdfUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-blue-700 hover:underline mt-1 inline-block"
-                    >
-                      Åpne vedtak (PDF)
-                    </a>
-                  </div>
-                ))}
-            </div>
+            <a
+              href={`https://www.regjeringen.no/no/dep/dfd/org/styrer-rad-og-utvalg-under-digitaliserings-og-forvaltningsdepartementet/karantenenemnda/avgjorelser-fra-karantenenemnda/id2472135/?person=${encodeURIComponent(node.name)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-blue-700 hover:underline inline-flex items-center gap-1"
+            >
+              ⚖️ Søk i Karantenenemndas avgjørelser
+            </a>
           </div>
         )}
 
