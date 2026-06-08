@@ -152,6 +152,15 @@ export interface PoliticalConnection {
   previousPoliticalRole?: string;
 }
 
+export interface LiveBoardMember {
+  name: string;
+  role: string;
+  roleCode: string;
+  groupCode: string;
+  isPolitician: boolean;
+  politicianId?: string;
+}
+
 export interface CompanyDetails {
   orgNumber: string;
   name: string;
@@ -174,6 +183,7 @@ export interface CompanyDetails {
   politicalConnections: PoliticalConnection[];
   entanglementScore: number;
   revolvingDoorCount: number;
+  liveBoard: LiveBoardMember[];
 }
 
 export async function getCompanyDetails(orgNumber: string): Promise<CompanyDetails | null> {
