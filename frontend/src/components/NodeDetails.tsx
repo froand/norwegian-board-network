@@ -31,7 +31,7 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
   const { t, lang } = useI18n();
   const [details, setDetails] = useState<PersonDetails | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
-  const { position, handleMouseDown } = useDraggable({ x: window.innerWidth - 340, y: window.innerHeight - 400 });
+  const { position, handleMouseDown } = useDraggable({ x: window.innerWidth - 340, y: 20 });
 
   useEffect(() => {
     if (node.type === 'person') {

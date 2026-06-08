@@ -98,6 +98,24 @@ const timelines: PositionTimeline[] = [
       { orgId: 'org-stortinget', orgName: 'Stortinget', role: 'Stortingsrepresentant', category: 'political', startYear: 2021 },
     ],
   },
+  {
+    personId: 'person-anniken-huitfeldt',
+    personName: 'Anniken Huitfeldt',
+    positions: [
+      { orgId: 'org-arbeiderpartiet', orgName: 'Arbeiderpartiet', role: 'Stortingsrepresentant', category: 'political', startYear: 1997, endYear: 2023 },
+      { orgId: 'org-stortinget', orgName: 'Stortinget', role: 'Leder utenriks- og forsvarskomiteen', category: 'political', startYear: 2017, endYear: 2021 },
+      { orgId: 'org-utenriksdepartementet', orgName: 'Utenriksdepartementet', role: 'Utenriksminister', category: 'government', startYear: 2021, endYear: 2023 },
+    ],
+  },
+  {
+    personId: 'person-trygve-slagsvold-vedum',
+    personName: 'Trygve Slagsvold Vedum',
+    positions: [
+      { orgId: 'org-senterpartiet', orgName: 'Senterpartiet', role: 'Partileder', category: 'political', startYear: 2014 },
+      { orgId: 'org-stortinget', orgName: 'Stortinget', role: 'Stortingsrepresentant', category: 'political', startYear: 2005, endYear: 2021 },
+      { orgId: 'org-finansdepartementet', orgName: 'Finansdepartementet', role: 'Finansminister', category: 'government', sector: 'finans', startYear: 2021 },
+    ],
+  },
 ];
 
 // Detected conflicts of interest (based on public analysis)
