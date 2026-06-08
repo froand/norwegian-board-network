@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import type { GraphNode, GraphLink, PersonDetails, PersonPosition } from '../services/api';
-import { getPersonDetails } from '../services/api';
+import type { GraphNode, GraphLink, PersonDetails, PersonPosition, KaranteneDecision } from '../services/api';
+import { getPersonAiSummary, getKarantene, getPersonDetails } from '../services/api';
 import { useI18n } from '../I18nContext';
 import { useDraggable } from '../hooks/useDraggable';
 
@@ -31,19 +31,37 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
   const { t, lang } = useI18n();
   const [details, setDetails] = useState<PersonDetails | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [loadingAiSummary, setLoadingAiSummary] = useState(false);
+  const [karantene, setKarantene] = useState<KaranteneDecision[]>([]);
   const { position, handleMouseDown } = useDraggable({ x: window.innerWidth - 340, y: 20 });
 
   useEffect(() => {
     if (node.type === 'person') {
       setLoadingDetails(true);
+      setLoadingAiSummary(true);
       getPersonDetails(node.id)
         .then((d) => setDetails(d))
         .catch(() => setDetails(null))
         .finally(() => setLoadingDetails(false));
+      getPersonAiSummary(node.id)
+        .then((result) => setAiSummary(result?.summary || null))
+        .catch(() => setAiSummary(null))
+        .finally(() => setLoadingAiSummary(false));
+
+      getKarantene(node.id)
+        .then((decisions) => setKarantene(decisions))
+        .catch(() => setKarantene([]));
     } else {
       setDetails(null);
+      setAiSummary(null);
+      setKarantene([]);
     }
   }, [node.id, node.type]);
+
+  const latestKarantene = karantene
+    .slice()
+    .sort((a, b) => b.date.localeCompare(a.date))[0];
 
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
 
@@ -146,6 +164,11 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
           {details?.birthYear && (
             <div className="text-[10px] text-[var(--stortinget-muted)]">{t('node.born')} {details.birthYear}</div>
           )}
+          {latestKarantene && (
+            <div className="mt-1 inline-flex items-center rounded-full bg-amber-100 text-amber-900 px-2 py-0.5 text-[10px] font-semibold">
+              ⚖️ Karantene: {latestKarantene.quarantineMonths} mnd
+            </div>
+          )}
         </div>
         <button
           onClick={onClose}
@@ -181,6 +204,57 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
             <div className="space-y-1">
               {details.pastPositions.map((pos, i) => renderPosition(pos, i))}
             </div>
+          </div>
+        )}
+
+<<<<<<< HEAD
+        {node.type === 'person' && (
+          <div className="mb-3">
+            <h4 className="text-[10px] font-semibold text-[var(--stortinget-muted)] uppercase mb-2">
+              {t('node.aiSummary')}
+            </h4>
+            {loadingAiSummary && (
+              <div className="text-xs text-[var(--stortinget-muted)] animate-pulse">{t('node.loadingAiSummary')}</div>
+            )}
+            {!loadingAiSummary && aiSummary && (
+              <div className="text-xs text-[var(--stortinget-text)] leading-relaxed bg-gray-50 border border-gray-100 rounded p-2">
+                <p>{aiSummary}</p>
+                <p className="mt-2 text-[10px] text-[var(--stortinget-muted)] italic">{t('node.aiGeneratedDisclaimer')}</p>
+              </div>
+            )}
+            {!loadingAiSummary && !aiSummary && (
+              <p className="text-xs text-[var(--stortinget-muted)] italic">{t('node.noAiSummary')}</p>
+            )}
+=======
+        {karantene.length > 0 && (
+          <div className="mb-3">
+            <h4 className="text-[10px] font-semibold text-[var(--stortinget-muted)] uppercase mb-2">
+              Karantenenemnda ({karantene.length})
+            </h4>
+            <div className="space-y-2">
+              {karantene
+                .slice()
+                .sort((a, b) => b.date.localeCompare(a.date))
+                .map((decision) => (
+                  <div key={decision.id} className="text-xs bg-amber-50 border border-amber-200 rounded px-2 py-1.5">
+                    <div className="font-medium text-[var(--stortinget-text)]">
+                      ⚖️ Karantene: {decision.quarantineMonths} mnd • Saksforbud: {decision.restrictionMonths} mnd
+                    </div>
+                    {decision.reasoning && (
+                      <div className="text-[var(--stortinget-muted)] mt-0.5 line-clamp-3">{decision.reasoning}</div>
+                    )}
+                    <a
+                      href={decision.pdfUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-700 hover:underline mt-1 inline-block"
+                    >
+                      Åpne vedtak (PDF)
+                    </a>
+                  </div>
+                ))}
+            </div>
+>>>>>>> origin/master
           </div>
         )}
 

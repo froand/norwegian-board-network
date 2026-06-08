@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { getCompanyRoles, getPersonRolesNetwork } from '../services/brreg.js';
+import { getKaranteneGraphData } from '../services/karantene-data.js';
 import { getPoliticalData, getPersonPoliticalNetwork, getPersonTimeline, getAllTimelines, getConflictsForPerson, getAllConflicts } from '../services/political-data.js';
 import { getPartyRepresentatives, getPersonDetails } from '../services/stortinget.js';
 import type { GraphData } from '../types.js';
@@ -7,9 +8,15 @@ import type { GraphData } from '../types.js';
 export const graphRoutes = Router();
 
 // Get full overview graph (political data + optional company data)
-graphRoutes.get('/overview', (_req, res) => {
+graphRoutes.get('/overview', async (_req, res) => {
   const data = getPoliticalData();
-  res.json(data);
+  try {
+    const karanteneData = await getKaranteneGraphData(data.nodes);
+    res.json(mergeGraphData(data, karanteneData));
+  } catch (error) {
+    console.error('Failed to enrich overview graph with karantene data:', error);
+    res.json(data);
+  }
 });
 
 // Get graph centered on a specific person (combines political + brreg data)
