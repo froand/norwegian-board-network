@@ -85,6 +85,11 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
                 {t('company.bankrupt')}
               </span>
             )}
+            {details.isDeleted && (
+              <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-300">
+                {lang === 'no' ? 'Slettet' : 'Deleted'} {details.deletedDate || ''}
+              </span>
+            )}
           </div>
         </div>
         <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg">✕</button>

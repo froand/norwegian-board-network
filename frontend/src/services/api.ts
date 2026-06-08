@@ -184,6 +184,8 @@ export interface CompanyDetails {
   entanglementScore: number;
   revolvingDoorCount: number;
   liveBoard: LiveBoardMember[];
+  isDeleted?: boolean;
+  deletedDate?: string | null;
 }
 
 export async function getCompanyDetails(orgNumber: string): Promise<CompanyDetails | null> {

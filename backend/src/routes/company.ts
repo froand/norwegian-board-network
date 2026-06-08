@@ -53,6 +53,8 @@ interface CompanyDetails {
   entanglementScore: number;
   revolvingDoorCount: number;
   liveBoard: LiveBoardMember[];
+  isDeleted: boolean;
+  deletedDate: string | null;
 }
 
 interface PoliticalConnection {
@@ -187,6 +189,8 @@ companyRoutes.get('/:orgNumber', async (req, res) => {
           entanglementScore,
           revolvingDoorCount,
           liveBoard: liveBoardMembers,
+          isDeleted: false,
+          deletedDate: null,
         });
         return;
       }
@@ -201,7 +205,7 @@ companyRoutes.get('/:orgNumber', async (req, res) => {
     if (data.naeringskode2) industries.push(data.naeringskode2.beskrivelse);
     if (data.naeringskode3) industries.push(data.naeringskode3.beskrivelse);
 
-    const address = data.forretningsadresse;
+    const address = data.forretningsadresse || data.postadresse;
     const location = address
       ? `${(address.adresse || []).join(', ')}, ${address.postnummer} ${address.poststed}`
       : null;
@@ -234,6 +238,8 @@ companyRoutes.get('/:orgNumber', async (req, res) => {
       entanglementScore,
       revolvingDoorCount,
       liveBoard: liveBoardMembers,
+      isDeleted: data.slettedato != null,
+      deletedDate: data.slettedato || null,
     };
 
     res.json(details);
