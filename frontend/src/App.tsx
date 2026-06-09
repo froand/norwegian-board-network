@@ -10,6 +10,7 @@ import FilterPanel, { DEFAULT_FILTERS } from './components/FilterPanel';
 import CompanyDetails from './components/CompanyDetails';
 import DegreesPanel from './components/DegreesPanel';
 import ClustersPanel from './components/ClustersPanel';
+import MobileMenu from './components/MobileMenu';
 import type { FilterState } from './components/FilterPanel';
 import {
   getOverviewGraph,
@@ -50,6 +51,7 @@ export default function App() {
   const [showDegrees, setShowDegrees] = useState(false);
   const [showClusters, setShowClusters] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
 
   const loadOverview = useCallback(async () => {
@@ -313,8 +315,44 @@ export default function App() {
       <div className="relative w-full h-full flex flex-col">
         <div className="flex-shrink-0 bg-white border-b border-[var(--stortinget-border)] shadow-sm z-20">
           <div className="h-1 bg-[var(--stortinget-red)]" />
-          <div className="px-6 py-3">
-            <div className="flex items-center justify-between">
+          <div className="px-3 md:px-6 py-2 md:py-3">
+            {/* Mobile header */}
+            <div className="flex md:hidden items-center justify-between gap-2">
+              <div
+                onClick={handleResetToOverview}
+                className="cursor-pointer select-none flex-shrink-0"
+                title={i18n.t('app.overview.tooltip')}
+              >
+                <h1 className="text-base text-[var(--stortinget-dark)] mb-0 leading-tight">
+                  {i18n.t('app.title')}
+                </h1>
+                <p className="text-[10px] text-[var(--stortinget-muted)] mt-0">
+                  {i18n.t('app.subtitle')}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => i18n.setLang(lang === 'no' ? 'en' : 'no')}
+                  className="px-2 py-1 rounded text-xs font-semibold border bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)]"
+                >
+                  {lang === 'no' ? '🇬🇧' : '🇳🇴'}
+                </button>
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="p-2 rounded border border-[var(--stortinget-border)] bg-white text-[var(--stortinget-text)]"
+                  aria-label="Menu"
+                >
+                  {mobileMenuOpen ? '✕' : '☰'}
+                </button>
+              </div>
+            </div>
+            {/* Mobile search bar */}
+            <div className="mt-2 md:hidden">
+              <SearchBar onSelect={(id, type, orgNumber) => { handleSearchSelect(id, type, orgNumber); setMobileMenuOpen(false); }} />
+            </div>
+
+            {/* Desktop header */}
+            <div className="hidden md:flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div
                   onClick={handleResetToOverview}
@@ -417,6 +455,29 @@ export default function App() {
               </div>
             </div>
           </div>
+
+          {/* Mobile menu dropdown */}
+          {mobileMenuOpen && (
+            <MobileMenu
+              i18n={i18n}
+              showConflicts={showConflicts}
+              setShowConflicts={setShowConflicts}
+              showDegrees={showDegrees}
+              setShowDegrees={setShowDegrees}
+              showClusters={showClusters}
+              setShowClusters={setShowClusters}
+              showFilters={showFilters}
+              setShowFilters={setShowFilters}
+              showTimeline={showTimeline}
+              setShowTimeline={setShowTimeline}
+              selectedNode={selectedNode}
+              onExport={handleExport}
+              onReset={handleResetToOverview}
+              onAiSearch={handleAiSearch}
+              aiLoading={aiLoading}
+              onClose={() => setMobileMenuOpen(false)}
+            />
+          )}
         </div>
 
         <div className="flex-1 relative overflow-hidden">
@@ -440,7 +501,7 @@ export default function App() {
           )}
 
           {(aiExplanation || aiError) && !loading && !error && (
-            <div className="absolute top-4 left-4 max-w-xl rounded-lg border border-[var(--stortinget-border)] bg-white/95 px-4 py-3 shadow-md z-30">
+            <div className="absolute top-2 left-2 right-2 md:top-4 md:left-4 md:right-auto md:max-w-xl rounded-lg border border-[var(--stortinget-border)] bg-white/95 px-3 py-2 md:px-4 md:py-3 shadow-md z-30">
               <div className="text-xs font-semibold uppercase tracking-wide text-[var(--stortinget-muted)]">
                 {i18n.t('ai.search.result')}
               </div>

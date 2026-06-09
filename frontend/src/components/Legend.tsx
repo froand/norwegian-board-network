@@ -1,7 +1,35 @@
+import { useState } from 'react';
 import { useI18n } from '../I18nContext';
 
 export default function Legend() {
   const { t } = useI18n();
+  const [collapsed, setCollapsed] = useState(true);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+  // On mobile, show a collapsible mini legend
+  if (isMobile) {
+    return (
+      <div
+        className="bg-white/90 border border-[var(--stortinget-border)] rounded-lg shadow-sm z-20 backdrop-blur-sm"
+        style={{ position: 'absolute', left: 8, bottom: 8 }}
+      >
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="px-2 py-1 text-[10px] font-semibold text-[var(--stortinget-muted)] uppercase w-full text-left"
+        >
+          {collapsed ? '◀ ' : '▼ '}{t('legend.title')}
+        </button>
+        {!collapsed && (
+          <div className="px-2 pb-2 space-y-1 text-xs">
+            <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-blue-500" /><span>{t('legend.person')}</span></div>
+            <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-green-500" /><span>{t('legend.company')}</span></div>
+            <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[var(--stortinget-red)]" /><span>{t('legend.party')}</span></div>
+            <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /><span>{t('legend.government')}</span></div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div

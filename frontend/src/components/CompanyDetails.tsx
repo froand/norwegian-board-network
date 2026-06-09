@@ -15,8 +15,13 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
   const [details, setDetails] = useState<CompanyDetailsType | null>(null);
   const [loading, setLoading] = useState(true);
   const { position, handleMouseDown } = useDraggable({ x: window.innerWidth - 460, y: 20 });
-  const panelClassName = 'w-[440px] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-xl z-20 overflow-hidden';
-  const panelStyle = { position: 'absolute' as const, left: position.x, top: position.y };
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const panelClassName = isMobile
+    ? 'fixed inset-x-0 bottom-0 max-h-[70vh] w-full rounded-t-xl border-t bg-white border-[var(--stortinget-border)] shadow-xl z-30 overflow-hidden flex flex-col'
+    : 'w-[440px] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-xl z-20 overflow-hidden';
+  const panelStyle = isMobile ? undefined : { position: 'absolute' as const, left: position.x, top: position.y };
+  const headerDrag = isMobile ? {} : { onMouseDown: handleMouseDown };
+  const headerClass = `flex justify-between items-center p-4 border-b border-gray-200 select-none ${isMobile ? '' : 'cursor-grab active:cursor-grabbing'}`;
 
   useEffect(() => {
     setLoading(true);
@@ -29,10 +34,8 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
   if (loading) {
     return (
       <div className={panelClassName} style={panelStyle}>
-        <div
-          className="flex justify-between items-center p-4 border-b border-gray-200 cursor-grab active:cursor-grabbing select-none"
-          onMouseDown={handleMouseDown}
-        >
+        {isMobile && <div className="flex justify-center py-2"><div className="w-10 h-1 rounded-full bg-gray-300" /></div>}
+        <div className={headerClass} {...headerDrag}>
           <h3 className="text-gray-900 font-semibold">{companyName}</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg">✕</button>
         </div>
@@ -44,10 +47,8 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
   if (!details) {
     return (
       <div className={panelClassName} style={panelStyle}>
-        <div
-          className="flex justify-between items-center p-4 border-b border-gray-200 cursor-grab active:cursor-grabbing select-none"
-          onMouseDown={handleMouseDown}
-        >
+        {isMobile && <div className="flex justify-center py-2"><div className="w-10 h-1 rounded-full bg-gray-300" /></div>}
+        <div className={headerClass} {...headerDrag}>
           <h3 className="text-gray-900 font-semibold">{companyName}</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg">✕</button>
         </div>
@@ -58,10 +59,11 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
 
   return (
     <div className={panelClassName} style={panelStyle}>
+      {isMobile && <div className="flex justify-center py-2 flex-shrink-0"><div className="w-10 h-1 rounded-full bg-gray-300" /></div>}
       {/* Header */}
       <div
-        className="flex justify-between items-start p-4 border-b border-gray-200 cursor-grab active:cursor-grabbing select-none"
-        onMouseDown={handleMouseDown}
+        className={headerClass}
+        {...headerDrag}
       >
         <div>
           <h3 className="text-gray-900 font-semibold text-lg">{details.name}</h3>
