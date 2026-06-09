@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import type { GraphNode, GraphLink, PersonDetails, PersonPosition } from '../services/api';
-import { getPersonAiSummary, getPersonDetails } from '../services/api';
+import type { GraphNode, GraphLink, PersonDetails, PersonPosition, KaranteneDecision } from '../services/api';
+import { getPersonAiSummary, getPersonDetails, getKarantene } from '../services/api';
 import { useI18n } from '../I18nContext';
 import { useDraggable } from '../hooks/useDraggable';
 
@@ -33,12 +33,14 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [loadingAiSummary, setLoadingAiSummary] = useState(false);
+  const [karanteneDecisions, setKaranteneDecisions] = useState<KaranteneDecision[]>([]);
   const { position, handleMouseDown } = useDraggable({ x: window.innerWidth - 340, y: 20 });
 
   useEffect(() => {
     if (node.type === 'person') {
       setLoadingDetails(true);
       setLoadingAiSummary(true);
+      setKaranteneDecisions([]);
       getPersonDetails(node.id)
         .then((d) => setDetails(d))
         .catch(() => setDetails(null))
@@ -47,9 +49,13 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
         .then((result) => setAiSummary(result?.summary || null))
         .catch(() => setAiSummary(null))
         .finally(() => setLoadingAiSummary(false));
+      getKarantene(node.id)
+        .then((decisions) => setKaranteneDecisions(decisions))
+        .catch(() => setKaranteneDecisions([]));
     } else {
       setDetails(null);
       setAiSummary(null);
+      setKaranteneDecisions([]);
     }
   }, [node.id, node.type]);
 
@@ -212,16 +218,24 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
           </div>
         )}
 
-        {node.type === 'person' && (
+        {node.type === 'person' && karanteneDecisions.length > 0 && (
           <div className="mb-3">
-            <a
-              href={`https://www.regjeringen.no/no/dep/dfd/org/styrer-rad-og-utvalg-under-digitaliserings-og-forvaltningsdepartementet/karantenenemnda/avgjorelser-fra-karantenenemnda/id2472135/?person=${encodeURIComponent(node.name)}`}
-              target="_blank"
-              rel="noreferrer"
-              className="text-xs text-blue-700 hover:underline inline-flex items-center gap-1"
-            >
-              ⚖️ Søk i Karantenenemndas avgjørelser
-            </a>
+            <h4 className="text-[10px] font-semibold text-[var(--stortinget-muted)] uppercase mb-1">
+              ⚖️ Karantenenemndas avgjørelser ({karanteneDecisions.length})
+            </h4>
+            <div className="space-y-1 max-h-28 overflow-y-auto">
+              {karanteneDecisions.map((d) => (
+                <a
+                  key={d.id}
+                  href={d.pdfUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block text-xs text-blue-700 hover:underline hover:bg-blue-50 px-1 py-0.5 rounded"
+                >
+                  📄 {d.date} – {d.personName}{d.pdfUrl.includes('_ii') || d.pdfUrl.includes('_iii') || d.pdfUrl.includes('_iv') || d.pdfUrl.includes('_v') ? '' : ''}
+                </a>
+              ))}
+            </div>
           </div>
         )}
 
