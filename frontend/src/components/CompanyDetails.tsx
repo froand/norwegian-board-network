@@ -311,7 +311,7 @@ function BoardMembersSection({
             {member.personId ? (
               <button
                 type="button"
-                onClick={() => onPersonClick(member.personId)}
+                onClick={() => onPersonClick(member.personId!)}
                 className="font-medium text-blue-700 hover:underline text-left"
               >
                 {member.name}
