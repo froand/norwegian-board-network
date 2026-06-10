@@ -11,6 +11,7 @@ import CompanyDetails from './components/CompanyDetails';
 import DegreesPanel from './components/DegreesPanel';
 import ClustersPanel from './components/ClustersPanel';
 import MobileMenu from './components/MobileMenu';
+import AboutPage from './components/AboutPage';
 import type { FilterState } from './components/FilterPanel';
 import {
   getOverviewGraph,
@@ -51,6 +52,7 @@ export default function App() {
   const [showDegrees, setShowDegrees] = useState(false);
   const [showClusters, setShowClusters] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
 
@@ -428,6 +430,12 @@ export default function App() {
                   {i18n.t('app.export')}
                 </button>
                 <button
+                  onClick={() => setShowAbout(true)}
+                  className="px-3 py-1.5 rounded text-xs font-semibold transition-colors border bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-navy)] hover:text-[var(--stortinget-navy)]"
+                >
+                  {i18n.t('app.about')}
+                </button>
+                <button
                   onClick={() => setShowFilters(!showFilters)}
                   className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors border ${
                     showFilters
@@ -472,6 +480,7 @@ export default function App() {
               setShowTimeline={setShowTimeline}
               selectedNode={selectedNode}
               onExport={handleExport}
+              onAbout={() => setShowAbout(true)}
               onReset={handleResetToOverview}
               onAiSearch={handleAiSearch}
               aiLoading={aiLoading}
@@ -567,6 +576,10 @@ export default function App() {
               onChange={setFilters}
               onClose={() => setShowFilters(false)}
             />
+          )}
+
+          {showAbout && (
+            <AboutPage onClose={() => setShowAbout(false)} />
           )}
 
           {selectedNode && selectedNode.type !== 'company' && (

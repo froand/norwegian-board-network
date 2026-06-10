@@ -15,6 +15,7 @@ interface Props {
   setShowTimeline: (v: boolean) => void;
   selectedNode: GraphNode | null;
   onExport: () => void;
+  onAbout: () => void;
   onReset: () => void;
   onAiSearch: (query: string) => void;
   aiLoading: boolean;
@@ -35,6 +36,7 @@ export default function MobileMenu({
   setShowTimeline,
   selectedNode,
   onExport,
+  onAbout,
   onReset,
   onAiSearch,
   aiLoading,
@@ -80,6 +82,9 @@ export default function MobileMenu({
         </button>
         <button onClick={() => { onExport(); onClose(); }} className={`${btnBase} ${btnInactive}`}>
           {i18n.t('app.export')}
+        </button>
+        <button onClick={() => { onAbout(); onClose(); }} className={`${btnBase} ${btnInactive}`}>
+          {i18n.t('app.about')}
         </button>
       </div>
     </div>
