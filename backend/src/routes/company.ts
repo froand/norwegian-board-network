@@ -1,7 +1,5 @@
 import { Router } from 'express';
 import { getAllTimelines, getAllConflicts, getPoliticalData } from '../services/political-data.js';
-import { getLiveBoardMembers } from '../services/brreg-roller.js';
-import type { LiveBoardMember } from '../services/brreg-roller.js';
 
 export const companyRoutes = Router();
 
@@ -99,6 +97,24 @@ interface PoliticalConnection {
   previousPoliticalRole?: string;
 }
 
+interface LiveBoardMember {
+  name: string;
+  role: 'Styreleder' | 'Styremedlem' | 'Daglig leder' | 'Varamedlem';
+  personId?: string;
+}
+
+interface BrregRollerResponse {
+  rollegrupper?: Array<{
+    roller?: Array<{
+      type?: { beskrivelse?: string };
+      person?: {
+        navn?: string | { fornavn?: string; etternavn?: string };
+      };
+      fratraadt?: boolean;
+    }>;
+  }>;
+}
+
 async function fetchFinancials(orgNumber: string): Promise<CompanyFinancials | null> {
   try {
     const res = await fetch(`https://data.brreg.no/regnskapsregisteret/regnskap/${orgNumber}`);
@@ -124,6 +140,85 @@ async function fetchFinancials(orgNumber: string): Promise<CompanyFinancials | n
   } catch {
     return null;
   }
+}
+
+function normalizeName(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .split(/\s+/)
+    .sort()
+    .join(' ');
+}
+
+function parseBoardRole(description?: string): LiveBoardMember['role'] | null {
+  if (!description) return null;
+  const normalized = description.toLowerCase();
+  if (normalized.includes('daglig leder')) return 'Daglig leder';
+  if (normalized.includes('styrets leder') || normalized.includes('styreleder')) return 'Styreleder';
+  if (normalized.includes('varamedlem')) return 'Varamedlem';
+  if (normalized.includes('styremedlem')) return 'Styremedlem';
+  return null;
+}
+
+function getRolePersonName(person?: { navn?: string | { fornavn?: string; etternavn?: string } }): string {
+  if (!person?.navn) return '';
+  if (typeof person.navn === 'string') return person.navn.trim();
+  return [person.navn.fornavn, person.navn.etternavn].filter(Boolean).join(' ').trim();
+}
+
+async function fetchBoardMembers(orgNumber: string): Promise<LiveBoardMember[]> {
+  const response = await fetch(`https://data.brreg.no/enhetsregisteret/api/enheter/${orgNumber}/roller`);
+  if (!response.ok) {
+    throw new Error(`Failed roller lookup: ${response.status}`);
+  }
+
+  const data = await response.json() as BrregRollerResponse;
+  const personNodes = getPoliticalData().nodes.filter((node) => node.type === 'person');
+  const personByName = new Map<string, string>();
+  for (const node of personNodes) {
+    personByName.set(normalizeName(node.name), node.id);
+  }
+
+  const members: LiveBoardMember[] = [];
+  for (const roleGroup of data.rollegrupper || []) {
+    for (const role of roleGroup.roller || []) {
+      if (role.fratraadt) continue;
+      const parsedRole = parseBoardRole(role.type?.beskrivelse);
+      if (!parsedRole) continue;
+
+      const name = getRolePersonName(role.person);
+      if (!name) continue;
+      const personId = personByName.get(normalizeName(name));
+
+      members.push({
+        name,
+        role: parsedRole,
+        personId,
+      });
+    }
+  }
+
+  return members;
+}
+
+function buildStaticBoardFallback(connections: PoliticalConnection[]): LiveBoardMember[] {
+  const seen = new Set<string>();
+  const fallback: LiveBoardMember[] = [];
+  for (const connection of connections) {
+    if (connection.category !== 'board' && connection.category !== 'executive') continue;
+    const key = `${connection.personId}:${connection.role}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    fallback.push({
+      name: connection.personName,
+      role: connection.category === 'executive' ? 'Daglig leder' : 'Styremedlem',
+      personId: connection.personId,
+    });
+  }
+  return fallback;
 }
 
 function resolveOrgNumber(input: string): string {
@@ -246,12 +341,14 @@ companyRoutes.get('/:orgNumber', async (req, res) => {
 
   // Fetch live board, company details, and financials in parallel
   const [liveBoard, response, financialsResult] = await Promise.allSettled([
-    getLiveBoardMembers(resolvedOrgNumber),
+    fetchBoardMembers(resolvedOrgNumber),
     fetch(`https://data.brreg.no/enhetsregisteret/api/enheter/${resolvedOrgNumber}`),
     fetchFinancials(resolvedOrgNumber),
   ]);
 
-  const liveBoardMembers = liveBoard.status === 'fulfilled' ? liveBoard.value : [];
+  const liveBoardMembers = liveBoard.status === 'fulfilled'
+    ? liveBoard.value
+    : buildStaticBoardFallback(connections);
   const companyResponse = response.status === 'fulfilled' ? response.value : null;
   const financials = financialsResult.status === 'fulfilled' ? financialsResult.value : null;
 
