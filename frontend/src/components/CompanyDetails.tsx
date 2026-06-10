@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { CompanyDetails as CompanyDetailsType, PoliticalConnection } from '../services/api';
+import type { CompanyDetails as CompanyDetailsType, LiveBoardMember, PoliticalConnection } from '../services/api';
 import { getCompanyDetails } from '../services/api';
 import { useI18n } from '../I18nContext';
 import { useDraggable } from '../hooks/useDraggable';
@@ -8,9 +8,10 @@ interface Props {
   orgNumber: string;
   companyName: string;
   onClose: () => void;
+  onPersonClick: (personId: string) => void;
 }
 
-export default function CompanyDetails({ orgNumber, companyName, onClose }: Props) {
+export default function CompanyDetails({ orgNumber, companyName, onClose, onPersonClick }: Props) {
   const { t, lang } = useI18n();
   const [details, setDetails] = useState<CompanyDetailsType | null>(null);
   const [loading, setLoading] = useState(true);
@@ -238,6 +239,15 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
           />
         )}
 
+        {/* Live board members */}
+        {details.liveBoard.length > 0 && (
+          <BoardMembersSection
+            members={details.liveBoard}
+            lang={lang}
+            onPersonClick={onPersonClick}
+          />
+        )}
+
         {/* Contact info */}
         <div className="pt-2 border-t border-[var(--stortinget-border)] space-y-1.5">
           {details.location && (
@@ -271,6 +281,47 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
             </p>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function BoardMembersSection({
+  members,
+  lang,
+  onPersonClick,
+}: {
+  members: LiveBoardMember[];
+  lang: string;
+  onPersonClick: (personId: string) => void;
+}) {
+  return (
+    <div className="pt-2 border-t border-gray-200">
+      <div className="flex justify-between items-center mb-2">
+        <h4 className="text-xs font-semibold text-gray-500 uppercase">
+          {lang === 'no' ? 'Styre og ledelse' : 'Board and management'}
+        </h4>
+        <span className="text-xs text-gray-400">
+          {members.length} {lang === 'no' ? 'roller' : 'roles'}
+        </span>
+      </div>
+      <div className="space-y-1.5">
+        {members.map((member, index) => (
+          <div key={`${member.name}-${member.role}-${index}`} className="flex items-center justify-between text-sm bg-gray-50 border border-gray-200 rounded px-2 py-1.5">
+            {member.personId ? (
+              <button
+                type="button"
+                onClick={() => onPersonClick(member.personId)}
+                className="font-medium text-blue-700 hover:underline text-left"
+              >
+                {member.name}
+              </button>
+            ) : (
+              <span className="font-medium text-gray-900">{member.name}</span>
+            )}
+            <span className="text-xs text-gray-500">{member.role}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

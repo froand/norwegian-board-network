@@ -625,6 +625,9 @@ export default function App() {
               orgNumber={selectedNode.id.replace('org-', '')}
               companyName={selectedNode.name}
               onClose={() => setSelectedNode(null)}
+              onPersonClick={(personId) => {
+                void handleSearchSelect(personId, 'person');
+              }}
             />
           )}
         </div>

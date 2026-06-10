@@ -200,10 +200,7 @@ export interface PoliticalConnection {
 export interface LiveBoardMember {
   name: string;
   role: string;
-  roleCode: string;
-  groupCode: string;
-  isPolitician: boolean;
-  politicianId?: string;
+  personId?: string;
 }
 
 export interface CompanyDetails {
