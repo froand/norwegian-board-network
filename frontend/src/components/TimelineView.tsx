@@ -38,16 +38,18 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
     executive: t('timeline.catExecutive'),
   };
 
-  const panelClassName = 'w-[500px] bg-[var(--stortinget-surface)] border border-[var(--stortinget-border)] rounded-lg shadow-xl z-30 overflow-hidden';
-  const panelStyle = { position: 'absolute' as const, left: position.x, top: position.y };
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const panelClassName = isMobile
+    ? 'fixed inset-x-0 bottom-0 max-h-[75vh] w-full rounded-t-xl border-t bg-[var(--stortinget-surface)] border-[var(--stortinget-border)] shadow-xl z-40 overflow-hidden flex flex-col'
+    : 'w-[500px] max-w-[calc(100vw-16px)] bg-[var(--stortinget-surface)] border border-[var(--stortinget-border)] rounded-lg shadow-xl z-30 overflow-hidden';
+  const panelStyle = isMobile ? undefined : { position: 'absolute' as const, left: position.x, top: position.y };
+  const headerDrag = isMobile ? {} : { onMouseDown: handleMouseDown };
+  const headerClass = `flex justify-between items-center p-4 border-b border-[var(--stortinget-border)] select-none ${isMobile ? '' : 'cursor-grab active:cursor-grabbing'}`;
 
   if (loading) {
     return (
       <div className={panelClassName} style={panelStyle}>
-        <div
-          className="flex justify-between items-center p-4 border-b border-[var(--stortinget-border)] cursor-grab active:cursor-grabbing select-none"
-          onMouseDown={handleMouseDown}
-        >
+        <div className={headerClass} {...headerDrag}>
           <h3 className="text-[var(--stortinget-dark)] font-semibold">{t('timeline.title')} — {personName}</h3>
           <button onClick={onClose} className="text-[var(--stortinget-muted)] hover:text-[var(--stortinget-dark)] text-lg">✕</button>
         </div>
@@ -59,10 +61,7 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
   if (!timeline) {
     return (
       <div className={panelClassName} style={panelStyle}>
-        <div
-          className="flex justify-between items-center p-4 border-b border-[var(--stortinget-border)] cursor-grab active:cursor-grabbing select-none"
-          onMouseDown={handleMouseDown}
-        >
+        <div className={headerClass} {...headerDrag}>
           <h3 className="text-[var(--stortinget-dark)] font-semibold">{personName}</h3>
           <button onClick={onClose} className="text-[var(--stortinget-muted)] hover:text-[var(--stortinget-dark)] text-lg">✕</button>
         </div>
@@ -80,10 +79,7 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
 
   return (
     <div className={panelClassName} style={panelStyle}>
-      <div
-        className="flex justify-between items-center p-4 border-b border-[var(--stortinget-border)] cursor-grab active:cursor-grabbing select-none"
-        onMouseDown={handleMouseDown}
-      >
+      <div className={headerClass} {...headerDrag}>
         <div>
           <h3 className="text-[var(--stortinget-dark)] font-semibold">{t('timeline.title')} — {personName}</h3>
           <p className="text-xs text-[var(--stortinget-muted)] mt-1">{t('timeline.subtitle')}</p>
@@ -91,7 +87,7 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
         <button onClick={onClose} className="text-[var(--stortinget-muted)] hover:text-[var(--stortinget-dark)] text-lg">✕</button>
       </div>
 
-      <div className="p-4 overflow-y-auto max-h-[500px]">
+      <div className={`p-4 overflow-y-auto ${isMobile ? 'flex-1' : 'max-h-[500px]'}`}>
         {/* Year axis */}
         <div className="relative mb-2 ml-[140px]">
           <div className="flex justify-between text-xs text-[var(--stortinget-muted)]">
