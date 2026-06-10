@@ -23,9 +23,10 @@ interface Props {
   onNodeClick: (node: GraphNode) => void;
   selectedNode: GraphNode | null;
   highlightedNodeIds?: Set<string>;
+  darkMode?: boolean;
 }
 
-export default function NetworkGraph({ data, onNodeClick, selectedNode, highlightedNodeIds }: Props) {
+export default function NetworkGraph({ data, onNodeClick, selectedNode, highlightedNodeIds, darkMode }: Props) {
   const { t } = useI18n();
   const fgRef = useRef<any>(null);
 
@@ -96,7 +97,7 @@ export default function NetworkGraph({ data, onNodeClick, selectedNode, highligh
     canvas.width = 256;
     canvas.height = 64;
     ctx.font = '24px Sans-Serif';
-    ctx.fillStyle = '#1a1a2e';
+    ctx.fillStyle = darkMode ? '#e0e0e0' : '#1a1a2e';
     ctx.textAlign = 'center';
     ctx.fillText(node.name, 128, 40);
 
@@ -108,7 +109,7 @@ export default function NetworkGraph({ data, onNodeClick, selectedNode, highligh
     group.add(sprite);
 
     return group;
-  }, [highlightedNodeIds, selectedNode]);
+  }, [highlightedNodeIds, selectedNode, darkMode]);
 
   const nodeLabel = useCallback((node: GraphNode) => {
     const badgeColor = NODE_COLORS[node.type] || '#475569';
@@ -150,7 +151,7 @@ export default function NetworkGraph({ data, onNodeClick, selectedNode, highligh
       linkDirectionalParticleSpeed={0.005}
       linkLabel={(link: any) => link.label || ''}
       onNodeClick={(node: any) => onNodeClick(node as GraphNode)}
-      backgroundColor="#faf9f7"
+      backgroundColor={darkMode ? '#0f0f1a' : '#faf9f7'}
       width={window.innerWidth}
       height={window.innerHeight - 70}
       showNavInfo={false}

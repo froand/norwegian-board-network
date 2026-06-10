@@ -109,7 +109,7 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
       : '';
 
     return (
-      <div key={index} className="flex items-start gap-2 text-sm py-1.5 px-2 rounded bg-gray-50 border border-gray-100">
+      <div key={index} className="flex items-start gap-2 text-sm py-1.5 px-2 rounded bg-[var(--stortinget-surface-muted)] border border-[var(--stortinget-border)]">
         <span className="flex-shrink-0">{icon}</span>
         <div className="flex-1 min-w-0">
           <div className="font-medium text-[var(--stortinget-text)] truncate">{pos.title}</div>
@@ -131,8 +131,8 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
     <div
       className={
         isMobile
-          ? 'fixed inset-x-0 bottom-0 max-h-[70vh] w-full rounded-t-xl border-t bg-white border-[var(--stortinget-border)] shadow-lg z-30 overflow-hidden flex flex-col'
-          : 'w-80 max-w-[calc(100vw-16px)] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-lg z-20 overflow-hidden max-h-[80vh] flex flex-col'
+          ? 'fixed inset-x-0 bottom-0 max-h-[70vh] w-full rounded-t-xl border-t bg-[var(--stortinget-surface)] border-[var(--stortinget-border)] shadow-lg z-30 overflow-hidden flex flex-col'
+          : 'w-80 max-w-[calc(100vw-16px)] bg-[var(--stortinget-surface)] border border-[var(--stortinget-border)] rounded-lg shadow-lg z-20 overflow-hidden max-h-[80vh] flex flex-col'
       }
       style={isMobile ? undefined : { position: 'absolute', left: position.x, top: position.y }}
     >
@@ -219,7 +219,7 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
               <div className="text-xs text-[var(--stortinget-muted)] animate-pulse">{t('node.loadingAiSummary')}</div>
             )}
             {!loadingAiSummary && aiSummary && (
-              <div className="text-xs text-[var(--stortinget-text)] leading-relaxed bg-gray-50 border border-gray-100 rounded p-2">
+              <div className="text-xs text-[var(--stortinget-text)] leading-relaxed bg-[var(--stortinget-surface-muted)] border border-[var(--stortinget-border)] rounded p-2">
                 <p>{aiSummary}</p>
                 <p className="mt-2 text-[10px] text-[var(--stortinget-muted)] italic">{t('node.aiGeneratedDisclaimer')}</p>
               </div>
@@ -264,8 +264,8 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
                 return (
                   <div
                     key={i}
-                    className={`flex items-center gap-2 text-sm py-1.5 px-2 rounded bg-gray-50 border border-gray-100 ${
-                      onNodeClick && connectedNode ? 'cursor-pointer hover:bg-gray-100 hover:border-gray-200 transition-colors' : ''
+                    className={`flex items-center gap-2 text-sm py-1.5 px-2 rounded bg-[var(--stortinget-surface-muted)] border border-[var(--stortinget-border)] ${
+                      onNodeClick && connectedNode ? 'cursor-pointer hover:bg-[var(--stortinget-cream)] transition-colors' : ''
                     }`}
                     onClick={() => {
                       if (onNodeClick && connectedNode) onNodeClick(connectedNode);

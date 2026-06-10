@@ -10,7 +10,7 @@ export default function Legend() {
   if (isMobile) {
     return (
       <div
-        className="bg-white/90 border border-[var(--stortinget-border)] rounded-lg shadow-sm z-20 backdrop-blur-sm"
+        className="bg-[var(--stortinget-surface)] border border-[var(--stortinget-border)] rounded-lg shadow-sm z-20"
         style={{ position: 'absolute', left: 8, bottom: 8 }}
       >
         <button
@@ -33,7 +33,7 @@ export default function Legend() {
 
   return (
     <div
-      className="bg-white/95 border border-[var(--stortinget-border)] rounded-lg p-3 shadow-sm backdrop-blur-sm z-20"
+      className="bg-[var(--stortinget-surface)] border border-[var(--stortinget-border)] rounded-lg p-3 shadow-sm z-20"
       style={{ position: 'absolute', left: 16, bottom: 16 }}
     >
       <div className="mb-2">

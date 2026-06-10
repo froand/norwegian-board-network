@@ -98,24 +98,24 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
 
   return (
     <div
-      className="w-[420px] max-w-[calc(100vw-16px)] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-xl z-30 overflow-hidden"
+      className="w-[420px] max-w-[calc(100vw-16px)] bg-[var(--stortinget-surface)] border border-[var(--stortinget-border)] rounded-lg shadow-xl z-30 overflow-hidden"
       style={{ position: 'absolute', left: position.x, top: position.y }}
     >
       <div
-        className="flex justify-between items-center p-4 border-b border-gray-200 cursor-grab active:cursor-grabbing select-none"
+        className="flex justify-between items-center p-4 border-b border-[var(--stortinget-border)] cursor-grab active:cursor-grabbing select-none"
         onMouseDown={handleMouseDown}
       >
         <div>
-          <h3 className="text-gray-900 font-semibold">{t('conflicts.title')}</h3>
-          <p className="text-xs text-gray-500 mt-1">
+          <h3 className="text-[var(--stortinget-dark)] font-semibold">{t('conflicts.title')}</h3>
+          <p className="text-xs text-[var(--stortinget-muted)] mt-1">
             {t('conflicts.subtitle')}
-            <span className="ml-2 text-gray-400 italic">{t('conflicts.drag')}</span>
+            <span className="ml-2 italic">{t('conflicts.drag')}</span>
           </p>
         </div>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg">✕</button>
+        <button onClick={onClose} className="text-[var(--stortinget-muted)] hover:text-[var(--stortinget-dark)] text-lg">✕</button>
       </div>
 
-      <div className="px-4 py-2 border-b border-gray-200">
+      <div className="px-4 py-2 border-b border-[var(--stortinget-border)]">
         <button
           onClick={handleDetectConflicts}
           disabled={detecting}
@@ -129,7 +129,7 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1 p-2 border-b border-gray-200 overflow-x-auto">
+      <div className="flex gap-1 p-2 border-b border-[var(--stortinget-border)] overflow-x-auto">
         {['all', 'revolving_door', 'sector_overlap', 'concurrent', 'shared_network'].map((type) => {
           const labelMap: Record<string, string> = {
             all: t('conflicts.all'),
@@ -145,7 +145,7 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
               className={`px-2 py-1 rounded text-xs whitespace-nowrap ${
                 filterType === type
                   ? 'bg-[var(--stortinget-red)] text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  : 'text-[var(--stortinget-muted)] hover:bg-[var(--stortinget-surface-muted)]'
               }`}
             >
               {labelMap[type]}
@@ -156,9 +156,9 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
 
       <div className="p-3 overflow-y-auto max-h-[500px] space-y-2">
         {loading ? (
-          <div className="text-gray-500 text-sm">{t('conflicts.loading')}</div>
+          <div className="text-[var(--stortinget-muted)] text-sm">{t('conflicts.loading')}</div>
         ) : filtered.length === 0 ? (
-          <div className="text-gray-500 text-sm">{t('conflicts.none')}</div>
+          <div className="text-[var(--stortinget-muted)] text-sm">{t('conflicts.none')}</div>
         ) : (
           filtered.map((conflict, i) => {
             const colors = SEVERITY_COLORS[conflict.severity] ?? SEVERITY_COLORS.medium;
@@ -187,23 +187,23 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-1 mt-2 text-[10px] text-gray-600">
-                  <span className="px-1.5 py-0.5 rounded bg-white/70 border border-gray-200 uppercase">
+                <div className="flex flex-wrap gap-1 mt-2 text-[10px] text-[var(--stortinget-muted)]">
+                  <span className="px-1.5 py-0.5 rounded bg-[var(--stortinget-surface-muted)] border border-[var(--stortinget-border)] uppercase">
                     {conflict.severity}
                   </span>
                   {typeof conflict.confidenceScore === 'number' && (
-                    <span className="px-1.5 py-0.5 rounded bg-white/70 border border-gray-200">
+                    <span className="px-1.5 py-0.5 rounded bg-[var(--stortinget-surface-muted)] border border-[var(--stortinget-border)]">
                       {t('conflicts.confidence')}: {Math.round(conflict.confidenceScore * 100)}%
                     </span>
                   )}
                   {conflict.classification && (
-                    <span className="px-1.5 py-0.5 rounded bg-white/70 border border-gray-200">
+                    <span className="px-1.5 py-0.5 rounded bg-[var(--stortinget-surface-muted)] border border-[var(--stortinget-border)]">
                       Klasse {conflict.classification}
                     </span>
                   )}
                 </div>
 
-                <div className="text-xs text-gray-600 space-y-1 mt-2">
+                <div className="text-xs text-[var(--stortinget-muted)] space-y-1 mt-2">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-amber-500 flex-shrink-0" />
                     {conflict.politicalRole}
@@ -217,11 +217,11 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
                   </div>
                 </div>
 
-                <p className="text-xs text-gray-500 mt-2 italic">
+                <p className="text-xs text-[var(--stortinget-muted)] mt-2 italic">
                   {conflict.description}
                 </p>
                 {conflict.explanation && (
-                  <p className="text-xs text-gray-600 mt-1">
+                  <p className="text-xs text-[var(--stortinget-text)] mt-1">
                     {conflict.explanation}
                   </p>
                 )}
@@ -250,7 +250,7 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
                         event.stopPropagation();
                         handleDismissAiConflict(conflict);
                       }}
-                      className="text-[11px] text-gray-600 underline hover:text-gray-900"
+                      className="text-[11px] text-[var(--stortinget-muted)] underline hover:text-[var(--stortinget-dark)]"
                     >
                       {t('conflicts.dismiss')}
                     </button>
