@@ -19,6 +19,8 @@ interface Props {
   onAiSearch: (query: string) => void;
   aiLoading: boolean;
   onClose: () => void;
+  darkMode: boolean;
+  setDarkMode: () => void;
 }
 
 export default function MobileMenu({
@@ -39,10 +41,12 @@ export default function MobileMenu({
   onAiSearch,
   aiLoading,
   onClose,
+  darkMode,
+  setDarkMode,
 }: Props) {
   const btnBase = 'w-full text-left px-3 py-2.5 rounded text-sm font-medium transition-colors border';
   const btnActive = 'bg-[var(--stortinget-red)] text-white border-[var(--stortinget-red)]';
-  const btnInactive = 'bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] active:bg-gray-50';
+  const btnInactive = 'bg-[var(--stortinget-surface)] text-[var(--stortinget-text)] border-[var(--stortinget-border)]';
 
   function toggle(setter: (v: boolean) => void, current: boolean) {
     setter(!current);
@@ -50,7 +54,7 @@ export default function MobileMenu({
   }
 
   return (
-    <div className="md:hidden border-t border-[var(--stortinget-border)] bg-white px-3 py-3 space-y-2 max-h-[60vh] overflow-y-auto">
+    <div className="md:hidden border-t border-[var(--stortinget-border)] bg-[var(--stortinget-surface)] px-3 py-3 space-y-2 max-h-[60vh] overflow-y-auto">
       {/* AI Search */}
       <div className="pb-2">
         <AiSearchBar onAsk={async (q) => { onAiSearch(q); onClose(); }} loading={aiLoading} />
@@ -80,6 +84,12 @@ export default function MobileMenu({
         </button>
         <button onClick={() => { onExport(); onClose(); }} className={`${btnBase} ${btnInactive}`}>
           {i18n.t('app.export')}
+        </button>
+        <button
+          onClick={() => { setDarkMode(); onClose(); }}
+          className={`${btnBase} ${darkMode ? 'bg-[var(--stortinget-navy)] text-white border-[var(--stortinget-navy)]' : btnInactive}`}
+        >
+          {darkMode ? '☀️ Light' : '🌙 Dark'}
         </button>
       </div>
     </div>

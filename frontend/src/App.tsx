@@ -53,6 +53,25 @@ export default function App() {
   const [showFilters, setShowFilters] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    return localStorage.getItem('darkMode') === 'true';
+  });
+
+  const toggleDarkMode = useCallback(() => {
+    setDarkMode((prev) => {
+      const next = !prev;
+      localStorage.setItem('darkMode', String(next));
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
 
   const loadOverview = useCallback(async () => {
     try {
@@ -313,7 +332,7 @@ export default function App() {
   return (
     <I18nContext.Provider value={i18n}>
       <div className="relative w-full h-full flex flex-col">
-        <div className="flex-shrink-0 bg-white border-b border-[var(--stortinget-border)] shadow-sm z-20">
+        <div className="flex-shrink-0 bg-[var(--stortinget-surface)] border-b border-[var(--stortinget-border)] shadow-sm z-20">
           <div className="h-1 bg-[var(--stortinget-red)]" />
           <div className="px-3 md:px-6 py-2 md:py-3">
             {/* Mobile header */}
@@ -333,13 +352,20 @@ export default function App() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => i18n.setLang(lang === 'no' ? 'en' : 'no')}
-                  className="px-2 py-1 rounded text-xs font-semibold border bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)]"
+                  className="px-2 py-1 rounded text-xs font-semibold border bg-[var(--stortinget-surface)] text-[var(--stortinget-text)] border-[var(--stortinget-border)]"
                 >
                   {lang === 'no' ? '🇬🇧' : '🇳🇴'}
                 </button>
                 <button
+                  onClick={toggleDarkMode}
+                  className="px-2 py-1 rounded text-xs font-semibold border bg-[var(--stortinget-surface)] text-[var(--stortinget-text)] border-[var(--stortinget-border)]"
+                  aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                >
+                  {darkMode ? '☀️' : '🌙'}
+                </button>
+                <button
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="p-2 rounded border border-[var(--stortinget-border)] bg-white text-[var(--stortinget-text)]"
+                  className="p-2 rounded border border-[var(--stortinget-border)] bg-[var(--stortinget-surface)] text-[var(--stortinget-text)]"
                   aria-label="Menu"
                 >
                   {mobileMenuOpen ? '✕' : '☰'}
@@ -375,7 +401,7 @@ export default function App() {
                 </div>
                 <button
                   onClick={handleResetToOverview}
-                  className="px-3 py-1.5 rounded text-xs font-semibold transition-colors border bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-red)] hover:text-[var(--stortinget-red)]"
+                  className="px-3 py-1.5 rounded text-xs font-semibold transition-colors border bg-[var(--stortinget-surface)] text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-red)] hover:text-[var(--stortinget-red)]"
                   title={i18n.t('app.overview.tooltip')}
                 >
                   {i18n.t('app.overview')}
@@ -385,10 +411,18 @@ export default function App() {
               <div className="flex gap-2 items-center">
                 <button
                   onClick={() => i18n.setLang(lang === 'no' ? 'en' : 'no')}
-                  className="px-2 py-1.5 rounded text-xs font-semibold transition-colors border bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-navy)] hover:text-[var(--stortinget-navy)]"
+                  className="px-2 py-1.5 rounded text-xs font-semibold transition-colors border bg-[var(--stortinget-surface)] text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-navy)] hover:text-[var(--stortinget-navy)]"
                   title={lang === 'no' ? 'Switch to English' : 'Bytt til norsk'}
                 >
                   {lang === 'no' ? '🇬🇧 EN' : '🇳🇴 NO'}
+                </button>
+                <button
+                  onClick={toggleDarkMode}
+                  className="px-2 py-1.5 rounded text-xs font-semibold transition-colors border bg-[var(--stortinget-surface)] text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-navy)] hover:text-[var(--stortinget-navy)]"
+                  title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                  aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                >
+                  {darkMode ? '☀️' : '🌙'}
                 </button>
                 <div className="w-px h-6 bg-[var(--stortinget-border)]" />
                 <button
@@ -396,7 +430,7 @@ export default function App() {
                   className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors border ${
                     showConflicts
                       ? 'bg-[var(--stortinget-red)] text-white border-[var(--stortinget-red)]'
-                      : 'bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-red)] hover:text-[var(--stortinget-red)]'
+                      : 'bg-[var(--stortinget-surface)] text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-red)] hover:text-[var(--stortinget-red)]'
                   }`}
                 >
                   {i18n.t('app.conflicts')}
@@ -406,7 +440,7 @@ export default function App() {
                   className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors border ${
                     showDegrees
                       ? 'bg-[var(--stortinget-red)] text-white border-[var(--stortinget-red)]'
-                      : 'bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-red)] hover:text-[var(--stortinget-red)]'
+                      : 'bg-[var(--stortinget-surface)] text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-red)] hover:text-[var(--stortinget-red)]'
                   }`}
                 >
                   {i18n.t('app.connections')}
@@ -416,14 +450,14 @@ export default function App() {
                   className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors border ${
                     showClusters
                       ? 'bg-[var(--stortinget-red)] text-white border-[var(--stortinget-red)]'
-                      : 'bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-red)] hover:text-[var(--stortinget-red)]'
+                      : 'bg-[var(--stortinget-surface)] text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-red)] hover:text-[var(--stortinget-red)]'
                   }`}
                 >
                   {i18n.t('app.clusters')}
                 </button>
                 <button
                   onClick={handleExport}
-                  className="px-3 py-1.5 rounded text-xs font-semibold transition-colors border bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-red)] hover:text-[var(--stortinget-red)]"
+                  className="px-3 py-1.5 rounded text-xs font-semibold transition-colors border bg-[var(--stortinget-surface)] text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-red)] hover:text-[var(--stortinget-red)]"
                 >
                   {i18n.t('app.export')}
                 </button>
@@ -432,7 +466,7 @@ export default function App() {
                   className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors border ${
                     showFilters
                       ? 'bg-[var(--stortinget-navy)] text-white border-[var(--stortinget-navy)]'
-                      : 'bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-navy)] hover:text-[var(--stortinget-navy)]'
+                      : 'bg-[var(--stortinget-surface)] text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-navy)] hover:text-[var(--stortinget-navy)]'
                   }`}
                 >
                   {i18n.t('app.filters')}
@@ -446,7 +480,7 @@ export default function App() {
                   className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors border ${
                     showTimeline
                       ? 'bg-[var(--stortinget-navy)] text-white border-[var(--stortinget-navy)]'
-                      : 'bg-white text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-navy)] hover:text-[var(--stortinget-navy)]'
+                      : 'bg-[var(--stortinget-surface)] text-[var(--stortinget-text)] border-[var(--stortinget-border)] hover:border-[var(--stortinget-navy)] hover:text-[var(--stortinget-navy)]'
                   }`}
                   title={!selectedNode?.type || selectedNode.type !== 'person' ? i18n.t('app.timeline.select') : ''}
                 >
@@ -476,6 +510,8 @@ export default function App() {
               onAiSearch={handleAiSearch}
               aiLoading={aiLoading}
               onClose={() => setMobileMenuOpen(false)}
+              darkMode={darkMode}
+              setDarkMode={toggleDarkMode}
             />
           )}
         </div>
@@ -497,11 +533,12 @@ export default function App() {
               onNodeClick={handleNodeClick}
               selectedNode={selectedNode}
               highlightedNodeIds={new Set(aiMatchedNodeIds)}
+              darkMode={darkMode}
             />
           )}
 
           {(aiExplanation || aiError) && !loading && !error && (
-            <div className="absolute top-2 left-2 right-2 md:top-4 md:left-4 md:right-auto md:max-w-xl rounded-lg border border-[var(--stortinget-border)] bg-white/95 px-3 py-2 md:px-4 md:py-3 shadow-md z-30">
+            <div className="absolute top-2 left-2 right-2 md:top-4 md:left-4 md:right-auto md:max-w-xl rounded-lg border border-[var(--stortinget-border)] bg-[var(--stortinget-surface)] px-3 py-2 md:px-4 md:py-3 shadow-md z-30">
               <div className="text-xs font-semibold uppercase tracking-wide text-[var(--stortinget-muted)]">
                 {i18n.t('ai.search.result')}
               </div>

@@ -59,7 +59,7 @@ export default function ClustersPanel({ onPersonClick, onClose }: Props) {
 
   return (
     <div
-      className="fixed w-[440px] max-w-[calc(100vw-16px)] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-lg z-30 overflow-hidden"
+      className="fixed w-[440px] max-w-[calc(100vw-16px)] bg-[var(--stortinget-surface)] border border-[var(--stortinget-border)] rounded-lg shadow-lg z-30 overflow-hidden"
       style={{ left: position.x, top: position.y }}
     >
       <div
@@ -83,7 +83,7 @@ export default function ClustersPanel({ onPersonClick, onClose }: Props) {
           <div className="text-sm text-[var(--stortinget-muted)]">{t('clusters.none')}</div>
         ) : (
           sortedClusters.map((cluster) => (
-            <div key={cluster.id} className="rounded-lg border border-[var(--stortinget-border)] bg-white p-4 shadow-sm">
+            <div key={cluster.id} className="rounded-lg border border-[var(--stortinget-border)] bg-[var(--stortinget-surface-muted)] p-4 shadow-sm">
               <div className="flex items-center justify-between gap-3 mb-3">
                 <div className="text-xs font-semibold uppercase tracking-wide text-[var(--stortinget-muted)]">
                   {t('clusters.title')}
