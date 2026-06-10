@@ -105,7 +105,7 @@ export default function DegreesPanel({ people, nodes, onClose }: Props) {
 
   return (
     <div
-      className="fixed w-[440px] max-w-[calc(100vw-16px)] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-lg z-30 overflow-hidden"
+      className="fixed w-[440px] max-w-[calc(100vw-16px)] bg-[var(--stortinget-surface)] border border-[var(--stortinget-border)] rounded-lg shadow-lg z-30 overflow-hidden"
       style={{ left: position.x, top: position.y }}
     >
       <div
@@ -129,7 +129,7 @@ export default function DegreesPanel({ people, nodes, onClose }: Props) {
             <select
               value={fromId}
               onChange={(e) => setFromId(e.target.value)}
-              className="w-full rounded-md border border-[var(--stortinget-border)] bg-white px-3 py-2 text-sm text-[var(--stortinget-text)] focus:border-[var(--stortinget-red)] focus:outline-none"
+              className="w-full rounded-md border border-[var(--stortinget-border)] bg-[var(--stortinget-surface)] px-3 py-2 text-sm text-[var(--stortinget-text)] focus:border-[var(--stortinget-red)] focus:outline-none"
             >
               {sortedPeople.map((person) => (
                 <option key={person.id} value={person.id}>{person.name}</option>
@@ -142,7 +142,7 @@ export default function DegreesPanel({ people, nodes, onClose }: Props) {
             <select
               value={toId}
               onChange={(e) => setToId(e.target.value)}
-              className="w-full rounded-md border border-[var(--stortinget-border)] bg-white px-3 py-2 text-sm text-[var(--stortinget-text)] focus:border-[var(--stortinget-red)] focus:outline-none"
+              className="w-full rounded-md border border-[var(--stortinget-border)] bg-[var(--stortinget-surface)] px-3 py-2 text-sm text-[var(--stortinget-text)] focus:border-[var(--stortinget-red)] focus:outline-none"
             >
               {sortedPeople.map((person) => (
                 <option key={person.id} value={person.id}>{person.name}</option>
@@ -179,7 +179,7 @@ export default function DegreesPanel({ people, nodes, onClose }: Props) {
                 {orderedSteps.map((step, index) => (
                   <li
                     key={`${step.from}-${step.to}-${index}`}
-                    className="rounded-lg border border-[var(--stortinget-border)] bg-white px-3 py-3 text-sm text-[var(--stortinget-text)]"
+                    className="rounded-lg border border-[var(--stortinget-border)] bg-[var(--stortinget-surface)] px-3 py-3 text-sm text-[var(--stortinget-text)]"
                   >
                     <span className="font-medium">{step.from}</span>
                     <span className="mx-2 text-[var(--stortinget-red)]">→</span>

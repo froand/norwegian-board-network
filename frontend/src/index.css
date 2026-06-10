@@ -12,6 +12,21 @@
   --stortinget-border: #e5e2dc;
   --stortinget-text: #333333;
   --stortinget-muted: #6b6b6b;
+  --stortinget-surface: #ffffff;
+  --stortinget-surface-muted: #f8f7f5;
+  --stortinget-bg-graph: #faf9f7;
+}
+
+.dark {
+  --stortinget-dark: #e8e8f0;
+  --stortinget-navy: #818cf8;
+  --stortinget-cream: #1a1a2e;
+  --stortinget-border: #333355;
+  --stortinget-text: #e0e0e0;
+  --stortinget-muted: #9090a8;
+  --stortinget-surface: #2a2a3e;
+  --stortinget-surface-muted: #222235;
+  --stortinget-bg-graph: #0f0f1a;
 }
 
 body {

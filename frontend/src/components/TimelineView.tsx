@@ -38,20 +38,20 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
     executive: t('timeline.catExecutive'),
   };
 
-  const panelClassName = 'w-[500px] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-xl z-30 overflow-hidden';
+  const panelClassName = 'w-[500px] bg-[var(--stortinget-surface)] border border-[var(--stortinget-border)] rounded-lg shadow-xl z-30 overflow-hidden';
   const panelStyle = { position: 'absolute' as const, left: position.x, top: position.y };
 
   if (loading) {
     return (
       <div className={panelClassName} style={panelStyle}>
         <div
-          className="flex justify-between items-center p-4 border-b border-gray-200 cursor-grab active:cursor-grabbing select-none"
+          className="flex justify-between items-center p-4 border-b border-[var(--stortinget-border)] cursor-grab active:cursor-grabbing select-none"
           onMouseDown={handleMouseDown}
         >
-          <h3 className="text-gray-900 font-semibold">{t('timeline.title')} — {personName}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg">✕</button>
+          <h3 className="text-[var(--stortinget-dark)] font-semibold">{t('timeline.title')} — {personName}</h3>
+          <button onClick={onClose} className="text-[var(--stortinget-muted)] hover:text-[var(--stortinget-dark)] text-lg">✕</button>
         </div>
-        <div className="p-4 text-gray-500">{t('timeline.loading')}</div>
+        <div className="p-4 text-[var(--stortinget-muted)]">{t('timeline.loading')}</div>
       </div>
     );
   }
@@ -60,13 +60,13 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
     return (
       <div className={panelClassName} style={panelStyle}>
         <div
-          className="flex justify-between items-center p-4 border-b border-gray-200 cursor-grab active:cursor-grabbing select-none"
+          className="flex justify-between items-center p-4 border-b border-[var(--stortinget-border)] cursor-grab active:cursor-grabbing select-none"
           onMouseDown={handleMouseDown}
         >
-          <h3 className="text-gray-900 font-semibold">{personName}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg">✕</button>
+          <h3 className="text-[var(--stortinget-dark)] font-semibold">{personName}</h3>
+          <button onClick={onClose} className="text-[var(--stortinget-muted)] hover:text-[var(--stortinget-dark)] text-lg">✕</button>
         </div>
-        <div className="p-4 text-gray-500 text-sm">{t('timeline.noData')}</div>
+        <div className="p-4 text-[var(--stortinget-muted)] text-sm">{t('timeline.noData')}</div>
       </div>
     );
   }
@@ -81,20 +81,20 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
   return (
     <div className={panelClassName} style={panelStyle}>
       <div
-        className="flex justify-between items-center p-4 border-b border-gray-200 cursor-grab active:cursor-grabbing select-none"
+        className="flex justify-between items-center p-4 border-b border-[var(--stortinget-border)] cursor-grab active:cursor-grabbing select-none"
         onMouseDown={handleMouseDown}
       >
         <div>
-          <h3 className="text-gray-900 font-semibold">{t('timeline.title')} — {personName}</h3>
-          <p className="text-xs text-gray-500 mt-1">{t('timeline.subtitle')}</p>
+          <h3 className="text-[var(--stortinget-dark)] font-semibold">{t('timeline.title')} — {personName}</h3>
+          <p className="text-xs text-[var(--stortinget-muted)] mt-1">{t('timeline.subtitle')}</p>
         </div>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg">✕</button>
+        <button onClick={onClose} className="text-[var(--stortinget-muted)] hover:text-[var(--stortinget-dark)] text-lg">✕</button>
       </div>
 
       <div className="p-4 overflow-y-auto max-h-[500px]">
         {/* Year axis */}
         <div className="relative mb-2 ml-[140px]">
-          <div className="flex justify-between text-xs text-gray-500">
+          <div className="flex justify-between text-xs text-[var(--stortinget-muted)]">
             {Array.from({ length: Math.ceil(totalYears / 5) + 1 }, (_, i) => {
               const year = minYear + i * 5;
               if (year > maxYear) return null;
@@ -113,12 +113,12 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
             return (
               <div key={i} className="flex items-center gap-2">
                 <div className="w-[140px] flex-shrink-0 text-right">
-                  <div className="text-xs text-gray-700 truncate" title={pos.orgName}>
+                  <div className="text-xs text-[var(--stortinget-text)] truncate" title={pos.orgName}>
                     {pos.orgName}
                   </div>
-                  <div className="text-[10px] text-gray-500">{pos.role}</div>
+                  <div className="text-[10px] text-[var(--stortinget-muted)]">{pos.role}</div>
                 </div>
-                <div className="flex-1 relative h-6 bg-gray-100 rounded">
+                <div className="flex-1 relative h-6 bg-[var(--stortinget-surface-muted)] rounded">
                   <div
                     className="absolute h-full rounded opacity-90 flex items-center px-1"
                     style={{
@@ -139,7 +139,7 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
 
         {/* Revolving door warnings */}
         {gaps.length > 0 && (
-          <div className="mt-4 pt-3 border-t border-gray-200">
+          <div className="mt-4 pt-3 border-t border-[var(--stortinget-border)]">
             <h4 className="text-xs font-semibold text-red-600 uppercase mb-2 group relative inline-flex items-center gap-1 cursor-help">
               ⚠️ <span className="underline decoration-dotted">{t('timeline.revolvingDoor')}</span> {t('timeline.detected')}
               <span className="invisible group-hover:visible absolute bottom-full left-0 mb-2 w-72 p-3 bg-gray-900 border border-gray-600 rounded-lg shadow-xl text-xs text-gray-200 font-normal normal-case z-50">
@@ -164,9 +164,9 @@ export default function TimelineView({ personId, personName, onClose }: Props) {
         )}
 
         {/* Legend */}
-        <div className="mt-4 pt-3 border-t border-gray-200 flex flex-wrap gap-3">
+        <div className="mt-4 pt-3 border-t border-[var(--stortinget-border)] flex flex-wrap gap-3">
           {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-            <div key={key} className="flex items-center gap-1 text-xs text-gray-600">
+            <div key={key} className="flex items-center gap-1 text-xs text-[var(--stortinget-muted)]">
               <span
                 className="w-3 h-2 rounded"
                 style={{ backgroundColor: CATEGORY_COLORS[key] }}
