@@ -18,7 +18,7 @@ export default function CompanyDetails({ orgNumber, companyName, onClose }: Prop
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const panelClassName = isMobile
     ? 'fixed inset-x-0 bottom-0 max-h-[70vh] w-full rounded-t-xl border-t bg-white border-[var(--stortinget-border)] shadow-xl z-30 overflow-hidden flex flex-col'
-    : 'w-[440px] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-xl z-20 overflow-hidden';
+    : 'w-[440px] max-w-[calc(100vw-16px)] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-xl z-20 overflow-hidden';
   const panelStyle = isMobile ? undefined : { position: 'absolute' as const, left: position.x, top: position.y };
   const headerDrag = isMobile ? {} : { onMouseDown: handleMouseDown };
   const headerClass = `flex justify-between items-center p-4 border-b border-gray-200 select-none ${isMobile ? '' : 'cursor-grab active:cursor-grabbing'}`;

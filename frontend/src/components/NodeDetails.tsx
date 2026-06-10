@@ -132,7 +132,7 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
       className={
         isMobile
           ? 'fixed inset-x-0 bottom-0 max-h-[70vh] w-full rounded-t-xl border-t bg-white border-[var(--stortinget-border)] shadow-lg z-30 overflow-hidden flex flex-col'
-          : 'w-80 bg-white border border-[var(--stortinget-border)] rounded-lg shadow-lg z-20 overflow-hidden max-h-[80vh] flex flex-col'
+          : 'w-80 max-w-[calc(100vw-16px)] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-lg z-20 overflow-hidden max-h-[80vh] flex flex-col'
       }
       style={isMobile ? undefined : { position: 'absolute', left: position.x, top: position.y }}
     >

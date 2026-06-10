@@ -58,28 +58,28 @@ export default function MobileMenu({
 
       <div className="grid grid-cols-2 gap-2">
         <button onClick={() => { onReset(); onClose(); }} className={`${btnBase} ${btnInactive}`}>
-          🏠 {i18n.t('app.overview')}
+          {i18n.t('app.overview')}
         </button>
         <button onClick={() => toggle(setShowConflicts, showConflicts)} className={`${btnBase} ${showConflicts ? btnActive : btnInactive}`}>
-          ⚠️ {i18n.t('app.conflicts')}
+          {i18n.t('app.conflicts')}
         </button>
         <button onClick={() => toggle(setShowDegrees, showDegrees)} className={`${btnBase} ${showDegrees ? btnActive : btnInactive}`}>
-          🔗 {i18n.t('app.connections')}
+          {i18n.t('app.connections')}
         </button>
         <button onClick={() => toggle(setShowClusters, showClusters)} className={`${btnBase} ${showClusters ? btnActive : btnInactive}`}>
-          🎯 {i18n.t('app.clusters')}
+          {i18n.t('app.clusters')}
         </button>
         <button onClick={() => toggle(setShowFilters, showFilters)} className={`${btnBase} ${showFilters ? btnActive : btnInactive}`}>
-          🔍 {i18n.t('app.filters')}
+          {i18n.t('app.filters')}
         </button>
         <button
           onClick={() => { if (selectedNode?.type === 'person') { toggle(setShowTimeline, showTimeline); } }}
           className={`${btnBase} ${showTimeline ? btnActive : btnInactive} ${!selectedNode || selectedNode.type !== 'person' ? 'opacity-50' : ''}`}
         >
-          📅 {i18n.t('app.timeline')}
+          {i18n.t('app.timeline')}
         </button>
         <button onClick={() => { onExport(); onClose(); }} className={`${btnBase} ${btnInactive}`}>
-          📤 {i18n.t('app.export')}
+          {i18n.t('app.export')}
         </button>
       </div>
     </div>

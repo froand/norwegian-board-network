@@ -98,7 +98,7 @@ export default function ConflictsPanel({ onPersonClick, onClose }: Props) {
 
   return (
     <div
-      className="w-[420px] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-xl z-30 overflow-hidden"
+      className="w-[420px] max-w-[calc(100vw-16px)] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-xl z-30 overflow-hidden"
       style={{ position: 'absolute', left: position.x, top: position.y }}
     >
       <div

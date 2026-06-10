@@ -59,7 +59,7 @@ export default function ClustersPanel({ onPersonClick, onClose }: Props) {
 
   return (
     <div
-      className="fixed w-[440px] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-lg z-30 overflow-hidden"
+      className="fixed w-[440px] max-w-[calc(100vw-16px)] bg-white border border-[var(--stortinget-border)] rounded-lg shadow-lg z-30 overflow-hidden"
       style={{ left: position.x, top: position.y }}
     >
       <div
