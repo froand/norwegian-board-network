@@ -283,6 +283,41 @@ export async function getPersonDetails(personId: string): Promise<PersonDetails 
   return res.json();
 }
 
+export type BudgetMatchReason = 'committee_assignment' | 'sector_interest' | 'party_priority';
+
+export interface BudgetProposalMatch {
+  proposalId: string;
+  title: string;
+  shortTitle?: string;
+  reference?: string;
+  sessionId?: string;
+  committee?: string;
+  category: string;
+  relevanceScore: number;
+  matchReason: BudgetMatchReason;
+  matchedSectors: string[];
+  updatedAt?: string;
+}
+
+export interface PersonBudgetMatch {
+  personId: string;
+  personName: string;
+  party?: string;
+  committees: string[];
+  sectors: string[];
+  totalMatches: number;
+  budgetProposals: BudgetProposalMatch[];
+  source: string;
+  generatedAt: string;
+}
+
+export async function getPersonBudgetMatches(personId: string): Promise<PersonBudgetMatch | null> {
+  const res = await fetch(`${API_BASE}/statsbudsjett/person/${encodeURIComponent(personId)}`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error('Failed to fetch budget matches');
+  return res.json();
+}
+
 export interface PersonAiSummary {
   personId: string;
   summary: string;

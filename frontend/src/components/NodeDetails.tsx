@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import type { GraphNode, GraphLink, PersonDetails, PersonPosition, KaranteneDecision } from '../services/api';
-import { getPersonAiSummary, getPersonDetails, getKarantene } from '../services/api';
+import type { GraphNode, GraphLink, PersonDetails, PersonPosition, KaranteneDecision, PersonBudgetMatch } from '../services/api';
+import { getPersonAiSummary, getPersonDetails, getKarantene, getPersonBudgetMatches } from '../services/api';
 import { useI18n } from '../I18nContext';
 import { useDraggable } from '../hooks/useDraggable';
 
@@ -34,13 +34,17 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [loadingAiSummary, setLoadingAiSummary] = useState(false);
   const [karanteneDecisions, setKaranteneDecisions] = useState<KaranteneDecision[]>([]);
+  const [budgetMatches, setBudgetMatches] = useState<PersonBudgetMatch | null>(null);
+  const [loadingBudgetMatches, setLoadingBudgetMatches] = useState(false);
   const { position, handleMouseDown } = useDraggable({ x: window.innerWidth - 340, y: 20 });
 
   useEffect(() => {
     if (node.type === 'person') {
       setLoadingDetails(true);
       setLoadingAiSummary(true);
+      setLoadingBudgetMatches(true);
       setKaranteneDecisions([]);
+      setBudgetMatches(null);
       getPersonDetails(node.id)
         .then((d) => setDetails(d))
         .catch(() => setDetails(null))
@@ -52,10 +56,16 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
       getKarantene(node.id)
         .then((decisions) => setKaranteneDecisions(decisions))
         .catch(() => setKaranteneDecisions([]));
+      getPersonBudgetMatches(node.id)
+        .then((matches) => setBudgetMatches(matches))
+        .catch(() => setBudgetMatches(null))
+        .finally(() => setLoadingBudgetMatches(false));
     } else {
       setDetails(null);
       setAiSummary(null);
       setKaranteneDecisions([]);
+      setBudgetMatches(null);
+      setLoadingBudgetMatches(false);
     }
   }, [node.id, node.type]);
 
@@ -123,6 +133,12 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
         )}
       </div>
     );
+  }
+
+  function getBudgetReasonLabel(reason: string): string {
+    if (reason === 'committee_assignment') return t('node.budgetReasonCommittee');
+    if (reason === 'sector_interest') return t('node.budgetReasonSector');
+    return t('node.budgetReasonParty');
   }
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -248,6 +264,65 @@ export default function NodeDetails({ node, links, nodes, onClose, onNodeClick }
                 </a>
               ))}
             </div>
+          </div>
+        )}
+
+        {node.type === 'person' && (
+          <div className="mb-3">
+            <h4 className="text-[10px] font-semibold text-[var(--stortinget-muted)] uppercase mb-2">
+              💰 {t('node.budgetDecisions')}
+            </h4>
+            {loadingBudgetMatches && (
+              <div className="text-xs text-[var(--stortinget-muted)] animate-pulse">{t('node.loadingBudget')}</div>
+            )}
+            {!loadingBudgetMatches && budgetMatches && budgetMatches.totalMatches > 0 && (
+              <>
+                <div className="text-[10px] text-[var(--stortinget-muted)] mb-2">
+                  {t('node.budgetSubtitle').replace('{count}', String(budgetMatches.totalMatches))}
+                </div>
+                <div className="space-y-1">
+                  {budgetMatches.budgetProposals.slice(0, 8).map((proposal, i) => (
+                    <div
+                      key={`${proposal.proposalId}-${proposal.matchReason}-${i}`}
+                      className="text-xs p-2 rounded bg-[var(--stortinget-surface-muted)] border border-[var(--stortinget-border)]"
+                    >
+                      <div className="flex items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-[var(--stortinget-text)] line-clamp-2">{proposal.title}</div>
+                          {proposal.reference && (
+                            <div className="text-[10px] text-[var(--stortinget-muted)] truncate mt-0.5">{proposal.reference}</div>
+                          )}
+                        </div>
+                        <span className="text-[10px] font-semibold text-[var(--stortinget-navy)] bg-[var(--stortinget-cream)] px-1.5 py-0.5 rounded flex-shrink-0">
+                          {proposal.relevanceScore}%
+                        </span>
+                      </div>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">
+                          {proposal.category}
+                        </span>
+                        {proposal.committee && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
+                            {proposal.committee}
+                          </span>
+                        )}
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
+                          {getBudgetReasonLabel(proposal.matchReason)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {budgetMatches.totalMatches > 8 && (
+                  <div className="text-[10px] text-[var(--stortinget-muted)] mt-1">
+                    {t('node.budgetMore').replace('{count}', String(budgetMatches.totalMatches - 8))}
+                  </div>
+                )}
+              </>
+            )}
+            {!loadingBudgetMatches && (!budgetMatches || budgetMatches.totalMatches === 0) && (
+              <p className="text-xs text-[var(--stortinget-muted)] italic">{t('node.noBudgetMatches')}</p>
+            )}
           </div>
         )}
 
