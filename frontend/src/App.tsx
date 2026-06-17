@@ -334,6 +334,14 @@ export default function App() {
   return (
     <I18nContext.Provider value={i18n}>
       <div className="relative w-full h-full flex flex-col">
+        <div className="flex-shrink-0 bg-black border-b border-[var(--stortinget-border)] z-20">
+          <img
+            src="/top-banner.png"
+            alt="Norsk Nettverk banner"
+            className="w-full h-20 md:h-28 object-contain object-center"
+            loading="eager"
+          />
+        </div>
         <div className="flex-shrink-0 bg-[var(--stortinget-surface)] border-b border-[var(--stortinget-border)] shadow-sm z-20">
           <div className="h-1 bg-[var(--stortinget-red)]" />
           <div className="px-3 md:px-6 py-2 md:py-3">
