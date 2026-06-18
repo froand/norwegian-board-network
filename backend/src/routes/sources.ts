@@ -133,12 +133,6 @@ sourcesRoutes.get('/info', (_req, res) => {
         provides: ['Representatives', 'Government members', 'Committees', 'Photos', 'Historical periods'],
       },
       {
-        name: 'Stortinget Saker (Statsbudsjett)',
-        url: 'https://data.stortinget.no/eksport/saker',
-        type: 'live API',
-        provides: ['Budget proposals', 'Committee ownership', 'Case references', 'Session metadata'],
-      },
-      {
         name: 'Brønnøysundregistrene (brreg.no)',
         url: 'https://data.brreg.no',
         type: 'live API',

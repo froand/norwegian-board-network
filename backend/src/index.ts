@@ -21,7 +21,6 @@ const { companyRoutes } = await import('./routes/company.js');
 const { sourcesRoutes } = await import('./routes/sources.js');
 const { aiRoutes } = await import('./routes/ai.js');
 const { karanteneRoutes } = await import('./routes/karantene.js');
-const { statsbudsjettRoutes } = await import('./routes/statsbudsjett.js');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -36,7 +35,6 @@ app.use('/api/company', companyRoutes);
 app.use('/api/sources', sourcesRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/karantene', karanteneRoutes);
-app.use('/api/statsbudsjett', statsbudsjettRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
