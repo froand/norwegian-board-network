@@ -56,6 +56,8 @@ jobs:
         run: |
           echo "VITE_API_URL=${{ vars.VITE_API_URL }}" > frontend/.env.production
           echo "VITE_APPINSIGHTS_CONNECTION_STRING=${{ secrets.APPINSIGHTS_CONNECTION_STRING }}" >> frontend/.env.production
+          echo "VITE_SITE_URL=${{ vars.VITE_SITE_URL || 'https://www.norsknettverk.com' }}" >> frontend/.env.production
+          echo "VITE_ALLOW_INDEXING=${{ vars.VITE_ALLOW_INDEXING || 'true' }}" >> frontend/.env.production
 
       - name: Build and push frontend image
         run: |

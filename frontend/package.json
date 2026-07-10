@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "node ./node_modules/vite/bin/vite.js build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seo:check": "node scripts/seo-check.mjs",
+    "seo:verify": "npm run build && npm run seo:check"
   },
   "dependencies": {
     "@microsoft/applicationinsights-web": "^3.4.1",
