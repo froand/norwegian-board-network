@@ -1,13 +1,113 @@
 <!doctype html>
-<html lang="no">
+<html lang="nb">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Norsk Nettverk - Styre & Makt</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#cf0a2c" />
+
+    <!-- Primary meta -->
+    <title>Norsk Nettverk – styre, makt og interessekonflikter</title>
+    <meta
+      name="description"
+      content="Utforsk forbindelser mellom norske politikere, styreverv og selskaper. Interaktiv graf basert på åpne data fra Stortinget, Brønnøysundregistrene og regjeringen.no."
+    />
+    <meta name="robots" content="__ROBOTS__" />
+    <meta name="googlebot" content="__ROBOTS__" />
+    <link rel="canonical" href="__SITE_URL__/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Norsk Nettverk" />
+    <meta property="og:title" content="Norsk Nettverk – styre, makt og interessekonflikter" />
+    <meta
+      property="og:description"
+      content="Utforsk forbindelser mellom norske politikere, styreverv og selskaper. Interaktiv graf basert på åpne data fra Stortinget, Brønnøysundregistrene og regjeringen.no."
+    />
+    <meta property="og:url" content="__SITE_URL__/" />
+    <meta property="og:locale" content="nb_NO" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:image" content="__SITE_URL__/og-image.svg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Norsk Nettverk – graf over norske politikere, styreverv og selskaper" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Norsk Nettverk – styre, makt og interessekonflikter" />
+    <meta
+      name="twitter:description"
+      content="Utforsk forbindelser mellom norske politikere, styreverv og selskaper. Interaktiv graf basert på åpne data fra offentlige registre."
+    />
+    <meta name="twitter:image" content="__SITE_URL__/og-image.svg" />
+
+    <!-- Structured data: the site, the organization behind it, and the web app -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "__SITE_URL__/#website",
+            "url": "__SITE_URL__/",
+            "name": "Norsk Nettverk",
+            "inLanguage": "nb-NO",
+            "description": "Interaktiv graf over forbindelser mellom norske politikere, styreverv og selskaper, basert på åpne data.",
+            "publisher": { "@id": "__SITE_URL__/#organization" }
+          },
+          {
+            "@type": "Organization",
+            "@id": "__SITE_URL__/#organization",
+            "name": "Norsk Nettverk",
+            "url": "__SITE_URL__/",
+            "logo": "__SITE_URL__/favicon.svg",
+            "sameAs": ["https://github.com/froand/norwegian-board-network"]
+          },
+          {
+            "@type": "WebApplication",
+            "@id": "__SITE_URL__/#webapp",
+            "name": "Norsk Nettverk",
+            "url": "__SITE_URL__/",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web",
+            "inLanguage": "nb-NO",
+            "isAccessibleForFree": true,
+            "description": "Interaktivt verktøy for å utforske forbindelser mellom norske politikere, styreverv og selskaper, og for å avdekke mulige interessekonflikter og svingdør-mønstre. Data hentes fra Stortinget, Brønnøysundregistrene, regjeringen.no og Wikidata.",
+            "publisher": { "@id": "__SITE_URL__/#organization" }
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- Crawlable fallback for engines that do not execute JavaScript.
+         Mirrors the app's real purpose and data sources; no invented content. -->
+    <noscript>
+      <main>
+        <h1>Norsk Nettverk – styre, makt og interessekonflikter</h1>
+        <p>
+          Norsk Nettverk er et interaktivt verktøy som visualiserer forbindelser
+          mellom norske politikere, styreverv og selskaper. Målet er å gjøre det
+          enklere å utforske mulige interessekonflikter og såkalte svingdør-mønstre
+          i norsk politikk og næringsliv.
+        </p>
+        <p>Dataene bygger på offentlig tilgjengelige kilder:</p>
+        <ul>
+          <li>Stortinget (representanter, komiteer, partier og høringsinnspill)</li>
+          <li>Brønnøysundregistrene (selskaper, styreroller og eierskap)</li>
+          <li>regjeringen.no (statsråder og departementer)</li>
+          <li>Wikidata (posisjonshistorikk for politikere)</li>
+        </ul>
+        <p>
+          Verktøyet krever JavaScript for den interaktive grafen. Kildekoden er
+          åpen og tilgjengelig på
+          <a href="https://github.com/froand/norwegian-board-network">GitHub</a>.
+        </p>
+      </main>
+    </noscript>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -30,6 +30,7 @@ import type {
 } from './services/api';
 import { I18nContext, createI18nValue } from './I18nContext';
 import type { Language } from './i18n';
+import { applySeo } from './seo/applySeo';
 
 export default function App() {
   const [lang, setLang] = useState<Language>(() => {
@@ -74,6 +75,11 @@ export default function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [darkMode]);
+
+  // Keep document title, description and <html lang> in sync with the UI language.
+  useEffect(() => {
+    applySeo(lang);
+  }, [lang]);
 
   const loadOverview = useCallback(async () => {
     try {

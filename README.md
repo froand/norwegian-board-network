@@ -155,7 +155,50 @@ az login --tenant <your-tenant>.onmicrosoft.com
 └── package.json
 ```
 
-## Roadmap
+## SEO
+
+Search-engine optimization for `https://www.norsknettverk.com` is built into the
+frontend (a Vite SPA served statically by `serve`).
+
+- **Single source of truth**: `frontend/src/seo/siteConfig.ts` (domain, titles,
+  descriptions, Open Graph, locales). Import from here — never hardcode the domain.
+- **Static `<head>`** (`frontend/index.html`): unique `<title>`, meta description,
+  `<link rel="canonical">`, robots, Open Graph + Twitter cards, and JSON-LD
+  (`WebSite` + `Organization` + `WebApplication`). A `<noscript>` block provides
+  crawlable content for engines that don't run JavaScript.
+- **Build-time injection**: `vite.config.ts` replaces `__SITE_URL__` and
+  `__ROBOTS__` tokens from `VITE_SITE_URL` / `VITE_ALLOW_INDEXING`, so the correct
+  domain and index/noindex directive ship in the HTML.
+- **Runtime**: `frontend/src/seo/applySeo.ts` keeps `<html lang>`, title,
+  description and `og:locale` in sync with the NO/EN language toggle.
+- **`robots.txt`** and **`sitemap.xml`**: `frontend/public/` (served at the site root).
+- **Social image**: `frontend/public/og-image.svg` (1200×630).
+
+### Environment variables (Vite build-time)
+
+| Variable | Production | Preview/staging |
+| --- | --- | --- |
+| `VITE_SITE_URL` | `https://www.norsknettverk.com` | preview URL |
+| `VITE_ALLOW_INDEXING` | `true` | `false` (emits `noindex, nofollow`) |
+
+### SEO tests
+
+`frontend/scripts/seo-check.mjs` validates the built `dist/` (title, description,
+canonical/robots/OG/JSON-LD, `robots.txt`, `sitemap.xml`). Run locally with
+`npm run seo:verify` (build + check). It also runs in CI via
+`.github/workflows/seo-check.yml` on every push and pull request.
+
+### Manual / hosting steps (outside the codebase)
+
+- **apex → www redirect**: `serve` cannot do host-based redirects. Configure a
+  permanent (301) redirect from `norsknettverk.com` to `www.norsknettverk.com` at
+  the edge (Azure Container Apps custom domain + Front Door, or your DNS/CDN).
+  HTTP → HTTPS is already enforced by Container Apps ingress (`allowInsecure: false`).
+- **Google Search Console**: add a Domain property for `norsknettverk.com`, verify
+  via DNS TXT, submit `https://www.norsknettverk.com/sitemap.xml`, and request
+  indexing of the homepage.
+
+
 - [x] Live Stortinget.no API integration
 - [x] Person position history (current + past)
 - [x] Draggable panels
